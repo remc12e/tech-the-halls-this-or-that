@@ -1,0 +1,2412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tech the Halls: This or That! - REMC 12E</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+
+  <!-- ES Module Import Map for Browser-native React & Lucide -->
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.2.0",
+      "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+      "lucide-react": "https://esm.sh/lucide-react@0.344.0"
+    }
+  }
+  </script>
+
+  <!-- Babel Standalone for in-browser JSX compilation -->
+  <script src="https://unpkg.com/@babel/standalone@7.24.0/babel.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-red-200">
+  <div id="root"></div>
+
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { 
+      Monitor, BookOpen, Users, PenTool, Gamepad2, Lightbulb, 
+      CheckCircle2, Snowflake, Gift, TreePine, ChevronRight, 
+      ChevronLeft, Menu, X, Save, ExternalLink, FileText, 
+      Video, Award, Download, Search, Sparkles, Clock, 
+      Building2, UploadCloud, Check, ShieldCheck, Play, 
+      Flame, Eye, ArrowRight, GraduationCap, Layers, 
+      Baby, Backpack, School 
+    } from 'lucide-react';
+
+    // --- LOGO COMPONENTS WITH RESILIENT SVGs & FALLBACKS ---
+    function EventLogo({ className = "w-12 h-12" }) {
+      const [hasError, setHasError] = useState(false);
+
+      if (hasError) {
+        return (
+          <div className={`relative rounded-2xl bg-emerald-950 p-1 flex items-center justify-center border-2 border-amber-400 shadow-md ${className}`}>
+            <svg viewBox="0 0 100 100" className="w-full h-full text-amber-400">
+              <circle cx="50" cy="50" r="46" fill="#064e3b" stroke="#f59e0b" strokeWidth="4" />
+              <path d="M30 40 Q50 20 70 40 Q80 60 50 80 Q20 60 30 40 Z" fill="#0284c7" opacity="0.8" />
+              <polygon points="50,42 53,50 62,50 55,55 58,63 50,58 42,63 45,55 38,50 47,50" fill="#facc15" />
+              <text x="50" y="86" fontSize="8" fontWeight="900" textAnchor="middle" fill="#ffffff">TECH THE HALLS</text>
+            </svg>
+          </div>
+        );
+      }
+
+      return (
+        <img 
+          src="Gemini_Generated_Image_4iybt44iybt44iyb.jpeg" 
+          alt="Tech the Halls: This or That! - REMC 12E" 
+          onError={() => setHasError(true)}
+          className={`object-contain rounded-2xl shadow-md border-2 border-amber-400/90 bg-white p-0.5 ${className}`}
+        />
+      );
+    }
+
+    function RemcLogo({ className = "h-8" }) {
+      const [hasError, setHasError] = useState(false);
+
+      if (hasError) {
+        return (
+          <span className="text-[10px] uppercase tracking-widest font-black text-amber-300 bg-emerald-950 px-2.5 py-1 rounded-md border border-amber-400/50 inline-flex items-center space-x-1.5">
+            <span className="text-white font-black">REMC 12E</span>
+            <span className="text-sky-300">• Branch ISD | Calhoun ISD</span>
+          </span>
+        );
+      }
+
+      return (
+        <img 
+          src="REMC.RegionalLogos.12E%20(2).png" 
+          alt="REMC 12E Branch ISD | Calhoun ISD" 
+          onError={() => setHasError(true)}
+          className={`object-contain bg-white rounded-lg p-1 border border-slate-200 shadow-sm ${className}`}
+        />
+      );
+    }
+
+    // --- CURATED MODULE DATA WITH K-2, 3-8, and 9-12/CTE BREAKDOWNS ---
+    const modulesData = [
+      {
+        id: 1,
+        title: "Engagement & Reading: Audio Scaffolds vs. The Paper Jigsaw",
+        navTitle: "1. Engagement & Text",
+        icon: Lightbulb,
+        tagline: "Pixels or Paper? Two Brilliant Ways to Conquer Complex Texts",
+        vibeCheck: "Ever watch a student freeze up when handed a three-page technical article or an unfamiliar story? Or conversely, watch them glaze over while staring at a digital document? Here is the fun truth: a ballpoint pen was revolutionary technology in 1945! We're not crowning a winner here—we're asking: Which tool helps your students wrestle with big ideas today?",
+        thisTech: { 
+          badge: "THIS: High-Tech Pixels",
+          title: "Audio Overviews, Interactive Scaffolds & Digital Readers", 
+          tagline: "Grounded Q&A, Voice Dual-Coding & Dynamic Reading Support",
+          leadPhoto: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+          philosophy: "When students are stuck on heavy vocabulary or need an approachable hook before reading, digital tools act like a 24/7 instructional aide.",
+          gradeTiers: {
+            k2: {
+              tools: [
+                { 
+                  name: "ChatterPix Kids (Khan Academy / Duck Duck Moose)", 
+                  badge: "100% Free Forever • Zero Ads",
+                  whatItIs: "Students snap a photo of a story character or a drawing, trace a line for a mouth, and record 30 seconds of audio explaining what happened. 100% free, no login or purchase required.",
+                  url: "https://www.khanacademy.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=chatterpix+kids+in+the+classroom+tutorial",
+                  videoLabel: "ChatterPix 2-Min Classroom Tour"
+                },
+                { 
+                  name: "Storyline Online (SAG-AFTRA Foundation)", 
+                  badge: "100% Free • Award-Winning Read Alouds",
+                  whatItIs: "Celebrated actors read classic children's literature aloud with animated illustrations and closed captions. 100% free with standards-aligned teacher guides.",
+                  url: "https://storylineonline.net",
+                  videoUrl: "https://www.youtube.com/results?search_query=storyline+online+classroom+ideas",
+                  videoLabel: "Storyline Online Classroom Guide"
+                },
+                { 
+                  name: "ReadWorks Article-a-Day with Audio", 
+                  badge: "100% Free • Non-Profit Reading",
+                  whatItIs: "Provides high-interest K-2 nonfiction and fiction passages with human read-aloud audio, sentence tracking, and picture vocabulary cards at zero cost to schools.",
+                  url: "https://www.readworks.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=readworks+audio+for+early+readers",
+                  videoLabel: "ReadWorks Audio Walkthrough"
+                }
+              ],
+              coachTip: "Use ChatterPix as an oral exit ticket! Have young learners make their story character speak for 15 seconds to explain the lesson learned."
+            },
+            g38: {
+              tools: [
+                { 
+                  name: "Google NotebookLM", 
+                  badge: "Grounded AI Assistant",
+                  whatItIs: "Upload your PDFs, slides, or chapter excerpts. It grounds an AI assistant strictly in your source materials and generates a lively 2-host 'Audio Overview' podcast explaining key concepts in kid-friendly terms.",
+                  url: "https://notebooklm.google.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=notebooklm+for+teachers+tutorial",
+                  videoLabel: "NotebookLM Fast Teacher Tour"
+                },
+                { 
+                  name: "Brisk Teaching", 
+                  badge: "Free Chrome Extension",
+                  whatItIs: "Levels any online article or Google Doc up or down in reading grade level with one click, generates vocabulary scaffolds, and inspects student writing processes.",
+                  url: "https://www.briskteaching.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+tutorial+for+teachers",
+                  videoLabel: "Brisk Reading Leveler Setup"
+                },
+                { 
+                  name: "Edpuzzle", 
+                  badge: "Interactive Video Checks",
+                  whatItIs: "Embed audio notes, open-ended reflections, and check-in questions directly inside YouTube or teacher-recorded videos so students actively process content.",
+                  url: "https://edpuzzle.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=edpuzzle+tutorial+for+teachers",
+                  videoLabel: "Edpuzzle 3-Min Classroom Tour"
+                }
+              ],
+              coachTip: "Play NotebookLM's 4-minute generated podcast as the opening bellringer while students get settled—then hand them the source text!"
+            },
+            h912: {
+              tools: [
+                { 
+                  name: "Google NotebookLM (Source Deep Dive)", 
+                  badge: "College & CTE Research",
+                  whatItIs: "Upload complex technical manuals, automotive schematics, or legal case studies. Students query the primary source directly to cross-reference citations and test their understanding.",
+                  url: "https://notebooklm.google.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=notebooklm+high+school+research",
+                  videoLabel: "NotebookLM Deep Research Guide"
+                },
+                { 
+                  name: "Brisk Teaching (Writing Process)", 
+                  badge: "Forensic Text Scaffolding",
+                  whatItIs: "Enables high school & CTE instructors to translate dense technical manuals into tiered reading levels, generate targeted decodable summaries, and review revision histories.",
+                  url: "https://www.briskteaching.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+high+school",
+                  videoLabel: "Brisk for Secondary Classrooms"
+                },
+                { 
+                  name: "Perusall / Collaborative Social Text", 
+                  badge: "Free Social Annotation",
+                  whatItIs: "Students collaboratively annotate difficult secondary or CTE texts in the margins, answering each other's questions and asynchronously debating complex ideas.",
+                  url: "https://perusall.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=perusall+collaborative+annotation",
+                  videoLabel: "Perusall Collaborative Reading"
+                }
+              ],
+              coachTip: "Before students touch machinery or legal texts, have them query NotebookLM for safety protocols, then cross-reference with physical trade manuals."
+            }
+          },
+          pros: [
+            "Audio dual-coding gives struggling and multilingual readers an immediate runway",
+            "Breaks the initial intimidation barrier of dense informational texts",
+            "Instant leveling allows every student in the room to access the same core idea"
+          ]
+        },
+        thatTech: { 
+          badge: "THAT: Low-Tech / Tactile",
+          title: "The Classic Paper Jigsaw & Highlighting Protocols", 
+          tagline: "Tactile Margins, Highlighters & Social Interdependence",
+          leadPhoto: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&auto=format&fit=crop&q=80",
+          philosophy: "Paper has zero notifications. Turning physical pages and color-marking margins creates spatial anchors that screens simply cannot duplicate.",
+          gradeTiers: {
+            k2: {
+              tools: [
+                { 
+                  name: "The Picture Sequence Jigsaw", 
+                  badge: "Early Cooperative Puzzle",
+                  whatItIs: "Instead of dense paragraphs, give small 'expert' groups large illustrated story cards or lifecycle stages. In 'home' circles on the carpet, students physically order their cards sequentially (First, Next, Then, Finally).",
+                  url: "https://www.readingrockets.org/strategies/jigsaw",
+                  videoUrl: "https://www.youtube.com/results?search_query=picture+sequencing+cards+early+reading",
+                  videoLabel: "Picture Sequencing in Early Grades"
+                },
+                { 
+                  name: "Wikki Stix & Removable Highlighter Tape", 
+                  badge: "Tactile Word & Print Hunts",
+                  whatItIs: "Highlighters bleed and require fine motor control. Instead, young learners bend wax yarn (Wikki Stix) to frame sight words, or place peelable neon tape over targeted phonics sounds on chart paper.",
+                  url: "https://www.cultofpedagogy.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=highlighter+tape+in+kindergarten+reading",
+                  videoLabel: "Tactile Phonics with Highlighter Tape"
+                },
+                { 
+                  name: "Color-Coded Dot Stickers (Pre-Reader Matrix)", 
+                  badge: "Visual Active Annotation",
+                  whatItIs: "Students react to large print stories using garage-sale dot stickers: Yellow Dot = 'Makes me smile', Blue Dot = 'I have a question', Red Dot = 'The big problem in the story'.",
+                  url: "https://www.readingrockets.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=dot+stickers+active+reading+kindergarten",
+                  videoLabel: "Early Literacy Dot Annotation"
+                }
+              ],
+              coachTip: "Give each partner pair just 3 dot stickers. Physical scarcity forces rich peer discussion on the carpet about which picture gets the sticker!"
+            },
+            g38: {
+              tools: [
+                { 
+                  name: "The Aronson Jigsaw Method", 
+                  badge: "Cooperative Learning Protocol",
+                  whatItIs: "Invented by Elliot Aronson in 1971. Students break into 'expert' groups to master a physical sub-section of a text, then regroup into 'home' circles where every peer is needed to complete the puzzle.",
+                  url: "https://www.jigsaw.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=jigsaw+method+classroom+strategy",
+                  videoLabel: "How the Jigsaw Method Works"
+                },
+                { 
+                  name: "Color-Coded Highlighting Matrix", 
+                  badge: "Active Reading Technique",
+                  whatItIs: "Students use 3 physical highlighter colors with intentional jobs: Yellow for Central Claims, Pink for Data/Evidence, and Green for Questions/Puzzles. Physical marking forces semantic decisions.",
+                  url: "https://www.cultofpedagogy.com/jigsaw-method/",
+                  videoUrl: "https://www.youtube.com/results?search_query=annotation+strategies+for+students",
+                  videoLabel: "Active Paper Annotation Tips"
+                },
+                { 
+                  name: "11x17 Butcher Paper Graphic Placemats", 
+                  badge: "Tactile Synthesis",
+                  whatItIs: "Large format paper placed in the middle of a table with designated quadrants for each student to write their key takeaways before discussing as a group.",
+                  url: "https://www.readingrockets.org/strategies/jigsaw",
+                  videoUrl: "https://www.youtube.com/results?search_query=graphic+organizers+cooperative+learning",
+                  videoLabel: "Butcher Paper Group Placemats"
+                }
+              ],
+              coachTip: "Give each expert group a distinct color pen. You can scan the entire room from 30 feet away and know exactly who is writing!"
+            },
+            h912: {
+              tools: [
+                { 
+                  name: "Technical Trade Blueprint Jigsaw", 
+                  badge: "Career Center Protocol",
+                  whatItIs: "In CTE or advanced science, divide complex technical wiring diagrams, medical charts, or architectural schematics into quadrants. Each student masters one subsystem before assembling the full system diagnosis.",
+                  url: "https://www.jigsaw.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=cooperative+learning+cte+classroom",
+                  videoLabel: "CTE Cooperative Jigsaws"
+                },
+                { 
+                  name: "Physical Margin Marginalia & Highlighting", 
+                  badge: "Deep Processing Protocol",
+                  whatItIs: "Students read printed primary sources or trade codes with strict analog rules: highlight no more than 10 words per page and write a 3-word summary in the physical margin.",
+                  url: "https://www.cultofpedagogy.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=text+marginalia+high+school",
+                  videoLabel: "High School Text Marginalia"
+                },
+                { 
+                  name: "Shop Safety Flowchart Placemats", 
+                  badge: "Tactile System Mapping",
+                  whatItIs: "Students physically sketch step-by-step diagnostic workflows on oversized paper, physically passing markers to verify procedural checkpoints before starting equipment.",
+                  url: "https://buildingthinkingclassrooms.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=visual+thinking+strategies+cte",
+                  videoLabel: "Visual Thinking in Trade Programs"
+                }
+              ],
+              coachTip: "Have CTE students use grease pencils directly on laminated shop charts. Erase and repeat until procedural mastery is 100%!"
+            }
+          },
+          pros: [
+            "Eliminates tab-switching temptation, digital notifications, and battery anxiety",
+            "Physical paper reading consistently shows higher comprehension for long-form informational text",
+            "Builds crucial face-to-face conversational stamina and peer accountability"
+          ]
+        },
+        research: {
+          headline: "The Science: Cognitive Duality vs. The 'Screen Inferiority' Effect",
+          body: "Richard Mayer’s Cognitive Theory of Multimedia Learning shows that pairing auditory explanations with visual text can relieve working memory bottlenecks. However, an exhaustive meta-analysis by Delgado et al. (2018) spanning over 171,000 participants confirmed a persistent 'screen inferiority effect'—when reading informational or technical texts, students comprehend significantly deeper on paper, largely because paper provides tactile landmarks that help readers calibrate their understanding.",
+          takeaway: "Use tech to generate excitement and audio scaffolding; use paper when students need to deeply analyze and remember complex arguments."
+        },
+        classroom: {
+          k5: "Elementary: Use teacher-facing AI (like Brisk) beforehand to print two reading levels of the same winter animal story. Have students highlight their favorite sentence with a yellow marker and teach their table partner in an unplugged share-circle.",
+          m68: "Middle School: Have students query a primary source using NotebookLM to generate 3 burning questions. Then, close laptops! Each student writes their top question on a sticky note and conducts an unplugged paper Jigsaw walk around the room.",
+          h912: "High School & CTE: In an automotive or health sciences lab, students listen to a quick AI audio synthesis of an engine or OSHA protocol during shop setup, then perform a hands-on, mark-the-margins analysis of the physical trade blueprint."
+        },
+        reflectionPrompt: "Think about an upcoming reading or concept in your curriculum. How could you pair a high-tech scaffolding hook (like an audio overview or leveled text) with an unplugged, tactile paper protocol for deeper peer discussion?"
+      },
+      {
+        id: 2,
+        title: "Collaboration & Groups: Shared Slides vs. The Big Poster Project",
+        navTitle: "2. Collaboration & Groups",
+        icon: Users,
+        tagline: "Audit Trails & Digital Co-creation vs. Giant Markers & Gallery Walks",
+        vibeCheck: "We all know the group project nightmare: one student does 95% of the work, two talk about sports, and one puts their name on the title slide. Both digital and analog tools have genius ways to solve this—one uses digital forensic receipts, and the other uses visible spatial teamwork!",
+        thisTech: { 
+          badge: "THIS: High-Tech Pixels",
+          title: "Shared Slides & Collaborative Digital Canvases", 
+          tagline: "Real-Time Co-Creation with Timestamped 'Version History'",
+          leadPhoto: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80",
+          philosophy: "Cloud tools eliminate physical bottlenecks—introverts have a voice, students collaborate asynchronously, and the teacher gets an infallible record of who did what.",
+          gradeTiers: {
+            k2: {
+              tools: [
+                { 
+                  name: "Padlet Sandbox (Collaborative Whiteboard)", 
+                  badge: "100% Free • Perfect for Littles",
+                  whatItIs: "A card-style digital whiteboard built specifically for young learners and pre-readers. Students tap visual stamps, drag shapes, and draw together on shared cards without getting confused by dense menus.",
+                  url: "https://padlet.com/sandbox",
+                  videoUrl: "https://www.youtube.com/results?search_query=padlet+sandbox+for+teachers+tutorial",
+                  videoLabel: "Padlet Sandbox Overview"
+                },
+                { 
+                  name: "Padlet Audio Wall / Voice Board", 
+                  badge: "Microphone Voice Collaboration",
+                  whatItIs: "Pre-readers don't need to type or snap pictures! They simply tap a large red microphone button to record a 10-second voice thought. Peers tap to listen to each other's voices and leave star reactions.",
+                  url: "https://padlet.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=padlet+voice+recording+elementary",
+                  videoLabel: "Using Padlet Audio with Littles"
+                },
+                { 
+                  name: "Canva for Education Kids Whiteboard", 
+                  badge: "Free for K-12 Educators",
+                  whatItIs: "A safe digital playground where students drag-and-drop big holiday icons, sort shapes into categories, and leave audio comments together.",
+                  url: "https://www.canva.com/education/",
+                  videoUrl: "https://www.youtube.com/results?search_query=canva+whiteboard+elementary+classroom",
+                  videoLabel: "Canva Whiteboards for Elementary"
+                }
+              ],
+              coachTip: "Set up a Padlet Audio Wall with a single holiday question. Kindergarteners tap to speak for 10 seconds—no passwords or typing required!"
+            },
+            g38: {
+              tools: [
+                { 
+                  name: "Google Slides 'Version History'", 
+                  badge: "Built-in Audit Trail",
+                  whatItIs: "Click 'File > Version History > See Version History'. Every edit is color-coded by student name. You can see down to the exact paragraph, slide, or sentence who contributed and when.",
+                  url: "https://slides.google.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=google+slides+version+history+for+teachers",
+                  videoLabel: "How to Use Version History in 90 Sec"
+                },
+                { 
+                  name: "FigJam for Education", 
+                  badge: "Infinite Digital Whiteboard",
+                  whatItIs: "A free, playground-style whiteboard where students brainstorm with voting stamps, live emoji reactions, timers, music, and digital sticky notes.",
+                  url: "https://www.figma.com/education/",
+                  videoUrl: "https://www.youtube.com/results?search_query=figjam+for+education+tutorial",
+                  videoLabel: "FigJam for Beginners Quick Tour"
+                },
+                { 
+                  name: "Canva for Education", 
+                  badge: "Visual Pitch Decks",
+                  whatItIs: "Students co-create polished multimedia presentations, infographics, and posters with millions of educational templates and real-time live comments.",
+                  url: "https://www.canva.com/education/",
+                  videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+collaborative+group+work",
+                  videoLabel: "Student Collaboration in Canva"
+                }
+              ],
+              coachTip: "Open the Version History panel on your projector for 30 seconds on day one. Watch student accountability skyrocket without you saying a word!"
+            },
+            h912: {
+              tools: [
+                { 
+                  name: "Google Docs/Slides Revision History Audits", 
+                  badge: "Forensic Team Accountability",
+                  whatItIs: "Teach secondary and CTE students how to read revision timestamps. Use the revision history as a project management debrief tool for transparent team retrospectives.",
+                  url: "https://slides.google.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=google+docs+revision+history+group+work",
+                  videoLabel: "Advanced Version History Audits"
+                },
+                { 
+                  name: "FigJam / Miro Kanban Sprint Boards", 
+                  badge: "Agile Project Management",
+                  whatItIs: "High school and trade teams manage group deliverables using digital 'To Do / In Progress / Done' sticky boards, assigning team roles and sprint deadlines.",
+                  url: "https://www.figma.com/education/",
+                  videoUrl: "https://www.youtube.com/results?search_query=figjam+agile+sprint+board+classroom",
+                  videoLabel: "Digital Kanban Boards for Students"
+                },
+                { 
+                  name: "Canva for Teams & Portfolios", 
+                  badge: "Industry Pitch Decks",
+                  whatItIs: "Multi-user design studio where CTE teams produce authentic client deliverables, industry reports, and trade presentation decks with live feedback loops.",
+                  url: "https://www.canva.com/education/",
+                  videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+group+projects",
+                  videoLabel: "Collaborative Design in Canva"
+                }
+              ],
+              coachTip: "Require CTE groups to designate a 'Scrum Master' who updates the shared FigJam board at the start and end of every shop period."
+            }
+          },
+          pros: [
+            "Completely eliminates the 'He didn't do anything!' dispute through timestamped proof",
+            "Allows non-verbal or quiet students to share ideas simultaneously without being talked over",
+            "Accessible from school Chromebooks, phones, and home for busy CTE schedules"
+          ]
+        },
+        thatTech: { 
+          badge: "THAT: Low-Tech / Tactile",
+          title: "The Kinesthetic Poster & Silent Gallery Walk", 
+          tagline: "Chart Paper, Scented Markers, Sticky Notes & Movement",
+          leadPhoto: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800&auto=format&fit=crop&q=80",
+          philosophy: "When students gather around a giant piece of butcher paper on the floor or wall, their entire physical posture changes. No open laptop screens acting as defensive walls.",
+          gradeTiers: {
+            k2: {
+              tools: [
+                { 
+                  name: "Knee-to-Knee, Eye-to-Eye Turn & Talk", 
+                  badge: "Zero-Cost Communication Routine",
+                  whatItIs: "Zero purchases needed! Young learners turn their bodies on the carpet until their knees face their partner. Partner A holds a classroom pencil as a 'talking stick' while Partner B listens, then they swap.",
+                  url: "https://www.edutopia.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=turn+and+talk+strategy+kindergarten",
+                  videoLabel: "Knee-to-Knee Turn & Talk Routine"
+                },
+                { 
+                  name: "Double Thumbs-Up & Star Sticker Museum Walk", 
+                  badge: "Gentle Early Peer Feedback",
+                  whatItIs: "Students walk around the room with hands clasped behind their back ('museum hands'). When they see a block tower or drawing they love, they give a silent double thumbs-up or place a single peel-and-stick star sticker.",
+                  url: "https://www.cultofpedagogy.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+in+kindergarten",
+                  videoLabel: "Early Childhood Museum Walk"
+                },
+                { 
+                  name: "Butcher Paper 'Tablecloth' Pod Collaboration", 
+                  badge: "Zero-Cost Spatial Teamwork",
+                  whatItIs: "Tape a scrap sheet of butcher paper across a 4-desk pod. Each student works in their designated corner with crayons, then draws physical 'roads' or 'bridges' connecting their drawings together.",
+                  url: "https://www.readingrockets.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=collaborative+drawing+elementary+butcher+paper",
+                  videoLabel: "Butcher Paper Pod Drawing"
+                }
+              ],
+              coachTip: "Practicing the physical body pivot for Knee-to-Knee talk makes partner collaboration second nature on the rug!"
+            },
+            g38: {
+              tools: [
+                { 
+                  name: "The Silent Gallery Walk", 
+                  badge: "Kinesthetic Peer Critique",
+                  whatItIs: "Posters hang around the room. In absolute silence with soft holiday music playing, students rotate with sticky pads, leaving 'Praise & Ponder' notes on their peers' work.",
+                  url: "https://www.edutopia.org/article/teaching-strategy-gallery-walk",
+                  videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+teaching+strategy",
+                  videoLabel: "How to Run a Silent Gallery Walk"
+                },
+                { 
+                  name: "Affinity Mapping Butcher Paper", 
+                  badge: "Physical Card Sorting",
+                  whatItIs: "Students jot 10 ideas onto physical sticky notes, slap them onto butcher paper, and physically slide them around to cluster related concepts and discover patterns.",
+                  url: "https://gamestorming.com/affinity-map/",
+                  videoUrl: "https://www.youtube.com/results?search_query=affinity+mapping+in+the+classroom",
+                  videoLabel: "Affinity Mapping Classroom Routine"
+                },
+                { 
+                  name: "Vertical Non-Permanent Surfaces (VNPS)", 
+                  badge: "Peter Liljedahl Protocol",
+                  whatItIs: "From *Building Thinking Classrooms*—students stand at whiteboards or taped chart paper in groups of 3 with one marker. Standing posture dramatically increases active thinking time.",
+                  url: "https://buildingthinkingclassrooms.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+vertical+non-permanent+surfaces",
+                  videoLabel: "Vertical Surfaces in 3 Minutes"
+                }
+              ],
+              coachTip: "Assign each group member one specific colored marker to write with on the poster. That way, you create an 'analog version history' visible on paper!"
+            },
+            h912: {
+              tools: [
+                { 
+                  name: "Vertical Whiteboard Sprints (Liljedahl Method)", 
+                  badge: "Problem-Solving in Teams",
+                  whatItIs: "Randomly assign high school/CTE students to groups of 3 at standing whiteboards with only 1 dry-erase marker per group. Encourages collective debate rather than individual disengagement.",
+                  url: "https://buildingthinkingclassrooms.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+high+school",
+                  videoLabel: "VNPS in High School Math & Science"
+                },
+                { 
+                  name: "Peer Review Gallery Stations with Rubric Cards", 
+                  badge: "Structured Technical Critique",
+                  whatItIs: "Trade drafts or project prototypes sit on perimeter tables. Students rotate in pairs with physical rubric index cards, writing specific technical feedback before final submission.",
+                  url: "https://www.edutopia.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=peer+review+strategies+high+school",
+                  videoLabel: "Secondary Peer Review Routines"
+                },
+                { 
+                  name: "Affinity Mapping on Glass or Chalkboards", 
+                  badge: "Systems Thinking",
+                  whatItIs: "Teams use color-coded sticky notes to map out complex multi-variable problems (e.g., patient intake protocols, supply-chain logistics, or wiring harnesses).",
+                  url: "https://gamestorming.com/affinity-map/",
+                  videoUrl: "https://www.youtube.com/results?search_query=affinity+diagramming+design+thinking",
+                  videoLabel: "Affinity Mapping for Complex Problems"
+                }
+              ],
+              coachTip: "Have trade instructors enforce: The person holding the marker CANNOT write their own ideas—they can only write what their teammates dictate!"
+            }
+          },
+          pros: [
+            "Puts blood back into sleepy legs by getting students standing, stretching, and pacing",
+            "Teaches physical spatial awareness, negotiation, and sharing of shared space",
+            "Peer feedback on physical sticky notes feels personal, celebratory, and tangible"
+          ]
+        },
+        research: {
+          headline: "The Science: Social Loafing vs. Proprioceptive Memory",
+          body: "Vygotsky’s Social Development Theory tells us that social interaction is the engine of intellectual growth. Digital collaboration tools effectively dismantle 'social loafing' (free-riding) because accountability is transparent. On the other hand, research in embodied cognition shows that standing and physically placing concepts in a two-dimensional physical space activates proprioceptive and spatial memory cues that flat computer screens cannot replicate.",
+          takeaway: "Use digital tools for drafting, editing, and accountability; use physical posters and vertical surfaces for active ideation and standing critique."
+        },
+        classroom: {
+          k5: "Elementary: Start with physical butcher paper to develop motor skills and sharing. Have students design one section of a town poster, then snap a photo of the completed poster to display on the classroom smartboard.",
+          m68: "Middle School: 'Digital Plan, Physical Pitch'—teams outline their project bullet points in a shared Google Doc (teacher checks Version History for fair effort), then transfer the top findings to a tri-fold poster for an open gallery walk.",
+          h912: "High School & CTE: Teams build a live client pitch deck in Canva. During final presentations, their peers close all Chromebooks and write physical rubric feedback cards to ensure 100% engaged audience eye contact."
+        },
+        reflectionPrompt: "How can you use Google Version History (or colored markers on poster paper) not as a punitive 'gotcha' tool, but as a coaching tool to teach fair teamwork and healthy communication?"
+      },
+      {
+        id: 3,
+        title: "Games in Learning: Screen Missions vs. Tabletop Logic",
+        navTitle: "3. Games & Logic",
+        icon: Gamepad2,
+        tagline: "Gamified Digital Loops vs. Face-to-Face Tabletop Strategy",
+        vibeCheck: "Games hijack dopamine in the best way possible. Kids love games! But when does an arcade game on a Chromebook help, and when does rolling dice around a physical table build executive function that screens cannot teach?",
+        thisTech: { 
+          badge: "THIS: High-Tech Pixels",
+          title: "Interactive Game Arenas, Missions & Adaptive Loops", 
+          tagline: "Instant Corrective Loops, Power-ups & Cooperative Arenas",
+          leadPhoto: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=80",
+          philosophy: "Digital games handle all the math, scorekeeping, and leveling automatically. Students get instantaneous corrections before practicing a mistake 20 times.",
+          gradeTiers: {
+            k2: {
+              tools: [
+                { 
+                  name: "PBS KIDS Games (Classroom Portal)", 
+                  badge: "100% Free • Zero Ads or Logins",
+                  whatItIs: "High-quality, curriculum-aligned math, literacy, and social-emotional learning games featuring beloved characters (Curious George, Daniel Tiger, Peg + Cat). Completely free without subscription paywalls.",
+                  url: "https://pbskids.org/games",
+                  videoUrl: "https://www.youtube.com/results?search_query=pbs+kids+games+in+the+classroom",
+                  videoLabel: "PBS KIDS Games Classroom Tour"
+                },
+                { 
+                  name: "Toy Theater Interactive Learning", 
+                  badge: "100% Free • Visual Manipulatives",
+                  whatItIs: "Clean, ad-free educational games and digital manipulatives designed specifically for early elementary. Practice pattern blocks, clock reading, subitizing dice, and early phonics with zero accounts needed.",
+                  url: "https://toytheater.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=toy+theater+for+teachers+tutorial",
+                  videoLabel: "Toy Theater Manipulatives Guide"
+                },
+                { 
+                  name: "ABCya (Web Browser Edition)", 
+                  badge: "Free on Web Browsers",
+                  whatItIs: "Accessible directly on desktop or Chromebook web browsers for free! Organizes games by grade level (K, 1, 2) and skill area (Letters, Numbers, Skills, Strategy) with engaging audio prompts.",
+                  url: "https://www.abcya.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=abcya+games+in+elementary+classroom",
+                  videoLabel: "ABCya Elementary Walkthrough"
+                }
+              ],
+              coachTip: "Use Toy Theater's digital pattern blocks on your interactive board for a 5-minute morning routine before kids touch physical blocks at their tables."
+            },
+            g38: {
+              tools: [
+                { 
+                  name: "Mission.IO / Gimkit", 
+                  badge: "Featured Tool • Game Arenas",
+                  whatItIs: "Students answer curriculum questions to earn in-game energy, collect resources, and collaborate on engaging modes like 'Floor is Lava', 'Snowbrawl', and cooperative boss fights. High energy and strategic!",
+                  url: "https://www.gimkit.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=gimkit+modes+for+teachers+tutorial",
+                  videoLabel: "Gimkit Modes & Mission Setup"
+                },
+                { 
+                  name: "Blooket", 
+                  badge: "Arcade Formative Fun",
+                  whatItIs: "Wraps review questions inside tower defense, cafe simulation, and monster brawls. Built-in handicap mechanics give every student a puncher's chance to win regardless of raw speed.",
+                  url: "https://www.blooket.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=blooket+tutorial+for+teachers",
+                  videoLabel: "Blooket Quick Teacher Setup"
+                },
+                { 
+                  name: "Quizizz Team Mode", 
+                  badge: "Collaborative Formative Feedback",
+                  whatItIs: "Run team-based question missions where students pool their correct answers together to defeat challenges or unlock class rewards with live accuracy breakdowns.",
+                  url: "https://quizizz.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=quizizz+team+mode+classroom",
+                  videoLabel: "Running Quizizz Team Mode"
+                }
+              ],
+              coachTip: "Switch Gimkit to 'Team Mode' or 'Floor is Lava' so students must combine their energy toward a shared community goal instead of competing individually!"
+            },
+            h912: {
+              tools: [
+                { 
+                  name: "Mission.IO / Gimkit (Secondary)", 
+                  badge: "Featured Tool • Review Missions",
+                  whatItIs: "High school and CTE students use Gimkit's 2D game arena modes for high-stakes terminology, safety protocols, and vocabulary reviews where strategy dictates success.",
+                  url: "https://www.gimkit.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=gimkit+high+school+classroom",
+                  videoLabel: "Gimkit for Secondary Classrooms"
+                },
+                { 
+                  name: "Quizizz Mastery Arenas", 
+                  badge: "Self-Paced Diagnostic Gaming",
+                  whatItIs: "Secondary students complete gamified question sets at their own pace, unlocking power-ups while giving instructors detailed data on procedural misconceptions.",
+                  url: "https://quizizz.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=quizizz+for+high+school+teachers",
+                  videoLabel: "Quizizz Secondary Mastery Mode"
+                },
+                { 
+                  name: "PhET Interactive Challenges", 
+                  badge: "Gamified STEM Sandboxes",
+                  whatItIs: "Safe digital labs where students solve circuit puzzles, balance chemical equations, and optimize trajectory vectors in an interactive trial-and-error environment.",
+                  url: "https://phet.colorado.edu",
+                  videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+high+school",
+                  videoLabel: "PhET Simulation Challenges"
+                }
+              ],
+              coachTip: "Challenge CTE students to build their own Gimkit question bank as an end-of-unit review project to test another class section."
+            }
+          },
+          pros: [
+            "Immediate corrective feedback prevents students from internalizing wrong answers",
+            "Automated data dashboards provide instant heatmaps of which questions tripped up the class",
+            "Hooks even the most reluctant learners with engaging arcade game mechanics"
+          ]
+        },
+        thatTech: { 
+          badge: "THAT: Low-Tech / Tactile",
+          title: "Tabletop Board Games for Critical Thinking", 
+          tagline: "REMC 12E Lending Library, Turn-Taking & Spatial Logic",
+          leadPhoto: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=800&auto=format&fit=crop&q=80",
+          philosophy: "On a screen, the computer enforces the rules. At a board game table, students must read the rules, negotiate fairness, regulate disappointment, and look peers in the eye.",
+          gradeTiers: {
+            k2: {
+              tools: [
+                { 
+                  name: "Spot It! (REMC 12E Lending Library)", 
+                  badge: "Visual Perception • No Reading Needed",
+                  whatItIs: "Available from the REMC 12E Lending Library! Between any two cards, there is always exactly one matching symbol. Students build rapid visual discrimination, vocabulary naming, and impulse control with zero reading barrier.",
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
+                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+spot+it+game",
+                  videoLabel: "How to Play Spot It! (1 Min)"
+                },
+                { 
+                  name: "Buildzi (REMC 12E Lending Library)", 
+                  badge: "Fast-Paced Block Stacking",
+                  whatItIs: "Available from the REMC 12E Lending Library! Students flip challenge cards and race to assemble colorful tactile blocks into balanced 3D towers. Builds fine motor dexterity, spatial reasoning, and cooperative resilience.",
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
+                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+buildzi+game",
+                  videoLabel: "How to Play Buildzi"
+                },
+                { 
+                  name: "REMC Critical Thinking Game Cards", 
+                  badge: "Free Michigan Teacher Cards",
+                  whatItIs: "Download official REMC game cards with standards-aligned lesson plans, 21st-century skill crosswalks, and timing guides specifically tailored for Michigan educators.",
+                  url: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/",
+                  videoUrl: "https://www.youtube.com/results?search_query=remc+critical+thinking+tabletop+games",
+                  videoLabel: "REMC Tabletop Project Overview"
+                }
+              ],
+              coachTip: "Play Spot It! in pairs during small-group literacy centers. Ask students to shout the initial letter sound of the matching picture instead of just the word!"
+            },
+            g38: {
+              tools: [
+                { 
+                  name: "Things in Rings (REMC 12E Lending Library)", 
+                  badge: "Featured • Venn Diagram Deduction",
+                  whatItIs: "Borrow it from REMC 12E! Players place item cards into three overlapping rings based on a secret rule (e.g., 'things that are soft', 'found in a kitchen'). Players use deductive logic and categorical classification to solve the puzzle.",
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
+                  videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+game+how+to+play",
+                  videoLabel: "Things in Rings Quick Tour"
+                },
+                { 
+                  name: "Codenames (REMC 12E Lending Library)", 
+                  badge: "Featured • Vocabulary & Semantics",
+                  whatItIs: "Borrow it from REMC 12E! Two spymasters give one-word clues pointing to multiple word cards on the table. Forces rich lateral thinking, semantic connections, and vocabulary synthesis.",
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
+                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+codenames+classroom",
+                  videoLabel: "How to Play Codenames"
+                },
+                { 
+                  name: "REMC 12E Tabletop Checkout Portal", 
+                  badge: "Free Regional Courier Delivery",
+                  whatItIs: "REMC 12E delivers full board game crates directly to your school or career center via regional courier at zero cost to your budget. Explore the full inventory online!",
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
+                  videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking",
+                  videoLabel: "Why Tabletop Belongs in School"
+                }
+              ],
+              coachTip: "Host a 15-minute 'Tabletop Warm-up' on Friday mornings using your borrowed REMC crate. Watch genuine classroom community flourish!"
+            },
+            h912: {
+              tools: [
+                { 
+                  name: "Things in Rings for Logic & Systems", 
+                  badge: "REMC 12E Checkout",
+                  whatItIs: "High school & CTE students use overlapping Venn logic to categorize complex materials, technical components, and trade processes based on hidden rules and constraints.",
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
+                  videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+board+game",
+                  videoLabel: "Things in Rings Strategy Guide"
+                },
+                { 
+                  name: "Codenames: Technical Vocabulary Edition", 
+                  badge: "REMC 12E Checkout",
+                  whatItIs: "Swap out standard Codenames cards for trade-specific terms (automotive parts, health science jargon, coding functions). Spymasters must connect 3 technical terms with one conceptual clue.",
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
+                  videoUrl: "https://www.youtube.com/results?search_query=codenames+in+the+classroom",
+                  videoLabel: "Codenames Vocabulary Adaptations"
+                },
+                { 
+                  name: "REMC 12E Tabletop Checkout Portal", 
+                  badge: "Free Branch & Calhoun Delivery",
+                  whatItIs: "REMC 12E delivers full board game crates directly to your school or career center via regional courier at zero cost to your budget. Explore the full inventory online!",
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
+                  videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking",
+                  videoLabel: "Why Tabletop Belongs in School"
+                }
+              ],
+              coachTip: "Have CTE students design their own custom card pack for Things in Rings testing safety and tool classification in your program shop!"
+            }
+          },
+          pros: [
+            "Direct Social-Emotional Learning: handling defeat gracefully, taking turns, and reading body language",
+            "Strengthens executive function and working memory because students enforce the rules themselves",
+            "REMC 12E delivers them straight to your school for free via regional courier—no subscription fees or wifi required"
+          ]
+        },
+        research: {
+          headline: "The Science: Rapid Feedback (d=0.70) vs. Prefrontal Self-Regulation",
+          body: "John Hattie’s Visible Learning research notes that formative feedback carries an outstanding effect size (d=0.70). Digital games provide this corrective feedback at speed. However, neuroscientific research led by Adele Diamond (2013) highlights that tabletop board games provide irreplaceable training for the prefrontal cortex—specifically working memory, inhibitory control, and cognitive flexibility—because human players must hold rules in their head and self-police without an algorithm stepping in.",
+          takeaway: "Use digital games when you need rapid skill practice and diagnostic score data; use tabletop games to develop SEL, patience, and complex strategic reasoning."
+        },
+        classroom: {
+          k5: "Elementary: Use physical math dice and card games (like Spot It! or Buildzi) to build spatial and number sense through touch. Reserve PBS KIDS or ABCya for a celebratory 10-minute Friday skills center.",
+          m68: "Middle School: Two-station rotation! Station A plays a 12-minute Gimkit game on science vocabulary; Station B sits at tables playing Things in Rings or Codenames from the REMC lending library.",
+          h912: "High School & CTE: Have CTE students analyze a digital simulation (like an automotive diagnostics app), then design a physical tabletop card game that tests peers on troubleshooting steps."
+        },
+        reflectionPrompt: "Which executive function or SEL skill (e.g., losing gracefully, taking turns, strategic patience) could your students use more practice with? How could an unplugged tabletop game fit into your schedule?"
+      },
+      {
+        id: 4,
+        title: "Classroom Tech & The 5E Model: Where Screens Soar vs. Where Paper Wins",
+        navTitle: "4. Tech & The 5E Model",
+        icon: TreePine,
+        tagline: "Engage, Explore, Explain, Elaborate, Evaluate: Selecting the Right Vehicle",
+        vibeCheck: "Ever see someone use a smartboard just to show a PDF worksheet? Or watch a teacher spend 40 minutes grading multiple choice tests by hand? The 5E Instructional Model gives us a roadmap: let's put tech where it transforms, and put paper where touch matters most!",
+        thisTech: { 
+          badge: "THIS: High-Tech Accelerators",
+          title: "Where Technology Truly Redefines the Lesson", 
+          tagline: "Explore Simulations, Dynamic Math & ELA Guided Inquiries",
+          leadPhoto: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80",
+          philosophy: "Tech shines brightest when it makes the impossible possible: seeing inside a nuclear reactor, exploring dynamic graphs, or collecting instant data from 30 students in 5 seconds.",
+          gradeTiers: {
+            k2: {
+              tools: [
+                { 
+                  name: "Digital Handheld Microscope / Camera Zoom", 
+                  badge: "5E: Explore Phase",
+                  whatItIs: "Connect a simple digital USB or tablet microscope to zoom in 500x on plant leaves, classroom hydroponic roots, or fabric fibers so young learners see hidden structures on the big screen.",
+                  url: "https://www.readingrockets.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=digital+microscope+elementary+science",
+                  videoLabel: "Handheld Microscopes in K-2"
+                },
+                { 
+                  name: "PBS KIDS ScratchJr Coding Stories", 
+                  badge: "5E: Explain Phase",
+                  whatItIs: "Pre-readers snap graphical programming blocks together to animate characters, retell science lifecycles, and explain cause-and-effect relationships visually without typing code.",
+                  url: "https://www.scratchjr.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=scratchjr+in+kindergarten+science",
+                  videoLabel: "ScratchJr in Early Elementary"
+                },
+                { 
+                  name: "Seesaw Audio Voice Check", 
+                  badge: "5E: Evaluate Phase",
+                  whatItIs: "Pre-readers tap the big red microphone to record a 15-second verbal response explaining what they noticed in an experiment, removing the barrier of written handwriting.",
+                  url: "https://web.seesaw.me",
+                  videoUrl: "https://www.youtube.com/results?search_query=seesaw+voice+recording+exit+ticket",
+                  videoLabel: "Seesaw Voice Exit Tickets"
+                }
+              ],
+              coachTip: "Use the camera zoom on an iPad to inspect classroom hydroponic seeds germinating—project it live to start your morning carpet time!"
+            },
+            g38: {
+              tools: [
+                { 
+                  name: "Desmos Classroom Activities (Math)", 
+                  badge: "5E: Explore & Math Inquiry",
+                  whatItIs: "Interactive, inquiry-based math activities where students manipulate sliders, test hypotheses about shapes and equations, and see mathematical patterns emerge dynamically.",
+                  url: "https://teacher.desmos.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=desmos+classroom+activities+tutorial",
+                  videoLabel: "Desmos Classroom Quick Tour"
+                },
+                { 
+                  name: "CommonLit & Diffit (ELA Scaffolds)", 
+                  badge: "5E: Explain / ELA Guided Reading",
+                  whatItIs: "Provides high-interest literary and informational texts with built-in guided reading questions, audio read-alouds, and leveled comprehension checks to deepen literary analysis.",
+                  url: "https://www.commonlit.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=commonlit+for+teachers+tutorial",
+                  videoLabel: "CommonLit Guided Reading Setup"
+                },
+                { 
+                  name: "PhET Interactive Science Simulations", 
+                  badge: "5E: Explore & Science Labs",
+                  whatItIs: "Safe interactive digital sandboxes from University of Colorado Boulder. Students balance chemical reactions, test electric circuits, and bend light without dangerous chemicals.",
+                  url: "https://phet.colorado.edu",
+                  videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+in+the+classroom",
+                  videoLabel: "PhET Inquiry Science Guide"
+                }
+              ],
+              coachTip: "In the 5E Explore phase, give students 10 minutes of free play in Desmos or PhET before giving any direct instructions or formal rules!"
+            },
+            h912: {
+              tools: [
+                { 
+                  name: "Desmos Advanced Graphing & STEM Modeling", 
+                  badge: "5E: Explore & Modeling",
+                  whatItIs: "High school math and physics students model real-world trade data, parabolic trajectories, and engineering stress formulas using dynamic interactive sliders.",
+                  url: "https://teacher.desmos.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=desmos+graphing+calculator+tutorial+teachers",
+                  videoLabel: "Desmos STEM Modeling Guide"
+                },
+                { 
+                  name: "CommonLit 360 / Diffit for ELA & CTE Text", 
+                  badge: "5E: Explain & Text Synthesis",
+                  whatItIs: "Scaffold secondary and CTE informational articles with targeted tiered vocabulary, paired text sets, and embedded evidence-based writing prompts.",
+                  url: "https://www.commonlit.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=diffit+for+teachers+tutorial",
+                  videoLabel: "Diffit Instructional Text Scaffolding"
+                },
+                { 
+                  name: "Formative / Quizizz Live Data Dashboards", 
+                  badge: "5E: Evaluate Phase",
+                  whatItIs: "Live heatmaps that reveal in real-time which specific technical procedure 60% of your class missed, enabling on-the-spot reteaching before students leave the shop.",
+                  url: "https://www.formative.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=formative+assessment+with+quizizz",
+                  videoLabel: "Instant Data with Quizizz & Formative"
+                }
+              ],
+              coachTip: "Use Formative's live dashboard at the midway mark of a CTE shop period to spot common tool-handling misunderstandings instantly."
+            }
+          },
+          pros: [
+            "Provides safe, zero-cost access to hazardous or impossible laboratory experiments",
+            "Allows students to see changes dynamically in real time when manipulating variables",
+            "Saves teachers hours of grading by spotlighting exact learning gaps instantly"
+          ]
+        },
+        thatTech: { 
+          badge: "THAT: Low-Tech / Tactile",
+          title: "Where Analog Strategies Remain Undefeated", 
+          tagline: "Sensory Discrepant Events, Sketchnoting & Handwritten Exit Tickets",
+          leadPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80",
+          philosophy: "A real mystery box or a burning candle will always command 100% room silence faster than a video clip. And handwriting a diagram cements ideas into long-term memory.",
+          gradeTiers: {
+            k2: {
+              tools: [
+                { 
+                  name: "The Mystery Sensory Box", 
+                  badge: "5E: Engage Phase",
+                  whatItIs: "A cardboard shoe box with a sock glued to a hole. Students slide their hands inside without looking to touch natural items (pinecones, wet hydroponic sponges, bark) and verbally describe tactile properties to the class.",
+                  url: "https://ngss.nsta.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=mystery+box+science+kindergarten",
+                  videoLabel: "Mystery Box Science Demo"
+                },
+                { 
+                  name: "Playdough & Clay Schema Sculpting", 
+                  badge: "5E: Explain Phase",
+                  whatItIs: "Students mold physical playdough to demonstrate conceptual understanding: sculpting the three parts of an insect, layers of soil, or a plant's roots instead of writing words.",
+                  url: "https://www.readingrockets.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=playdough+modeling+in+elementary+science",
+                  videoLabel: "Playdough Modeling in Science"
+                },
+                { 
+                  name: "Smiley-Face / Thumbs Magnet Door Check", 
+                  badge: "5E: Evaluate Phase",
+                  whatItIs: "Before walking to recess, students physically slap a magnetic token under the Green Smiley, Yellow Neutral, or Red Question face on the metal door frame to communicate their comfort with the day's goal.",
+                  url: "https://www.edutopia.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=kindergarten+exit+ticket+routines",
+                  videoLabel: "Physical Door Exit Routines"
+                }
+              ],
+              coachTip: "The Mystery Box works wonders for sparking curiosity! Watch 100% of wiggles stop the moment you pull out the box."
+            },
+            g38: {
+              tools: [
+                { 
+                  name: "Discrepant Event Mystery Demonstrations", 
+                  badge: "5E: Engage Phase",
+                  whatItIs: "A physical phenomenon that violates expectations (e.g., water drops on a penny, a potato floating in salt water). Hands-on physical surprise creates irresistible curiosity.",
+                  url: "https://ngss.nsta.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=discrepant+events+science+teaching",
+                  videoLabel: "Discrepant Events for Instant Engagement"
+                },
+                { 
+                  name: "Sketchnoting & Hand-Drawn Schematics", 
+                  badge: "5E: Explain Phase",
+                  whatItIs: "Students synthesize concepts by drawing physical diagrams, arrows, and visual metaphors in their notebooks instead of typing bullet points.",
+                  url: "https://sylviaduckworth.com/sketchnotes/",
+                  videoUrl: "https://www.youtube.com/results?search_query=sketchnoting+in+the+classroom+for+beginners",
+                  videoLabel: "Beginner's Guide to Sketchnoting"
+                },
+                { 
+                  name: "Physical Index Card Exit Tickets (3-2-1)", 
+                  badge: "5E: Evaluate Phase",
+                  whatItIs: "A simple 3x5 index card handed to you at the door: 3 things learned, 2 questions, 1 big idea. Unfiltered handwriting free from copy-paste and autocorrect.",
+                  url: "https://www.edutopia.org/article/3-2-1-strategy",
+                  videoUrl: "https://www.youtube.com/results?search_query=exit+ticket+strategies+for+teachers",
+                  videoLabel: "Simple & Effective Exit Ticket Strategies"
+                }
+              ],
+              coachTip: "Have students draw a 30-second doodle explaining the day's big concept on their exit card. You will instantly see who gets it!"
+            },
+            h912: {
+              tools: [
+                { 
+                  name: "Real-World Physical Fault / Broken Part Demo", 
+                  badge: "5E: Engage Phase",
+                  whatItIs: "Place an actual failed spark plug, fractured weld, or incorrect blueprint on a table. Students physically touch, examine, and smell the failure to brainstorm root causes.",
+                  url: "https://ngss.nsta.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=discrepant+event+phenomenon+high+school",
+                  videoLabel: "Hands-on Phenomenon Demos"
+                },
+                { 
+                  name: "Technical Schematic Hand-Sketches", 
+                  badge: "5E: Explain Phase",
+                  whatItIs: "Students hand-draw wiring schematics, architectural isometric views, or medical flowcharts on grid paper to force active spatial encoding of technical systems.",
+                  url: "https://buildingthinkingclassrooms.com",
+                  videoUrl: "https://www.youtube.com/results?search_query=technical+sketching+cte",
+                  videoLabel: "Technical Sketching for Trade Students"
+                },
+                { 
+                  name: "3x5 Physical Index Card Safety & Mastery Ticket", 
+                  badge: "5E: Evaluate Phase",
+                  whatItIs: "Students write their procedural diagnosis or safety check in handwriting on a card before touching power equipment or leaving the shop.",
+                  url: "https://www.edutopia.org",
+                  videoUrl: "https://www.youtube.com/results?search_query=exit+tickets+high+school",
+                  videoLabel: "Secondary Exit Ticket Routines"
+                }
+              ],
+              coachTip: "Require secondary students to sign their name in ink next to their hand-drawn safety diagram—it reinforces professional liability and pride of workmanship!"
+            }
+          },
+          pros: [
+            "A physical demonstration sparks genuine emotional wonder and curiosity in the room",
+            "Handwriting and sketching activate fine-motor neural pathways for mental schema retention",
+            "Zero setup delay: index cards never need an update or a password reset"
+          ]
+        },
+        research: {
+          headline: "The Science: The SAMR Ladder & The Pen vs. Keyboard Memory Gap",
+          body: "Under Puentedura’s SAMR framework, tech reaches 'Modification' and 'Redefinition' when students do work that was previously inconceivable (e.g., simulating molecular bonds, dynamic Desmos math graphing, or querying live data). Yet, landmark research by Mueller & Oppenheimer (2014) showed that students taking handwritten notes demonstrate superior conceptual retention compared to laptop typists, because handwriting forces cognitive synthesis and summarization rather than mindless verbatim copying.",
+          takeaway: "Embrace technology for impossible exploration, dynamic math/ELA modeling, and swift evaluation; guard handwriting and physical demonstration for deep conceptual encoding."
+        },
+        classroom: {
+          k5: "Elementary: Engage with a mystery sensory box (Physical). Explore through hands-on water trays (Physical). Explain on a class smartboard diagram (Tech). Evaluate with a quick hand-drawn smiley face check (Physical).",
+          m68: "Middle School: Engage with a high-speed video clip (Tech). Explore with physical spring scales and weights (Physical). Elaborate with Desmos or a PhET simulation (Tech). Evaluate with a 3x5 index card exit ticket (Physical).",
+          h912: "High School & CTE: Engage with a real-world broken machinery challenge (Physical). Explore via digital diagnostic schematics (Tech). Explain through hand-drawn wiring diagrams (Physical). Evaluate with an online Formative quick-check (Tech)."
+        },
+        reflectionPrompt: "Audit one favorite unit through the 5E lens: Is there a phase where you are currently using a screen simply out of habit, where a physical, tactile demonstration or hand-drawn sketch would spark more genuine curiosity?"
+      }
+    ];
+
+    function App() {
+      const [currentView, setCurrentView] = useState('1'); 
+      const [moduleStep, setModuleStep] = useState(0); 
+      const [activeGrade, setActiveGrade] = useState('g38'); 
+      const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+      
+      const [participantInfo, setParticipantInfo] = useState({
+        name: '',
+        email: '',
+        district: '',
+        picNumber: ''
+      });
+
+      const [notes, setNotes] = useState({
+        1: '',
+        2: '',
+        3: '',
+        4: ''
+      });
+
+      const [capstoneData, setCapstoneData] = useState({
+        submissionType: 'link', 
+        artifactUrl: '',
+        lessonTitle: '',
+        lessonGrade: 'Middle School (6-8)',
+        lessonHighTech: '',
+        lessonLowTech: '',
+        lessonIntegrationPlan: '',
+        fileAttachmentName: '',
+        notesForReviewer: ''
+      });
+
+      const [isSubmitting, setIsSubmitting] = useState(false);
+      const [submitSuccess, setSubmitSuccess] = useState(false);
+      const [submissionId, setSubmissionId] = useState('');
+      const [toastMessage, setToastMessage] = useState('');
+      const [submissionsList, setSubmissionsList] = useState([]);
+      const [facilitatorFilter, setFacilitatorFilter] = useState('');
+      const [selectedSubmission, setSelectedSubmission] = useState(null);
+
+      const stepTitles = [
+        { title: "The Showdown", desc: "This or That?", icon: Flame },
+        { title: "Tool Showcase", desc: "Apps & Analog", icon: Layers },
+        { title: "The Research", desc: "What Science Says", icon: BookOpen },
+        { title: "Classroom Recipes", desc: "K–12 & CTE Blends", icon: GraduationCap },
+        { title: "Your Reflection", desc: "SCECH Checkpoint", icon: CheckCircle2 }
+      ];
+
+      // Load saved state from browser memory for seamless local testing
+      useEffect(() => {
+        try {
+          const savedNotes = localStorage.getItem('remc12e_tth_notes');
+          if (savedNotes) setNotes(JSON.parse(savedNotes));
+          const savedInfo = localStorage.getItem('remc12e_tth_info');
+          if (savedInfo) setParticipantInfo(JSON.parse(savedInfo));
+          const savedSubs = localStorage.getItem('remc12e_tth_submissions');
+          if (savedSubs) setSubmissionsList(JSON.parse(savedSubs));
+        } catch (e) {
+          console.log("Local storage initialized in memory");
+        }
+      }, []);
+
+      const handleSelectModule = (modIdStr) => {
+        setCurrentView(modIdStr);
+        setModuleStep(0);
+        setIsMobileMenuOpen(false);
+      };
+
+      const triggerToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(''), 3000);
+      };
+
+      const saveNotesLocally = (modId, val) => {
+        const nextNotes = { ...notes, [modId]: val };
+        setNotes(nextNotes);
+        try {
+          localStorage.setItem('remc12e_tth_notes', JSON.stringify(nextNotes));
+        } catch(e) {}
+      };
+
+      const getProgress = () => {
+        let count = 0;
+        if (notes[1]?.trim()) count++;
+        if (notes[2]?.trim()) count++;
+        if (notes[3]?.trim()) count++;
+        if (notes[4]?.trim()) count++;
+        if (capstoneData.artifactUrl?.trim() || capstoneData.lessonTitle?.trim() || capstoneData.fileAttachmentName) count++;
+        return { count, total: 5, percentage: Math.round((count / 5) * 100) };
+      };
+
+      const handleSubmitPortfolio = (e) => {
+        e.preventDefault();
+
+        if (!participantInfo.name || !participantInfo.email || !participantInfo.picNumber) {
+          triggerToast("Please provide your Full Name, Email, and Michigan PIC Number.");
+          return;
+        }
+
+        setIsSubmitting(true);
+
+        const newId = 'SCECH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const submissionPayload = {
+          id: newId,
+          participantName: participantInfo.name,
+          participantEmail: participantInfo.email,
+          district: participantInfo.district || 'Branch / Calhoun ISD',
+          picNumber: participantInfo.picNumber,
+          submittedAt: Date.now(),
+          dateString: new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+          }),
+          moduleReflections: {
+            module1: notes[1] || 'No reflection recorded',
+            module2: notes[2] || 'No reflection recorded',
+            module3: notes[3] || 'No reflection recorded',
+            module4: notes[4] || 'No reflection recorded'
+          },
+          capstone: { ...capstoneData },
+          status: 'Submitted for SCECH Verification'
+        };
+
+        const updatedSubs = [submissionPayload, ...submissionsList];
+        setSubmissionsList(updatedSubs);
+        try {
+          localStorage.setItem('remc12e_tth_submissions', JSON.stringify(updatedSubs));
+          localStorage.setItem('remc12e_tth_info', JSON.stringify(participantInfo));
+        } catch(err) {}
+
+        setTimeout(() => {
+          setIsSubmitting(false);
+          setSubmissionId(newId);
+          setSubmitSuccess(true);
+          triggerToast("Portfolio transmitted to REMC 12E facilitator!");
+        }, 500);
+      };
+
+      const exportToCSV = () => {
+        if (submissionsList.length === 0) {
+          triggerToast("No submissions recorded yet to export.");
+          return;
+        }
+
+        const headers = ["PIC Number", "Name", "Email", "District", "Submission Date", "Artifact URL / Lesson", "Module 1", "Module 2", "Module 3", "Module 4"];
+        const rows = submissionsList.map(s => [
+          `"${s.picNumber || ''}"`,
+          `"${s.participantName || ''}"`,
+          `"${s.participantEmail || ''}"`,
+          `"${s.district || ''}"`,
+          `"${s.dateString || ''}"`,
+          `"${s.capstone?.artifactUrl || s.capstone?.lessonTitle || ''}"`,
+          `"${(s.moduleReflections?.module1 || '').replace(/"/g, '""')}"`,
+          `"${(s.moduleReflections?.module2 || '').replace(/"/g, '""')}"`,
+          `"${(s.moduleReflections?.module3 || '').replace(/"/g, '""')}"`,
+          `"${(s.moduleReflections?.module4 || '').replace(/"/g, '""')}"`
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `REMC12E_SCECH_TechTheHalls_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      const progress = getProgress();
+      const currentModule = modulesData.find(m => m.id === parseInt(currentView));
+
+      return (
+        <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
+          
+          {/* TOAST POPUP */}
+          {toastMessage && (
+            <div className="fixed top-5 right-5 z-50 bg-emerald-950 text-white px-5 py-3.5 rounded-2xl shadow-2xl border-2 border-amber-400 flex items-center space-x-3">
+              <Sparkles className="w-5 h-5 text-amber-300 shrink-0" />
+              <span className="text-sm font-bold">{toastMessage}</span>
+            </div>
+          )}
+
+          {/* HEADER */}
+          <header className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 text-white shadow-xl relative z-30 border-b-4 border-red-600">
+            <div className="h-2 w-full bg-gradient-to-r from-red-500 via-amber-400 to-emerald-400 opacity-90 flex justify-between px-2 overflow-hidden">
+              {Array.from({ length: 30 }).map((_, i) => (
+                <span key={i} className="inline-block w-1.5 h-1.5 rounded-full bg-white opacity-80 animate-pulse"></span>
+              ))}
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+              <div 
+                className="flex items-center space-x-3.5 cursor-pointer group" 
+                onClick={() => handleSelectModule('1')}
+              >
+                <EventLogo className="w-14 h-14 md:w-16 md:h-16 group-hover:scale-105 transition-transform" />
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <RemcLogo className="h-6 md:h-7" />
+                  </div>
+                  <h1 className="text-lg md:text-2xl font-black tracking-tight text-white flex items-center mt-0.5">
+                    <span className="text-red-400">Tech</span>
+                    <span className="text-white mx-1">the Halls:</span>
+                    <span className="bg-gradient-to-r from-amber-300 via-emerald-300 to-sky-300 bg-clip-text text-transparent italic">
+                      This or That!
+                    </span>
+                  </h1>
+                </div>
+              </div>
+
+              <div className="hidden lg:flex items-center space-x-5 text-emerald-100">
+                <div className="bg-emerald-950/80 border border-emerald-700/80 px-4 py-2 rounded-2xl flex items-center space-x-3 shadow-inner">
+                  <div className="text-right">
+                    <div className="text-[10px] uppercase font-black text-amber-300 tracking-wider">SCECH Progress</div>
+                    <div className="text-xs font-black text-white">{progress.count} of 5 Completed</div>
+                  </div>
+                  <div className="w-16 bg-emerald-900 rounded-full h-2.5 overflow-hidden ring-1 ring-emerald-500">
+                    <div 
+                      className="bg-gradient-to-r from-amber-400 to-red-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${progress.percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setCurrentView('facilitator')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center space-x-1.5 border ${
+                    currentView === 'facilitator' 
+                      ? 'bg-amber-400 text-emerald-950 border-amber-300 shadow-md' 
+                      : 'bg-emerald-800/80 text-emerald-100 border-emerald-700 hover:bg-emerald-700'
+                  }`}
+                >
+                  <ShieldCheck className="w-4 h-4 text-amber-400" />
+                  <span>Facilitator Dashboard</span>
+                  {submissionsList.length > 0 && (
+                    <span className="ml-1 bg-red-600 text-white px-1.5 py-0.2 rounded-full text-[10px] font-bold">
+                      {submissionsList.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              <button 
+                className="lg:hidden p-2 rounded-xl bg-emerald-800 text-emerald-100"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          </header>
+
+          {/* MAIN LAYOUT */}
+          <div className="flex-1 flex flex-col lg:flex-row max-w-7xl w-full mx-auto overflow-hidden">
+            
+            {/* SIDEBAR */}
+            <aside className={`
+              ${isMobileMenuOpen ? 'block' : 'hidden'} 
+              lg:block w-full lg:w-80 bg-emerald-950 text-emerald-50 shadow-2xl flex-shrink-0 lg:h-[calc(100vh-4.75rem)] overflow-y-auto z-20 border-r border-emerald-800/80
+            `}>
+              <div className="p-5 space-y-6">
+                
+                <div className="bg-gradient-to-b from-emerald-900/90 to-emerald-950 p-4 rounded-3xl border-2 border-amber-400/60 shadow-lg text-center">
+                  <EventLogo className="w-28 h-28 mx-auto mb-2 drop-shadow-md" />
+                  <div className="text-[10px] uppercase font-black tracking-widest text-amber-300">
+                    Professional Learning Series
+                  </div>
+                  <div className="text-xs font-bold text-emerald-200 mt-1 flex justify-center">
+                    <RemcLogo className="h-6" />
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-emerald-900 to-emerald-950 p-4 rounded-2xl border-2 border-emerald-700 text-xs shadow-md">
+                  <div className="flex items-center space-x-2 text-amber-300 font-extrabold mb-1">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span>Coach's Welcome</span>
+                  </div>
+                  <p className="text-emerald-200 text-[11px] leading-relaxed">
+                    Remember: <strong>A pencil is technology, too!</strong> We're not here to declare screens better than paper. We're exploring how both digital tools and tactile hands-on strategies solve the very same instructional challenges.
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-3 px-2">
+                    <span className="text-[11px] font-black uppercase tracking-widest text-amber-300">Course Modules</span>
+                    <span className="text-[11px] text-emerald-300 font-bold bg-emerald-900/80 px-2 py-0.5 rounded-full">4 Weeks</span>
+                  </div>
+                  
+                  <nav className="space-y-2">
+                    {modulesData.map((mod) => {
+                      const Icon = mod.icon;
+                      const isActive = currentView === String(mod.id);
+                      const isDone = !!notes[mod.id]?.trim();
+
+                      return (
+                        <button
+                          key={mod.id}
+                          onClick={() => handleSelectModule(String(mod.id))}
+                          className={`
+                            w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-200 text-left group
+                            ${isActive 
+                              ? 'bg-gradient-to-r from-red-600 via-red-600 to-rose-600 text-white shadow-xl shadow-red-950/40 ring-2 ring-amber-300 font-bold' 
+                              : 'hover:bg-emerald-900/90 text-emerald-100 bg-emerald-900/40 border border-emerald-800/60'}
+                          `}
+                        >
+                          <div className="flex items-center space-x-3 truncate mr-2">
+                            <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20 text-white' : 'bg-emerald-800 text-amber-300'}`}>
+                              <Icon className="w-4 h-4 shrink-0" />
+                            </div>
+                            <div className="truncate">
+                              <div className="text-xs truncate">{mod.navTitle}</div>
+                              <div className={`text-[10px] font-normal ${isActive ? 'text-red-100' : 'text-emerald-400'}`}>
+                                {isDone ? 'Reflection Complete' : 'Interactive Walkthrough'}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-1.5 shrink-0">
+                            {isDone ? (
+                              <span className="bg-amber-400 text-emerald-950 p-1 rounded-full" title="Saved">
+                                <Check className="w-3 h-3 stroke-[3]" />
+                              </span>
+                            ) : (
+                              <span className="w-2 h-2 rounded-full bg-emerald-700"></span>
+                            )}
+                            {isActive && <ChevronRight className="w-4 h-4 text-amber-300" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </nav>
+                </div>
+
+                <div className="pt-2 border-t border-emerald-800/80">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-amber-300 px-2 block mb-3">
+                    Final SCECH Portfolio
+                  </span>
+
+                  <button
+                    onClick={() => {
+                      setCurrentView('capstone');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`
+                      w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left font-black text-xs
+                      ${currentView === 'capstone'
+                        ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-emerald-950 shadow-2xl ring-2 ring-white'
+                        : 'bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 text-white border-2 border-amber-400/40'}
+                    `}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`p-2 rounded-xl ${currentView === 'capstone' ? 'bg-emerald-950 text-amber-300' : 'bg-emerald-900 text-amber-400'}`}>
+                        <Award className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-black text-sm">SCECH Capstone</div>
+                        <div className={`text-[10px] font-semibold ${currentView === 'capstone' ? 'text-emerald-900' : 'text-emerald-200'}`}>
+                          Turn In Notes & Artifact
+                        </div>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 opacity-75" />
+                  </button>
+                </div>
+
+                <div className="bg-emerald-900/60 p-4 rounded-2xl border border-emerald-700 text-xs text-emerald-200 leading-relaxed">
+                  <div className="flex items-center space-x-2 text-sky-300 font-black mb-1.5">
+                    <Gift className="w-4 h-4 text-sky-400" />
+                    <span>Free REMC 12E Kits</span>
+                  </div>
+                  <p className="text-[11px] text-emerald-300/90">
+                    Need physical supplies? Request free classroom tabletop games, hydroponics, and maker supplies directly through the REMC 12E lending portal.
+                  </p>
+                </div>
+
+              </div>
+            </aside>
+
+            {/* WORKSPACE */}
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto lg:h-[calc(100vh-4.75rem)] bg-slate-100">
+              
+              {/* VIEW: MODULES 1 - 4 */}
+              {currentModule && currentView !== 'capstone' && currentView !== 'facilitator' && (
+                <div className="max-w-4xl mx-auto space-y-6 pb-12">
+                  
+                  {/* Module Header */}
+                  <section className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200 relative">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="bg-red-600 text-white text-xs font-black uppercase px-3 py-1 rounded-full tracking-wider flex items-center space-x-1">
+                          <Gift className="w-3.5 h-3.5" />
+                          <span>Module {currentModule.id} of 4</span>
+                        </span>
+                        <span className="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full border border-emerald-200">
+                          Interactive Walkthrough
+                        </span>
+                      </div>
+
+                      {notes[currentModule.id]?.trim() && (
+                        <span className="inline-flex items-center space-x-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Reflection Logged</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mt-1">
+                      {currentModule.title}
+                    </h2>
+                    <p className="text-emerald-700 font-bold text-sm md:text-base mt-1">
+                      {currentModule.tagline}
+                    </p>
+
+                    {/* GRADE LEVEL TOGGLE */}
+                    <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border">
+                      <div className="flex items-center space-x-2 text-slate-700 text-xs font-bold">
+                        <GraduationCap className="w-4 h-4 text-emerald-700" />
+                        <span>Viewing strategies & tools tailored for:</span>
+                      </div>
+
+                      <div className="bg-slate-200/80 p-1 rounded-xl flex items-center space-x-1">
+                        {[
+                          { id: 'k2', label: 'K–2 Primary', icon: Baby },
+                          { id: 'g38', label: '3–8 Intermediate', icon: Backpack },
+                          { id: 'h912', label: '9–12 & CTE', icon: School }
+                        ].map(band => {
+                          const BandIcon = band.icon;
+                          const isSelected = activeGrade === band.id;
+                          return (
+                            <button
+                              key={band.id}
+                              onClick={() => setActiveGrade(band.id)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center space-x-1.5 ${
+                                isSelected
+                                  ? 'bg-emerald-800 text-white shadow-sm'
+                                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-300/50'
+                              }`}
+                            >
+                              <BandIcon className="w-3.5 h-3.5" />
+                              <span>{band.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* STEP NAVIGATION TABS */}
+                  <div className="bg-white rounded-2xl p-2 shadow-sm border border-slate-200 flex items-center justify-between gap-1 overflow-x-auto">
+                    {stepTitles.map((step, idx) => {
+                      const StepIcon = step.icon;
+                      const isCurrent = moduleStep === idx;
+                      const isPast = moduleStep > idx;
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setModuleStep(idx)}
+                          className={`flex-1 min-w-[130px] p-2.5 rounded-xl text-left transition-all flex items-center space-x-2.5 ${
+                            isCurrent
+                              ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md ring-2 ring-red-400 font-bold'
+                              : isPast
+                              ? 'bg-emerald-50 text-emerald-900 hover:bg-emerald-100'
+                              : 'hover:bg-slate-50 text-slate-600'
+                          }`}
+                        >
+                          <div className={`p-1.5 rounded-lg shrink-0 ${isCurrent ? 'bg-white/20 text-white' : isPast ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}>
+                            {isPast ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <StepIcon className="w-3.5 h-3.5" />}
+                          </div>
+                          <div className="truncate">
+                            <div className="text-[11px] font-black uppercase tracking-wider">{step.title}</div>
+                            <div className={`text-[10px] truncate ${isCurrent ? 'text-red-100' : 'text-slate-400'}`}>
+                              {step.desc}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* STEP 0: SHOWDOWN */}
+                  {moduleStep === 0 && (
+                    <div className="space-y-6">
+                      <div className="bg-gradient-to-br from-amber-50 via-white to-amber-50/50 rounded-3xl p-6 md:p-8 border-2 border-amber-300 shadow-sm">
+                        <div className="flex items-center space-x-2 text-amber-800 font-black text-xs uppercase tracking-widest mb-2">
+                          <Sparkles className="w-4 h-4 text-amber-500" />
+                          <span>The Big Question</span>
+                        </div>
+                        <p className="text-slate-700 text-base md:text-lg leading-relaxed font-medium">
+                          {currentModule.vibeCheck}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* THIS */}
+                        <div className="bg-white rounded-3xl overflow-hidden shadow-sm border-2 border-emerald-500 flex flex-col justify-between">
+                          <div>
+                            <div className="relative h-48 overflow-hidden bg-slate-900">
+                              <img 
+                                src={currentModule.thisTech.leadPhoto} 
+                                alt={currentModule.thisTech.title}
+                                className="w-full h-full object-cover opacity-90"
+                              />
+                              <div className="absolute top-3 left-3 bg-emerald-600 text-white text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                                {currentModule.thisTech.badge}
+                              </div>
+                            </div>
+                            <div className="p-6">
+                              <h3 className="text-xl font-black text-slate-900 mb-1">{currentModule.thisTech.title}</h3>
+                              <p className="text-xs font-bold text-emerald-700 mb-3">{currentModule.thisTech.tagline}</p>
+                              <p className="text-xs text-slate-600 leading-relaxed mb-4">{currentModule.thisTech.philosophy}</p>
+                            </div>
+                          </div>
+                          <div className="p-6 pt-0">
+                            <button
+                              onClick={() => setModuleStep(1)}
+                              className="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-black transition-colors flex items-center justify-center space-x-2 border border-emerald-200"
+                            >
+                              <span>Explore {activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12/CTE'} Digital Tools & Videos</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* THAT */}
+                        <div className="bg-white rounded-3xl overflow-hidden shadow-sm border-2 border-red-500 flex flex-col justify-between">
+                          <div>
+                            <div className="relative h-48 overflow-hidden bg-slate-900">
+                              <img 
+                                src={currentModule.thatTech.leadPhoto} 
+                                alt={currentModule.thatTech.title}
+                                className="w-full h-full object-cover opacity-90"
+                              />
+                              <div className="absolute top-3 left-3 bg-red-600 text-white text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                                {currentModule.thatTech.badge}
+                              </div>
+                            </div>
+                            <div className="p-6">
+                              <h3 className="text-xl font-black text-slate-900 mb-1">{currentModule.thatTech.title}</h3>
+                              <p className="text-xs font-bold text-red-700 mb-3">{currentModule.thatTech.tagline}</p>
+                              <p className="text-xs text-slate-600 leading-relaxed mb-4">{currentModule.thatTech.philosophy}</p>
+                            </div>
+                          </div>
+                          <div className="p-6 pt-0">
+                            <button
+                              onClick={() => setModuleStep(1)}
+                              className="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 text-red-800 rounded-xl text-xs font-black transition-colors flex items-center justify-center space-x-2 border border-red-200"
+                            >
+                              <span>Explore {activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12/CTE'} Tactile Strategies & Videos</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-4">
+                        <button
+                          onClick={() => setModuleStep(1)}
+                          className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 text-white rounded-2xl text-xs font-black shadow-md flex items-center space-x-2"
+                        >
+                          <span>Continue to Step 2: Tool Showcase</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 1: TOOL SHOWCASE */}
+                  {moduleStep === 1 && (
+                    <div className="space-y-8">
+                      {/* THIS TOOLS */}
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="bg-emerald-600 text-white text-xs font-black uppercase px-3 py-1 rounded-full">
+                            {currentModule.thisTech.badge}
+                          </span>
+                          <h3 className="text-lg font-black text-slate-900">{currentModule.thisTech.title}</h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {(currentModule.thisTech.gradeTiers[activeGrade]?.tools || []).map((tool, idx) => (
+                            <div key={idx} className="bg-white rounded-2xl p-5 border-2 border-emerald-200 shadow-sm flex flex-col justify-between hover:border-emerald-500 transition-colors">
+                              <div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block mb-2">
+                                  {tool.badge}
+                                </span>
+                                <h4 className="text-base font-black text-slate-900 mb-1">{tool.name}</h4>
+                                <p className="text-xs text-slate-600 leading-relaxed mb-4">{tool.whatItIs}</p>
+                              </div>
+
+                              <div className="space-y-2 pt-3 border-t border-slate-100">
+                                <a 
+                                  href={tool.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="w-full py-2 px-3 bg-slate-100 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 rounded-xl text-xs font-bold flex items-center justify-between"
+                                >
+                                  <span>Open Tool</span>
+                                  <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                                </a>
+
+                                <a 
+                                  href={tool.videoUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="w-full py-2 px-3 bg-red-50 hover:bg-red-100 text-red-800 rounded-xl text-xs font-bold flex items-center justify-between border border-red-200"
+                                >
+                                  <div className="flex items-center space-x-1.5 truncate">
+                                    <Play className="w-3.5 h-3.5 text-red-600 fill-red-600 shrink-0" />
+                                    <span className="truncate">{tool.videoLabel}</span>
+                                  </div>
+                                  <ExternalLink className="w-3 h-3 text-red-400 shrink-0" />
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-300 text-xs text-emerald-950 flex items-start space-x-2.5">
+                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                          <div>
+                            <strong>Coach's Pro Tip ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'}): </strong>
+                            {currentModule.thisTech.gradeTiers[activeGrade]?.coachTip}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* THAT TOOLS */}
+                      <div className="space-y-4 pt-4 border-t-2 border-slate-200">
+                        <div className="flex items-center space-x-2">
+                          <span className="bg-red-600 text-white text-xs font-black uppercase px-3 py-1 rounded-full">
+                            {currentModule.thatTech.badge}
+                          </span>
+                          <h3 className="text-lg font-black text-slate-900">{currentModule.thatTech.title}</h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {(currentModule.thatTech.gradeTiers[activeGrade]?.tools || []).map((tool, idx) => (
+                            <div key={idx} className="bg-white rounded-2xl p-5 border-2 border-red-200 shadow-sm flex flex-col justify-between hover:border-red-500 transition-colors">
+                              <div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full inline-block mb-2">
+                                  {tool.badge}
+                                </span>
+                                <h4 className="text-base font-black text-slate-900 mb-1">{tool.name}</h4>
+                                <p className="text-xs text-slate-600 leading-relaxed mb-4">{tool.whatItIs}</p>
+                              </div>
+
+                              <div className="space-y-2 pt-3 border-t border-slate-100">
+                                <a 
+                                  href={tool.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="w-full py-2 px-3 bg-slate-100 hover:bg-red-50 text-slate-800 hover:text-red-800 rounded-xl text-xs font-bold flex items-center justify-between"
+                                >
+                                  <span>Open Resource</span>
+                                  <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                                </a>
+
+                                <a 
+                                  href={tool.videoUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-xl text-xs font-bold flex items-center justify-between border border-amber-200"
+                                >
+                                  <div className="flex items-center space-x-1.5 truncate">
+                                    <Play className="w-3.5 h-3.5 text-amber-600 fill-amber-600 shrink-0" />
+                                    <span className="truncate">{tool.videoLabel}</span>
+                                  </div>
+                                  <ExternalLink className="w-3 h-3 text-amber-500 shrink-0" />
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="bg-red-50 p-4 rounded-2xl border border-red-300 text-xs text-red-950 flex items-start space-x-2.5">
+                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                          <div>
+                            <strong>Coach's Pro Tip ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'}): </strong>
+                            {currentModule.thatTech.gradeTiers[activeGrade]?.coachTip}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4">
+                        <button
+                          onClick={() => setModuleStep(0)}
+                          className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          <span>Back to Showdown</span>
+                        </button>
+                        <button
+                          onClick={() => setModuleStep(2)}
+                          className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 text-white rounded-2xl text-xs font-black shadow-md flex items-center space-x-2"
+                        >
+                          <span>Continue to Step 3: The Research</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 2: RESEARCH */}
+                  {moduleStep === 2 && (
+                    <div className="space-y-6">
+                      <div className="bg-slate-900 text-white rounded-3xl p-6 md:p-8 shadow-xl border-2 border-slate-700">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="bg-emerald-500/20 p-2 rounded-xl text-emerald-400">
+                            <BookOpen className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Cognitive Science & Pedagogy</span>
+                            <h3 className="text-xl md:text-2xl font-black text-white">{currentModule.research.headline}</h3>
+                          </div>
+                        </div>
+
+                        <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-6 font-light">
+                          {currentModule.research.body}
+                        </p>
+
+                        <div className="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 flex items-start space-x-3">
+                          <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <div>
+                            <div className="text-xs font-black uppercase tracking-wider text-amber-300">The Practical Takeaway</div>
+                            <div className="text-sm text-slate-200 font-medium mt-0.5">{currentModule.research.takeaway}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5">
+                          <div className="font-black text-xs uppercase tracking-wider text-emerald-900 mb-2 flex items-center">
+                            <Monitor className="w-4 h-4 mr-1.5 text-emerald-700" />
+                            When Pixels Shine Brightest
+                          </div>
+                          <ul className="space-y-2">
+                            {currentModule.thisTech.pros.map((item, idx) => (
+                              <li key={idx} className="flex items-start text-xs text-emerald-950">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mr-2 shrink-0 mt-0.5" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="bg-red-50 border-2 border-red-300 rounded-2xl p-5">
+                          <div className="font-black text-xs uppercase tracking-wider text-red-900 mb-2 flex items-center">
+                            <PenTool className="w-4 h-4 mr-1.5 text-red-700" />
+                            When Paper & Analog Take the Crown
+                          </div>
+                          <ul className="space-y-2">
+                            {currentModule.thatTech.pros.map((item, idx) => (
+                              <li key={idx} className="flex items-start text-xs text-red-950">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 mr-2 shrink-0 mt-0.5" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4">
+                        <button
+                          onClick={() => setModuleStep(1)}
+                          className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          <span>Back to Tools</span>
+                        </button>
+                        <button
+                          onClick={() => setModuleStep(3)}
+                          className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 text-white rounded-2xl text-xs font-black shadow-md flex items-center space-x-2"
+                        >
+                          <span>Continue to Step 4: Classroom Recipes</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 3: RECIPES */}
+                  {moduleStep === 3 && (
+                    <div className="space-y-6">
+                      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200">
+                        <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+                          <div>
+                            <h3 className="text-xl font-black text-slate-900 flex items-center">
+                              <GraduationCap className="w-6 h-6 mr-2 text-emerald-600" />
+                              How to Blend Both in Real Classrooms
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-0.5">Select your grade level to see an intentional high-tech & low-tech integration recipe.</p>
+                          </div>
+
+                          <div className="bg-slate-100 p-1.5 rounded-2xl flex space-x-1 border border-slate-200">
+                            {[
+                              { id: 'k2', label: 'Primary (K–2)' },
+                              { id: 'g38', label: 'Middle (3–8)' },
+                              { id: 'h912', label: 'High & CTE (9–12)' }
+                            ].map(tab => (
+                              <button
+                                key={tab.id}
+                                onClick={() => setActiveGrade(tab.id)}
+                                className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all ${
+                                  activeGrade === tab.id
+                                    ? 'bg-emerald-800 text-white shadow-sm'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                {tab.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50/40 to-slate-50 border-2 border-emerald-200 text-slate-800 leading-relaxed shadow-sm">
+                          <div className="flex items-center space-x-2 text-emerald-900 font-black text-xs uppercase tracking-wider mb-2">
+                            <Sparkles className="w-4 h-4 text-amber-500" />
+                            <span>Featured Recipe: {activeGrade === 'k2' ? 'Grades K–2 (Primary)' : activeGrade === 'g38' ? 'Grades 3–8 (Intermediate / Middle)' : 'Grades 9–12 & Career Center (CTE)'}</span>
+                          </div>
+                          <p className="text-sm md:text-base text-slate-700 leading-relaxed font-normal">
+                            {activeGrade === 'k2' 
+                              ? currentModule.classroom.k5 
+                              : activeGrade === 'g38' 
+                              ? currentModule.classroom.m68 
+                              : currentModule.classroom.h912}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4">
+                        <button
+                          onClick={() => setModuleStep(2)}
+                          className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          <span>Back to Research</span>
+                        </button>
+                        <button
+                          onClick={() => setModuleStep(4)}
+                          className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 text-white rounded-2xl text-xs font-black shadow-md flex items-center space-x-2"
+                        >
+                          <span>Continue to Step 5: Reflection</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 4: REFLECTION */}
+                  {moduleStep === 4 && (
+                    <div className="space-y-6">
+                      <div className="bg-gradient-to-br from-amber-50 via-white to-emerald-50 rounded-3xl p-6 md:p-8 shadow-sm border-2 border-amber-300">
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+                          <div className="flex items-center space-x-2">
+                            <span className="bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
+                              SCECH Reflection Prompt
+                            </span>
+                            <h3 className="text-lg font-black text-slate-900">Module {currentModule.id} Checkpoint</h3>
+                          </div>
+                          {notes[currentModule.id]?.trim() && (
+                            <span className="text-xs font-bold text-emerald-700 flex items-center bg-emerald-100/70 px-3 py-1 rounded-full border border-emerald-300">
+                              <CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600" /> Saved Locally
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-slate-800 text-sm md:text-base font-medium mb-4 bg-white/90 p-4 rounded-2xl border border-amber-200 leading-relaxed">
+                          {currentModule.reflectionPrompt}
+                        </p>
+
+                        <textarea
+                          rows={5}
+                          value={notes[currentModule.id] || ''}
+                          onChange={(e) => saveNotesLocally(currentModule.id, e.target.value)}
+                          placeholder="Jot down your honest thoughts, lesson ideas, or coaching strategies here. Your notes automatically flow into your final SCECH turn-in package..."
+                          className="w-full p-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner resize-y leading-relaxed"
+                        ></textarea>
+
+                        <div className="flex items-center justify-between flex-wrap gap-3 mt-4">
+                          <div className="text-xs text-slate-500 font-bold">
+                            Word Count: {(notes[currentModule.id] || '').trim().split(/\s+/).filter(Boolean).length} words
+                          </div>
+
+                          <div className="flex items-center space-x-3">
+                            <button
+                              onClick={() => triggerToast(`Module ${currentModule.id} reflection saved!`)}
+                              className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition-all shadow flex items-center space-x-1.5"
+                            >
+                              <Save className="w-3.5 h-3.5" />
+                              <span>Save Note</span>
+                            </button>
+
+                            {currentModule.id < 4 ? (
+                              <button
+                                onClick={() => {
+                                  triggerToast(`Module ${currentModule.id} saved! Loading Module ${currentModule.id + 1}`);
+                                  handleSelectModule(String(currentModule.id + 1));
+                                }}
+                                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black transition-all shadow flex items-center space-x-1.5"
+                              >
+                                <span>Next: Module {currentModule.id + 1}</span>
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  triggerToast("All 4 modules complete! Opening SCECH Portfolio Capstone.");
+                                  setCurrentView('capstone');
+                                }}
+                                className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 text-emerald-950 rounded-xl text-xs font-black transition-all shadow flex items-center space-x-1.5"
+                              >
+                                <span>Proceed to SCECH Capstone</span>
+                                <Award className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2">
+                        <button
+                          onClick={() => setModuleStep(3)}
+                          className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          <span>Back to Classroom Recipes</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              )}
+
+              {/* VIEW: CAPSTONE */}
+              {currentView === 'capstone' && (
+                <div className="max-w-4xl mx-auto space-y-8 pb-12">
+                  <section className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 text-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-amber-400 relative">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <div className="bg-amber-400 text-emerald-950 p-3 rounded-2xl font-black shadow-md">
+                        <Award className="w-7 h-7" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-black uppercase tracking-widest text-amber-300">REMC 12E Verification</span>
+                        <h2 className="text-2xl md:text-3xl font-black">SCECH Portfolio Turn-In</h2>
+                      </div>
+                    </div>
+                    <p className="text-emerald-100 text-sm md:text-base leading-relaxed max-w-2xl mt-2 font-light">
+                      To receive official state clock hours, complete your Michigan MOECS registration info, review your compiled notes from each module, and submit an integration artifact.
+                    </p>
+                  </section>
+
+                  {submitSuccess && (
+                    <section className="bg-emerald-50 border-4 border-emerald-500 rounded-3xl p-6 md:p-8 shadow-xl text-emerald-950">
+                      <div className="flex items-start space-x-4">
+                        <div className="bg-emerald-600 text-white p-3 rounded-2xl shadow-md shrink-0">
+                          <Check className="w-8 h-8 stroke-[3]" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-black text-emerald-900">Portfolio Successfully Transmitted!</h3>
+                          <p className="text-sm text-emerald-800 mt-1 leading-relaxed">
+                            Fantastic job, <strong>{participantInfo.name}</strong>! Your compiled reflections and integration artifact are logged in the REMC 12E system for SCECH review.
+                          </p>
+                          <div className="mt-3 bg-white p-3.5 rounded-xl border border-emerald-200 text-xs font-mono text-slate-700">
+                            <strong>Verification Code:</strong> {submissionId}
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-3">
+                            <button
+                              onClick={() => window.print()}
+                              className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shadow"
+                            >
+                              <Download className="w-4 h-4" />
+                              <span>Print / Save Confirmation</span>
+                            </button>
+                            <button
+                              onClick={() => setSubmitSuccess(false)}
+                              className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-all"
+                            >
+                              Edit Responses
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  <form onSubmit={handleSubmitPortfolio} className="space-y-8">
+                    {/* Demographics */}
+                    <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200">
+                      <h3 className="text-lg font-black text-slate-900 mb-1 flex items-center">
+                        <Building2 className="w-5 h-5 mr-2 text-emerald-600" />
+                        1. MOECS SCECH Registration Information
+                      </h3>
+                      <p className="text-xs text-slate-500 mb-6">
+                        Required for reporting your clock hours directly into the Michigan Online Educator Certification System.
+                      </p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Full Name *</label>
+                          <input
+                            type="text"
+                            required
+                            value={participantInfo.name}
+                            onChange={(e) => setParticipantInfo({ ...participantInfo, name: e.target.value })}
+                            placeholder="e.g., Sarah Johnson"
+                            className="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">School Email *</label>
+                          <input
+                            type="email"
+                            required
+                            value={participantInfo.email}
+                            onChange={(e) => setParticipantInfo({ ...participantInfo, email: e.target.value })}
+                            placeholder="sjohnson@calhounisd.org"
+                            className="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">School District / Center</label>
+                          <input
+                            type="text"
+                            value={participantInfo.district}
+                            onChange={(e) => setParticipantInfo({ ...participantInfo, district: e.target.value })}
+                            placeholder="e.g., Calhoun Area Career Center (CACC)"
+                            className="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Michigan PIC Number *</label>
+                          <input
+                            type="text"
+                            required
+                            value={participantInfo.picNumber}
+                            onChange={(e) => setParticipantInfo({ ...participantInfo, picNumber: e.target.value })}
+                            placeholder="e.g., 123456"
+                            className="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Compiled Notes */}
+                    <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-black text-slate-900 flex items-center">
+                            <FileText className="w-5 h-5 mr-2 text-emerald-600" />
+                            2. Compiled Module Notes
+                          </h3>
+                          <p className="text-xs text-slate-500">Your notes from each weekly module are automatically compiled here.</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {modulesData.map(mod => (
+                          <div key={mod.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-xs font-bold text-slate-900">Module {mod.id}: {mod.title}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleSelectModule(String(mod.id))}
+                                className="text-[11px] text-red-600 hover:underline font-bold"
+                              >
+                                Edit in Walkthrough
+                              </button>
+                            </div>
+                            <textarea
+                              rows={2}
+                              value={notes[mod.id] || ''}
+                              onChange={(e) => saveNotesLocally(mod.id, e.target.value)}
+                              placeholder={`No notes recorded yet for Module ${mod.id}...`}
+                              className="w-full p-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                            ></textarea>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Artifact */}
+                    <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200">
+                      <div className="mb-4">
+                        <h3 className="text-lg font-black text-slate-900 flex items-center">
+                          <Sparkles className="w-5 h-5 mr-2 text-amber-500" />
+                          3. Final Integration Artifact
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Choose how you would like to showcase your synthesis of high-tech and low-tech strategies.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                        {[
+                          { id: 'link', label: 'Video / Drive URL', icon: Video, sub: 'Loom, YouTube, Drive' },
+                          { id: 'lessonPlan', label: 'Lesson Plan Template', icon: FileText, sub: 'Built-in Form' },
+                          { id: 'file', label: 'File Attachment', icon: UploadCloud, sub: 'PDF, Doc, Image' }
+                        ].map(tab => {
+                          const Icon = tab.icon;
+                          const isSelected = capstoneData.submissionType === tab.id;
+                          return (
+                            <button
+                              type="button"
+                              key={tab.id}
+                              onClick={() => setCapstoneData({ ...capstoneData, submissionType: tab.id })}
+                              className={`p-3.5 rounded-2xl border-2 text-left transition-all ${
+                                isSelected 
+                                  ? 'border-emerald-600 bg-emerald-50/90 ring-1 ring-emerald-500' 
+                                  : 'border-slate-200 bg-white hover:bg-slate-50'
+                              }`}
+                            >
+                              <Icon className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-emerald-700' : 'text-slate-400'}`} />
+                              <div className={`text-xs font-black ${isSelected ? 'text-emerald-950' : 'text-slate-800'}`}>{tab.label}</div>
+                              <div className="text-[10px] text-slate-500">{tab.sub}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {capstoneData.submissionType === 'link' && (
+                        <div className="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                          <label className="block text-xs font-bold text-slate-700">Video or Shared Document Link (Google Drive, Loom, YouTube)</label>
+                          <input
+                            type="url"
+                            value={capstoneData.artifactUrl}
+                            onChange={(e) => setCapstoneData({ ...capstoneData, artifactUrl: e.target.value })}
+                            placeholder="https://drive.google.com/file/d/... or https://www.loom.com/share/..."
+                            className="w-full p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
+                          />
+                        </div>
+                      )}
+
+                      {capstoneData.submissionType === 'lessonPlan' && (
+                        <div className="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">Lesson Title</label>
+                              <input
+                                type="text"
+                                value={capstoneData.lessonTitle}
+                                onChange={(e) => setCapstoneData({ ...capstoneData, lessonTitle: e.target.value })}
+                                placeholder="e.g., Photosynthesis & Classroom Hydroponics"
+                                className="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">Target Grade Band</label>
+                              <select
+                                value={capstoneData.lessonGrade}
+                                onChange={(e) => setCapstoneData({ ...capstoneData, lessonGrade: e.target.value })}
+                                className="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-white"
+                              >
+                                <option>Elementary (K-5)</option>
+                                <option>Middle School (6-8)</option>
+                                <option>High School (9-12)</option>
+                                <option>Career Center / CTE Program</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-bold text-emerald-800 mb-1">High-Tech Element ("THIS")</label>
+                              <input
+                                type="text"
+                                value={capstoneData.lessonHighTech}
+                                onChange={(e) => setCapstoneData({ ...capstoneData, lessonHighTech: e.target.value })}
+                                placeholder="e.g., Desmos Classroom or PhET Simulation"
+                                className="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-red-800 mb-1">Low-Tech Element ("THAT")</label>
+                              <input
+                                type="text"
+                                value={capstoneData.lessonLowTech}
+                                onChange={(e) => setCapstoneData({ ...capstoneData, lessonLowTech: e.target.value })}
+                                placeholder="e.g., Mystery Box or Butcher Paper Placemat"
+                                className="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">The Intentional Blend</label>
+                            <textarea
+                              rows={3}
+                              value={capstoneData.lessonIntegrationPlan}
+                              onChange={(e) => setCapstoneData({ ...capstoneData, lessonIntegrationPlan: e.target.value })}
+                              placeholder="Explain how both tools work together to deepen student mastery..."
+                              className="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-white"
+                            ></textarea>
+                          </div>
+                        </div>
+                      )}
+
+                      {capstoneData.submissionType === 'file' && (
+                        <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-300 text-center">
+                          <UploadCloud className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
+                          <div className="text-xs font-bold text-slate-800 mb-1">Attach Your Lesson Plan Document</div>
+                          <p className="text-[11px] text-slate-500 mb-4">Supported: PDF, DOCX, PNG, JPG (Max 5MB)</p>
+                          <input 
+                            type="file" 
+                            id="fileInput" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              const f = e.target.files[0];
+                              if (f) setCapstoneData(prev => ({ ...prev, fileAttachmentName: f.name }));
+                            }}
+                          />
+                          <label 
+                            htmlFor="fileInput"
+                            className="cursor-pointer inline-flex items-center px-4 py-2 bg-emerald-800 text-white rounded-xl text-xs font-bold"
+                          >
+                            Browse Files
+                          </label>
+                          {capstoneData.fileAttachmentName && (
+                            <div className="mt-3 text-xs text-emerald-800 font-bold">Attached: {capstoneData.fileAttachmentName}</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between p-6 bg-emerald-950 text-white rounded-3xl shadow-xl flex-wrap gap-4 border-2 border-amber-400">
+                      <div>
+                        <h4 className="font-black text-sm md:text-base text-amber-300 flex items-center space-x-1.5">
+                          <Sparkles className="w-4 h-4" />
+                          <span>Ready to Complete Your SCECHs?</span>
+                        </h4>
+                        <p className="text-xs text-emerald-200">
+                          Submit your portfolio for review and entry into the MOECS state system.
+                        </p>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="px-6 py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 text-white rounded-2xl font-black text-sm transition-all shadow-xl flex items-center space-x-2 ring-2 ring-amber-300"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Clock className="w-4 h-4 animate-spin" />
+                            <span>Transmitting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Award className="w-4 h-4 text-amber-300" />
+                            <span>Submit Portfolio for SCECH Credit</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* VIEW: FACILITATOR DASHBOARD */}
+              {currentView === 'facilitator' && (
+                <div className="max-w-5xl mx-auto space-y-6 pb-12">
+                  <section className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200 flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                      <div className="inline-flex items-center space-x-1.5 bg-amber-100 text-amber-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-1">
+                        <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
+                        <span>Facilitator Dashboard</span>
+                      </div>
+                      <h2 className="text-2xl font-black text-slate-900">REMC 12E SCECH Submissions</h2>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Live compiled portfolio submissions from educators across Branch and Calhoun ISDs.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={exportToCSV}
+                      className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-black shadow flex items-center space-x-1.5"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Export to CSV for MOECS</span>
+                    </button>
+                  </section>
+
+                  <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                      <input
+                        type="text"
+                        value={facilitatorFilter}
+                        onChange={(e) => setFacilitatorFilter(e.target.value)}
+                        placeholder="Search by teacher name, district, or PIC..."
+                        className="w-full pl-9 pr-3 py-2 bg-white rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                    <div className="text-xs font-bold text-slate-600 bg-white px-3.5 py-2 rounded-xl border border-slate-200">
+                      Total Submissions: <span className="text-emerald-700 font-black">{submissionsList.length}</span>
+                    </div>
+                  </div>
+
+                  {submissionsList.length === 0 ? (
+                    <div className="bg-white rounded-3xl p-12 text-center border-2 border-slate-200">
+                      <TreePine className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                      <h3 className="text-base font-bold text-slate-700">No Submissions Recorded Yet</h3>
+                      <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                        As teachers complete their reflections and capstone, submissions will populate here with instant CSV export for MOECS.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-black uppercase tracking-wider text-[10px]">
+                            <tr>
+                              <th className="p-4">Educator & District</th>
+                              <th className="p-4">Michigan PIC</th>
+                              <th className="p-4">Submitted At</th>
+                              <th className="p-4">Artifact Summary</th>
+                              <th className="p-4 text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 text-slate-700">
+                            {submissionsList
+                              .filter(s => {
+                                const term = facilitatorFilter.toLowerCase();
+                                return (
+                                  (s.participantName || '').toLowerCase().includes(term) ||
+                                  (s.district || '').toLowerCase().includes(term) ||
+                                  (s.picNumber || '').toLowerCase().includes(term)
+                                );
+                              })
+                              .map((sub) => (
+                                <tr key={sub.id} className="hover:bg-slate-50/80">
+                                  <td className="p-4">
+                                    <div className="font-bold text-slate-900">{sub.participantName}</div>
+                                    <div className="text-[11px] text-slate-500">{sub.participantEmail}</div>
+                                    <div className="text-[10px] text-emerald-700 font-medium">{sub.district}</div>
+                                  </td>
+                                  <td className="p-4 font-mono font-bold text-slate-700">{sub.picNumber}</td>
+                                  <td className="p-4 text-slate-500 text-[11px]">{sub.dateString || 'Recently'}</td>
+                                  <td className="p-4">
+                                    {sub.capstone?.artifactUrl ? (
+                                      <a href={sub.capstone.artifactUrl} target="_blank" rel="noreferrer" className="text-emerald-700 underline font-semibold">
+                                        View Link/Video
+                                      </a>
+                                    ) : sub.capstone?.lessonTitle ? (
+                                      <div className="font-semibold text-slate-800">{sub.capstone.lessonTitle}</div>
+                                    ) : (
+                                      <span className="text-slate-400">Attached File</span>
+                                    )}
+                                  </td>
+                                  <td className="p-4 text-right">
+                                    <button
+                                      onClick={() => setSelectedSubmission(sub)}
+                                      className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg font-bold text-[11px] border border-emerald-200"
+                                    >
+                                      Review Work
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedSubmission && (
+                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl space-y-6">
+                        <div className="flex items-start justify-between border-b pb-4">
+                          <div>
+                            <span className="text-[10px] uppercase font-black text-emerald-700 tracking-wider">SCECH Audit Detail</span>
+                            <h3 className="text-xl font-black text-slate-900">{selectedSubmission.participantName}</h3>
+                            <p className="text-xs text-slate-500">
+                              {selectedSubmission.district} • PIC: <span className="font-mono font-bold text-slate-800">{selectedSubmission.picNumber}</span>
+                            </p>
+                          </div>
+                          <button onClick={() => setSelectedSubmission(null)} className="p-1.5 rounded-full hover:bg-slate-100">
+                            <X className="w-5 h-5 text-slate-400" />
+                          </button>
+                        </div>
+
+                        <div className="space-y-3">
+                          <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">Weekly Module Reflections</h4>
+                          {[1, 2, 3, 4].map(idx => (
+                            <div key={idx} className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                              <div className="font-bold text-xs text-slate-800 mb-1">Module {idx} Response:</div>
+                              <p className="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed">
+                                {selectedSubmission.moduleReflections?.[`module${idx}`] || 'No response recorded.'}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-end pt-2 border-t">
+                          <button
+                            onClick={() => setSelectedSubmission(null)}
+                            className="px-5 py-2 bg-emerald-800 text-white rounded-xl text-xs font-bold shadow"
+                          >
+                            Close Review
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              )}
+
+            </main>
+          </div>
+
+        </div>
+      );
+    }
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
