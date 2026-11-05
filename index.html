@@ -15,31 +15,57 @@
   
   <style>
     body { font-family: 'Inter', sans-serif; }
-    /* Custom Scrollbars */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-    /* Clean Print & Desk Reference Styling */
+    /* Garland Background Pattern */
+    .garland-pattern {
+      background-color: #064e3b;
+      background-image: radial-gradient(#10b981 1.5px, transparent 1.5px), radial-gradient(#ef4444 1.5px, transparent 1.5px);
+      background-size: 16px 16px;
+      background-position: 0 0, 8px 8px;
+    }
+
+    /* Festive Movement Animations */
+    @keyframes starTwinkle {
+      0%, 100% { opacity: 0.35; transform: scale(0.85) rotate(-8deg); filter: drop-shadow(0 0 1px gold); }
+      50% { opacity: 1; transform: scale(1.35) rotate(16deg); filter: drop-shadow(0 0 7px #fde047); }
+    }
+    @keyframes starTwinkleAlt {
+      0%, 100% { opacity: 1; transform: scale(1.25) rotate(14deg); filter: drop-shadow(0 0 6px #facc15); }
+      50% { opacity: 0.3; transform: scale(0.8) rotate(-12deg); filter: drop-shadow(0 0 1px #ca8a04); }
+    }
+    @keyframes treeGrowPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.18, 1.25) rotate(-3deg); }
+      50% { transform: scale(1.28, 1.38) rotate(2deg); filter: drop-shadow(0 0 8px #34d399); }
+      75% { transform: scale(1.12, 1.18) rotate(-1deg); }
+    }
+    @keyframes garlandShimmer {
+      0%, 100% { filter: drop-shadow(0 0 2px #059669); }
+      50% { filter: drop-shadow(0 0 8px #10b981) drop-shadow(0 0 10px #f43f5e); }
+    }
+
+    .animate-twinkle { display: inline-block; animation: starTwinkle 1.6s ease-in-out infinite; }
+    .animate-twinkle-alt { display: inline-block; animation: starTwinkleAlt 2.1s ease-in-out infinite; }
+    .animate-tree-grow { display: inline-block; transform-origin: bottom center; animation: treeGrowPulse 2.6s ease-in-out infinite; }
+    .animate-garland-shimmer { animation: garlandShimmer 3s ease-in-out infinite; }
+
+    /* Print & Desk Reference Styling */
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area * { visibility: visible; }
       #print-area {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        display: block !important;
-        background: white !important;
-        color: #0f172a !important;
-        padding: 0.5in;
+        position: absolute; left: 0; top: 0; width: 100%; display: block !important;
+        background: white !important; color: #0f172a !important; padding: 0.5in;
       }
       .no-print { display: none !important; }
     }
   </style>
 
-  <!-- Universal React & Babel for Standalone Execution -->
+  <!-- Standalone React & Babel Setup -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -57,7 +83,7 @@
     const { useState, useEffect } = React;
     const { createRoot } = ReactDOM;
 
-    // --- UNIVERSAL EMBEDDED SVG ICONS ---
+    // --- UNIVERSAL SVG ICONS ---
     const makeIcon = (paths) => ({ className = "w-4 h-4", ...props }) => (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
         {paths}
@@ -79,7 +105,7 @@
     const TreePine = makeIcon(<><path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.3a1 1 0 0 1-.7-1.7L9 9h-.2a1 1 0 0 1-.8-1.7L12 3l4 4.3a1 1 0 0 1-.8 1.7H15l3 3.3a1 1 0 0 1-.7 1.7H17z"/><path d="M12 22v-3"/></>);
     const ChevronRight = makeIcon(<polyline points="9 18 15 12 9 6"/>);
     const ChevronLeft = makeIcon(<polyline points="15 18 9 12 15 6"/>);
-    const Menu = makeIcon(<><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>);
+    const PanelLeft = makeIcon(<><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></>);
     const X = makeIcon(<><path d="M18 6 6 18"/><path d="m6 6 12 12"/></>);
     const Save = makeIcon(<><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></>);
     const ExternalLink = makeIcon(<><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></>);
@@ -102,26 +128,41 @@
     const School = makeIcon(<><path d="m4 6 8-4 8 4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 5v17"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></>);
     const Star = makeIcon(<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>);
     const Printer = makeIcon(<><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></>);
-    const Compass = makeIcon(<><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></>);
 
-    // --- LOGOS WITH CIRCULAR CLIPPING ---
+    // --- ROCK-SOLID EVENT LOGO COMPONENT ---
+    // Anchored directly to your uploaded image file with crisp circular clipping
     function EventLogo({ className = "w-12 h-12" }) {
-      const [hasError, setHasError] = useState(false);
+      const [src, setSrc] = useState("Gemini_Generated_Image_4iybt44iybt44iyb.jpeg");
+      const [hasFailed, setHasFailed] = useState(false);
 
-      if (hasError) {
+      const handleError = () => {
+        if (src === "Gemini_Generated_Image_4iybt44iybt44iyb.jpeg") {
+          setSrc("Gemini_Generated_Image_4iybt44iybt44iyb_2.jpeg");
+        } else {
+          setHasFailed(true);
+        }
+      };
+
+      if (hasFailed) {
         return (
-          <div className={`relative rounded-full bg-emerald-950 p-1 flex items-center justify-center border-2 border-amber-400 shadow-md ${className}`}>
-            <span className="text-[8px] font-bold text-white text-center">TECH<br/>THE HALLS</span>
+          <div className={`relative rounded-full bg-emerald-950 p-1 flex items-center justify-center border-2 border-amber-400 shadow-md select-none shrink-0 ${className}`}>
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              <circle cx="50" cy="50" r="46" fill="#064e3b" stroke="#f59e0b" strokeWidth="3" />
+              <path d="M38 32 Q50 20 62 30 Q68 45 60 62 Q52 75 42 72 Q34 65 35 48 Z" fill="#0284c7" opacity="0.85" />
+              <polygon points="50,42 53,50 62,50 55,55 58,63 50,58 42,63 45,55 38,50 47,50" fill="#facc15" />
+              <rect x="20" y="70" width="60" height="18" rx="4" fill="#0f172a" opacity="0.9" stroke="#f59e0b" strokeWidth="1" />
+              <text x="50" y="82" fontSize="6.5" fontWeight="900" textAnchor="middle" fill="#ffffff" letterSpacing="0.5">TECH THE HALLS</text>
+            </svg>
           </div>
         );
       }
 
       return (
         <img 
-          src="Gemini_Generated_Image_4iybt44iybt44iyb.jpeg" 
+          src={src} 
           alt="Tech the Halls: This or That! - REMC 12E" 
-          onError={() => setHasError(true)}
-          className={`object-cover bg-transparent drop-shadow-md ${className}`}
+          onError={handleError}
+          className={`object-cover bg-white drop-shadow-md shrink-0 ${className}`}
           style={{ clipPath: 'circle(49% at 50% 50%)' }}
         />
       );
@@ -132,9 +173,9 @@
 
       if (hasError) {
         return (
-          <span className="text-[10px] uppercase tracking-widest font-black text-amber-300 bg-emerald-950 px-2.5 py-1 rounded-md border border-amber-400/50 inline-flex items-center space-x-1.5">
+          <span className="text-[10px] uppercase tracking-widest font-black text-amber-300 bg-emerald-950 px-2 py-0.5 rounded border border-amber-400/50 inline-flex items-center space-x-1">
             <span className="text-white font-black">REMC 12E</span>
-            <span className="text-sky-300">• Branch ISD | Calhoun ISD</span>
+            <span className="text-sky-300">• Branch | Calhoun</span>
           </span>
         );
       }
@@ -144,12 +185,12 @@
           src="REMC.RegionalLogos.12E%20(2).png" 
           alt="REMC 12E Branch ISD | Calhoun ISD" 
           onError={() => setHasError(true)}
-          className={`object-contain bg-white rounded-lg p-1 border border-slate-200 shadow-sm ${className}`}
+          className={`object-contain bg-white rounded-lg p-0.5 border border-slate-200 shadow-sm ${className}`}
         />
       );
     }
 
-    // --- CURATED MODULE DATA WITH STREAMLINED RESEARCH & RECIPES ---
+    // --- CURATED MODULE DATA ---
     const modulesData = [
       {
         id: 1,
@@ -158,10 +199,26 @@
         icon: Lightbulb,
         tagline: "Pixels or Paper? Two Brilliant Ways to Conquer Complex Texts",
         annasCorner: "A pencil is technology, too! We're not crowning a winner here—we're exploring how both digital audio dual-coding and tactile paper margin notes help our students wrestle with complex texts.",
+        theme: {
+          name: "cranberry",
+          accentColor: "from-red-600 to-rose-700",
+          headerBorder: "border-red-600",
+          thisBadge: "bg-red-600",
+          thatBadge: "bg-emerald-700",
+          thisCardBorder: "border-red-500",
+          thatCardBorder: "border-emerald-600",
+          showdownBg: "bg-gradient-to-r from-red-600 to-rose-600",
+          thatShowdownBg: "bg-gradient-to-r from-emerald-800 to-teal-800",
+          bakeryIcon: "🍪",
+          bakeryType: "Holiday Cookie Bakery",
+          garlandThis: "from-red-600/90 via-rose-500/80 to-amber-400/80",
+          garlandThat: "from-emerald-600/80 via-emerald-800/90 to-teal-950/90",
+          navActive: "bg-gradient-to-r from-red-600 to-rose-600 ring-amber-300"
+        },
         vibeCheck: {
           k2: "Ever watch a young learner freeze up when looking at a page full of unfamiliar words? How do we build reading confidence? We have brilliant digital read-aloud tools, but we also have tactile, hands-on strategies that build print awareness without screens.",
           g38: "Ever watch a student freeze up when handed a dense, multi-page article? Or conversely, watch them glaze over while scrolling a digital document? Let's compare high-tech audio scaffolds with classic paper jigsaw routines.",
-          h912: "Ever watch a CTE student or high schooler tune out when handed a massive safety manual or historical primary source? Let's look at how AI audio synthesis and structured tactile marginalia can get them engaged."
+          h912: "Ever watch a high schooler or CTE student tune out when handed a massive research article, historical primary source, or safety manual? Let's look at how AI audio synthesis and structured tactile marginalia get all secondary learners engaged."
         },
         tradeOffs: {
           k2: {
@@ -185,14 +242,14 @@
             thatPrep: "3 minutes to print and hand out color highlighters."
           },
           h912: {
-            thisSpark: "Natural language interrogation of technical trade codes, OSHA manuals, and complex texts.",
-            thisTree: "CTE shop safety reviews, legal/historical primary sources, procedural troubleshooting.",
-            thisBlizzard: "Hallucination trust: students fail to double-check AI citations against physical trade manuals.",
-            thisPrep: "1 minute to upload shop manuals into NotebookLM.",
-            thatSpark: "Tactile fine-motor encoding that reinforces muscle memory and spatial blueprint analysis.",
-            thatTree: "Electrical wiring schematics, shop blueprints, laminated procedural checklist sign-offs.",
-            thatBlizzard: "Lost paper copies crumpled at the bottom of toolboxes.",
-            thatPrep: "2 minutes to hand out grease pencils and laminated charts."
+            thisSpark: "Natural language query of complex primary sources, college research papers, and technical trade manuals.",
+            thisTree: "High school DBQs, science lab procedures, ELA research, and CTE safety specs.",
+            thisBlizzard: "Hallucination trust: students fail to double-check AI citations against original physical texts.",
+            thisPrep: "1 minute to upload sources into NotebookLM.",
+            thatSpark: "Tactile fine-motor encoding that reinforces muscle memory, close analytical reading, and spatial schematic mapping.",
+            thatTree: "Close literary analysis, historical primary source marginalia, science schematics, and shop blueprints.",
+            thatBlizzard: "Marking fatigue: students color half the page or lose paper handouts between class periods.",
+            thatPrep: "2 minutes to hand out highlighters, pens, or grease pencils."
           }
         },
         thisTech: { 
@@ -202,82 +259,26 @@
           gradeTiers: {
             k2: {
               tools: [
-                { 
-                  name: "Storyline Online", 
-                  badge: "100% Free • Read Alouds",
-                  whatItIs: "Celebrated actors read classic children's literature aloud with animated illustrations and closed captions.",
-                  url: "https://www.youtube.com/playlist?list=PL04F0FB771098124D",
-                  videoUrl: "https://www.youtube.com/results?search_query=storyline+online+classroom+ideas",
-                  videoLabel: "Storyline Guide"
-                },
-                { 
-                  name: "ReadWorks Audio", 
-                  badge: "100% Free • Non-Profit",
-                  whatItIs: "High-interest K-2 passages with human read-aloud audio, sentence tracking, and picture vocabulary cards.",
-                  url: "https://www.readworks.org",
-                  videoUrl: "https://youtu.be/_-pv3bFARDE?si=pHKXLkztCyTBVQVY",
-                  videoLabel: "ReadWorks Walkthrough"
-                }
+                { name: "Storyline Online", badge: "100% Free • Read Alouds", whatItIs: "Celebrated actors read classic children's literature aloud with animated illustrations and closed captions.", url: "https://www.youtube.com/playlist?list=PL04F0FB771098124D", videoUrl: "https://www.youtube.com/results?search_query=storyline+online+classroom+ideas", videoLabel: "Storyline Guide" },
+                { name: "ReadWorks Audio", badge: "100% Free • Non-Profit", whatItIs: "High-interest K-2 passages with human read-aloud audio, sentence tracking, and picture vocabulary cards.", url: "https://www.readworks.org", videoUrl: "https://youtu.be/_-pv3bFARDE?si=pHKXLkztCyTBVQVY", videoLabel: "ReadWorks Walkthrough" }
               ],
               coachTip: "Play a Storyline Online read-aloud on your screen, pause halfway through, and have students predict the ending!"
             },
             g38: {
               tools: [
-                { 
-                  name: "Google NotebookLM", 
-                  badge: "Grounded AI Assistant",
-                  whatItIs: "Upload PDFs. It grounds an AI assistant strictly in your sources and generates a lively 2-host podcast explaining key ideas.",
-                  url: "https://notebooklm.google.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=notebooklm+for+teachers+tutorial",
-                  videoLabel: "NotebookLM Tour"
-                },
-                { 
-                  name: "Brisk Teaching", 
-                  badge: "Free Chrome Extension",
-                  whatItIs: "Levels any online article or Doc in reading grade level with one click and generates targeted vocabulary scaffolds.",
-                  url: "https://www.briskteaching.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+tutorial+for+teachers",
-                  videoLabel: "Brisk Setup"
-                },
-                { 
-                  name: "Edpuzzle", 
-                  badge: "Interactive Video",
-                  whatItIs: "Embed audio notes and check-in questions directly inside YouTube or teacher videos so students actively process content.",
-                  url: "https://edpuzzle.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=edpuzzle+tutorial+for+teachers",
-                  videoLabel: "Edpuzzle Tour"
-                }
+                { name: "Google NotebookLM", badge: "Grounded AI Assistant", whatItIs: "Upload PDFs. It grounds an AI assistant strictly in your sources and generates a lively 2-host podcast explaining key ideas.", url: "https://notebooklm.google.com", videoUrl: "https://www.youtube.com/results?search_query=notebooklm+for+teachers+tutorial", videoLabel: "NotebookLM Tour" },
+                { name: "Brisk Teaching", badge: "Free Chrome Extension", whatItIs: "Levels any online article or Doc in reading grade level with one click and generates targeted vocabulary scaffolds.", url: "https://www.briskteaching.com", videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+tutorial+for+teachers", videoLabel: "Brisk Setup" },
+                { name: "Edpuzzle", badge: "Interactive Video", whatItIs: "Embed audio notes and check-in questions directly inside YouTube or teacher videos so students actively process content.", url: "https://edpuzzle.com", videoUrl: "https://www.youtube.com/results?search_query=edpuzzle+tutorial+for+teachers", videoLabel: "Edpuzzle Tour" }
               ],
               coachTip: "Play NotebookLM's generated podcast as the opening bellringer while students get settled!"
             },
             h912: {
               tools: [
-                { 
-                  name: "Google NotebookLM", 
-                  badge: "CTE & Secondary Research",
-                  whatItIs: "Upload technical manuals or schematics. Students query the primary source directly to cross-reference citations.",
-                  url: "https://notebooklm.google.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=notebooklm+high+school+research",
-                  videoLabel: "NotebookLM Deep Dive"
-                },
-                { 
-                  name: "Brisk Teaching", 
-                  badge: "Forensic Scaffolding",
-                  whatItIs: "Translate dense technical manuals into tiered reading levels and inspect writing revision histories.",
-                  url: "https://www.briskteaching.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+high+school",
-                  videoLabel: "Brisk Secondary"
-                },
-                { 
-                  name: "Perusall", 
-                  badge: "Social Annotation",
-                  whatItIs: "Students collaboratively annotate difficult secondary or CTE texts in the margins, debating complex ideas together.",
-                  url: "https://perusall.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=perusall+collaborative+annotation",
-                  videoLabel: "Perusall Reading"
-                }
+                { name: "Google NotebookLM", badge: "Secondary & CTE Research", whatItIs: "Upload primary sources, dense history texts, or technical manuals. Students query the source directly to cross-reference citations.", url: "https://notebooklm.google.com", videoUrl: "https://www.youtube.com/results?search_query=notebooklm+high+school+research", videoLabel: "NotebookLM Deep Dive" },
+                { name: "Brisk Teaching", badge: "Forensic Scaffolding", whatItIs: "Translate dense secondary literature or technical manuals into tiered reading levels and inspect writing revision histories.", url: "https://www.briskteaching.com", videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+high+school", videoLabel: "Brisk Secondary" },
+                { name: "Perusall", badge: "Social Annotation", whatItIs: "Students collaboratively annotate difficult secondary or CTE texts in the margins, debating complex claims together.", url: "https://perusall.com", videoUrl: "https://www.youtube.com/results?search_query=perusall+collaborative+annotation", videoLabel: "Perusall Reading" }
               ],
-              coachTip: "Before students touch machinery, have them query NotebookLM for safety protocols."
+              coachTip: "Before students write an essay or operate shop machinery, have them query NotebookLM for core evidence or safety specs."
             }
           },
           pros: [
@@ -293,82 +294,26 @@
           gradeTiers: {
             k2: {
               tools: [
-                { 
-                  name: "The Picture Sequence Jigsaw", 
-                  badge: "Early Cooperative Puzzle",
-                  whatItIs: "Give small groups illustrated cards. In 'home' circles, students physically order their cards sequentially (First, Next, Then, Finally).",
-                  url: "https://www.readingrockets.org/classroom/classroom-strategies/story-sequence",
-                  videoUrl: "https://www.youtube.com/results?search_query=picture+sequencing+cards+early+reading",
-                  videoLabel: "Picture Sequencing"
-                },
-                { 
-                  name: "Pipe Cleaners & Reading Windows", 
-                  badge: "Zero-Cost Tactile Hunts",
-                  whatItIs: "Students bend craft pipe cleaners to frame sight words, or cut a small rectangle out of a recycled card to isolate phonics sounds.",
-                  url: "https://www.readingrockets.org/topics/phonics-and-decoding/articles/six-games-reading-words",
-                  videoUrl: "https://www.youtube.com/results?search_query=reading+window+index+card+strategy",
-                  videoLabel: "Reading Windows"
-                }
+                { name: "The Picture Sequence Jigsaw", badge: "Early Cooperative Puzzle", whatItIs: "Give small groups illustrated cards. In 'home' circles, students physically order their cards sequentially (First, Next, Then, Finally).", url: "https://www.readingrockets.org/classroom/classroom-strategies/story-sequence", videoUrl: "https://www.youtube.com/results?search_query=picture+sequencing+cards+early+reading", videoLabel: "Picture Sequencing" },
+                { name: "Pipe Cleaners & Reading Windows", badge: "Zero-Cost Tactile Hunts", whatItIs: "Students bend craft pipe cleaners to frame sight words, or cut a small rectangle out of a recycled card to isolate phonics sounds.", url: "https://www.readingrockets.org/topics/phonics-and-decoding/articles/six-games-reading-words", videoUrl: "https://www.youtube.com/results?search_query=reading+window+index+card+strategy", videoLabel: "Reading Windows" }
               ],
               coachTip: "Have students use pipe cleaners to make \"magnifying glasses\" to hunt for sight or spelling words."
             },
             g38: {
               tools: [
-                { 
-                  name: "The Aronson Jigsaw Method", 
-                  badge: "Cooperative Learning Protocol",
-                  whatItIs: "Students break into 'expert' groups to master a physical sub-section of a text, then regroup where every peer is needed to complete the puzzle.",
-                  url: "https://www.jigsaw.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=jigsaw+method+classroom+strategy",
-                  videoLabel: "How Jigsaw Works"
-                },
-                { 
-                  name: "Color-Coded Highlighting Matrix", 
-                  badge: "Active Reading Technique",
-                  whatItIs: "Students use 3 physical highlighter colors with intentional jobs: Yellow for Claims, Pink for Evidence, Green for Questions.",
-                  url: "https://www.cultofpedagogy.com/jigsaw-method/",
-                  videoUrl: "https://www.youtube.com/results?search_query=annotation+strategies+for+students",
-                  videoLabel: "Active Paper Annotation"
-                },
-                { 
-                  name: "11x17 Butcher Paper Placemats", 
-                  badge: "Tactile Synthesis",
-                  whatItIs: "Large format paper in the middle of a table with designated quadrants for each student to write their key takeaways.",
-                  url: "https://www.readingrockets.org/strategies/jigsaw",
-                  videoUrl: "https://www.youtube.com/results?search_query=graphic+organizers+cooperative+learning",
-                  videoLabel: "Butcher Paper Placemats"
-                }
+                { name: "The Aronson Jigsaw Method", badge: "Cooperative Learning Protocol", whatItIs: "Students break into 'expert' groups to master a physical sub-section of a text, then regroup where every peer is needed to complete the puzzle.", url: "https://www.jigsaw.org", videoUrl: "https://www.youtube.com/results?search_query=jigsaw+method+classroom+strategy", videoLabel: "How Jigsaw Works" },
+                { name: "Color-Coded Highlighting Matrix", badge: "Active Reading Technique", whatItIs: "Students use 3 physical highlighter colors with intentional jobs: Yellow for Claims, Pink for Evidence, Green for Questions.", url: "https://www.cultofpedagogy.com/jigsaw-method/", videoUrl: "https://www.youtube.com/results?search_query=annotation+strategies+for+students", videoLabel: "Active Paper Annotation" },
+                { name: "11x17 Butcher Paper Placemats", badge: "Tactile Synthesis", whatItIs: "Large format paper in the middle of a table with designated quadrants for each student to write their key takeaways.", url: "https://www.readingrockets.org/strategies/jigsaw", videoUrl: "https://www.youtube.com/results?search_query=graphic+organizers+cooperative+learning", videoLabel: "Butcher Paper Placemats" }
               ],
               coachTip: "Give each expert group a distinct color pen to make participation immediately visible!"
             },
             h912: {
               tools: [
-                { 
-                  name: "Technical Blueprint Jigsaw", 
-                  badge: "CTE Protocol",
-                  whatItIs: "Divide complex wiring diagrams or medical charts into quadrants. Each student masters one subsystem before assembling the full diagnosis.",
-                  url: "https://www.jigsaw.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=cooperative+learning+cte+classroom",
-                  videoLabel: "CTE Cooperative Jigsaws"
-                },
-                { 
-                  name: "Margin Marginalia & Highlighting", 
-                  badge: "Deep Processing Protocol",
-                  whatItIs: "Students read printed primary sources with strict analog rules: highlight no more than 10 words per page and write a 3-word summary in the margin.",
-                  url: "https://www.cultofpedagogy.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=text+marginalia+high+school",
-                  videoLabel: "Text Marginalia"
-                },
-                { 
-                  name: "Shop Flowchart Placemats", 
-                  badge: "Tactile System Mapping",
-                  whatItIs: "Students physically sketch step-by-step diagnostic workflows on oversized paper before turning on shop equipment.",
-                  url: "https://buildingthinkingclassrooms.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=visual+thinking+strategies+cte",
-                  videoLabel: "Visual Thinking in Trade Programs"
-                }
+                { name: "Secondary Source & Blueprint Jigsaw", badge: "High School & CTE Protocol", whatItIs: "Divide complex historical DBQs, science research studies, or trade schematics into quadrants. Each student masters one subsystem before synthesizing.", url: "https://www.jigsaw.org", videoUrl: "https://www.youtube.com/results?search_query=cooperative+learning+cte+classroom", videoLabel: "Secondary Jigsaws" },
+                { name: "Margin Marginalia & Highlighting", badge: "Deep Processing Protocol", whatItIs: "Students read printed primary sources with strict analog rules: highlight no more than 10 words per page and write a 3-word summary in the margin.", url: "https://www.cultofpedagogy.com", videoUrl: "https://www.youtube.com/results?search_query=text+marginalia+high+school", videoLabel: "Text Marginalia" },
+                { name: "Graphic Synthesis Placemats", badge: "Tactile System Mapping", whatItIs: "Students physically sketch argument flowcharts or step-by-step diagnostic workflows on oversized paper before typing or lab work.", url: "https://buildingthinkingclassrooms.com", videoUrl: "https://www.youtube.com/results?search_query=visual+thinking+strategies+cte", videoLabel: "Visual Thinking in Secondary" }
               ],
-              coachTip: "Have CTE students use grease pencils directly on laminated shop charts. Erase and repeat until mastery is 100%!"
+              coachTip: "Have students sign their initials in ink next to their verified text claims or circuit checkpoints!"
             }
           },
           pros: [
@@ -379,53 +324,53 @@
         },
         researchTakeaways: [
           {
-            point: "Dual-Coding Alleviates Working Memory",
-            detail: "Richard Mayer's Multimedia Theory proves that hearing a text while seeing it splits cognitive processing across two channels, drastically reducing reading anxiety.",
-            linkUrl: "https://www.readingrockets.org",
-            linkLabel: "Reading Rockets Guide"
+            point: "Dual-Coding Slashing Mental Bottlenecks",
+            detail: "Richard Mayer's Multimedia Principle proves that pairing spoken audio with visual text uses two separate processing channels—reducing working memory fatigue for developing and multilingual readers.",
+            linkUrl: "https://theelearningcoach.com/learning/learning-theory-and-multimedia/",
+            linkLabel: "The eLearning Coach: Multimedia Principles"
           },
           {
-            point: "The 'Screen Inferiority' Reality",
-            detail: "A landmark meta-analysis (Delgado et al., 171,000+ readers) shows paper leads to significantly higher comprehension on complex informational texts because physical pages create spatial landmarks.",
-            linkUrl: "https://www.cultofpedagogy.com",
-            linkLabel: "Cult of Pedagogy Review"
+            point: "Matching Medium to Purpose",
+            detail: "Rather than screens being 'bad,' research shows format influences focus. Digital tools provide crucial accessibility, font adjustments, and audio leveling, while physical paper provides tactile landmarks that help the brain map complex arguments.",
+            linkUrl: "https://www.edutopia.org/article/deep-reading-digital-texts-middle-high-school/",
+            linkLabel: "Edutopia: Deep Reading in Digital & Print"
           },
           {
             point: "Interdependence Prevents Disengagement",
-            detail: "Elliot Aronson's classic Jigsaw protocol guarantees every student has an essential piece of the puzzle, preventing quiet students from checking out.",
-            linkUrl: "https://www.jigsaw.org",
-            linkLabel: "Official Jigsaw Method"
+            detail: "The classic Jigsaw protocol ensures every student holds an indispensable piece of the puzzle, turning passive skimming into active peer teaching where every voice matters.",
+            linkUrl: "https://www.edutopia.org/article/how-jigsaw-method-revisited/",
+            linkLabel: "Edutopia: The Jigsaw Method Revisited"
           }
         ],
         recipeCards: {
           k2: {
-            title: "Carpet Read-Aloud & Pipe Cleaner Hunt",
-            prepTime: "3 Minutes",
-            ingredients: "1 Streaming Read-Aloud (Storyline Online) + Craft Pipe Cleaners",
+            title: "The Storytime Sugar Cookie",
+            prepTime: "3 Minutes to Mix & Bake",
+            ingredients: "Storyline Online Read-Aloud + Craft Pipe Cleaner Frames",
             steps: [
-              "Hook (Digital): Project a 4-minute Storyline Online story on the big screen with subtitles on. Pause midway and ask students to predict what happens next.",
-              "Hunt (Tactile): Hand each child a pipe cleaner bent into a circle 'magnifying glass'. Give them printed sentence strips to physically frame the target phonics sound.",
-              "Plate & Share: Students pair up 'knee-to-knee' on the carpet to read their framed word aloud to their partner."
+              "1 - Preheat (Digital): Stream a 4-minute Storyline Online story on your screen with captions on. Pause halfway through to let students predict the ending.",
+              "2 - Mix (Tactile): Hand each child a pipe cleaner bent into a circle 'cookie cutter'. On printed readers or big books, students physically frame target sight words or story elements.",
+              "3 - Assemble: Students pair up 'knee-to-knee' on the carpet to read their framed cookie-words aloud to a partner."
             ]
           },
           g38: {
-            title: "The AI Podcast Hook & Expert Jigsaw Walk",
-            prepTime: "2 Minutes",
-            ingredients: "Google NotebookLM (Audio Overview) + Printed Article & 3 Highlighter Colors",
+            title: "The Gingerbread Jigsaw",
+            prepTime: "2 Minutes to Mix & Bake",
+            ingredients: "NotebookLM Audio Overview + Printed Article & 3 Highlighter Colors",
             steps: [
-              "Hook (Digital): As the opening bellringer, play NotebookLM's 4-minute generated podcast summarizing the day's dense article.",
-              "Process (Tactile): Close all Chromebooks! Hand out printed articles. Expert groups highlight: Yellow = Main Claims, Pink = Data/Evidence, Green = Questions.",
-              "Plate & Share: Regroup into home circles. Each expert teaches their quadrant using only their highlighted paper."
+              "1 - Preheat (Digital): As the opening bellringer, play NotebookLM's 4-minute two-host podcast summarizing the day's dense article to give students the big-picture flavor.",
+              "2 - Mix (Tactile): Close all Chromebooks! Hand out printed articles. Expert groups highlight: Yellow = Main Claims, Pink = Data/Evidence, Green = Questions.",
+              "3 - Assemble: Regroup into home circles. Each student brings their piece to the table to teach their portion from highlighted paper without screens."
             ]
           },
           h912: {
-            title: "Technical Safety Interrogation & Blueprint Placemat",
-            prepTime: "4 Minutes",
-            ingredients: "Google NotebookLM + Laminated Shop Schematics & Grease Pencils",
+            title: "The Secondary Snickerdoodle (General High School & CTE)",
+            prepTime: "3 Minutes to Mix & Bake",
+            ingredients: "NotebookLM Source Query + Printed Primary Sources, DBQs, or Technical Schematics",
             steps: [
-              "Hook (Digital): Students query NotebookLM with their technical manuals to generate 3 troubleshooting checks for a simulated equipment fault.",
-              "Process (Tactile): Step away from screens. In pairs at standing tables, students trace diagnostic electrical pathways directly on laminated blueprints using grease pencils.",
-              "Plate & Share: Students must sign their initials in ink next to their verified circuit check before turning on physical machinery."
+              "1 - Preheat (Digital): Students query NotebookLM with a complex historical document, biology research paper, or trade manual to generate 3 focus inquiry questions.",
+              "2 - Mix (Tactile): Step away from screens. Students use strict marginalia (max 10 highlighted words, 3-word margin notes) or trace diagnostic schematics with grease pencils.",
+              "3 - Assemble: Groups conduct a standing vertical discussion or trade peer critiques, verifying their arguments directly against the physical source text."
             ]
           }
         },
@@ -438,10 +383,26 @@
         icon: Users,
         tagline: "Audit Trails & Digital Co-creation vs. Giant Markers & Gallery Walks",
         annasCorner: "When kids share a digital slide deck, they learn to share ideas. When they stand around a physical poster, they learn to share space. Both are essential lifelong skills!",
+        theme: {
+          name: "winter-blue",
+          accentColor: "from-sky-600 to-blue-800",
+          headerBorder: "border-sky-500",
+          thisBadge: "bg-sky-600",
+          thatBadge: "bg-indigo-700",
+          thisCardBorder: "border-sky-500",
+          thatCardBorder: "border-indigo-600",
+          showdownBg: "bg-gradient-to-r from-sky-600 to-blue-700",
+          thatShowdownBg: "bg-gradient-to-r from-indigo-800 to-slate-800",
+          bakeryIcon: "🥧",
+          bakeryType: "Holiday Pie Shop",
+          garlandThis: "from-sky-500/90 via-blue-500/80 to-cyan-300/80",
+          garlandThat: "from-indigo-600/80 via-slate-800/90 to-blue-950/90",
+          navActive: "bg-gradient-to-r from-sky-600 to-blue-700 ring-sky-300"
+        },
         vibeCheck: {
           k2: "Getting primary students to collaborate without arguing over crayons is an art form. How do we build early teamwork? Digital sandbox canvases offer safe sharing, while physical butcher paper routines build spatial awareness.",
           g38: "We all know the group project nightmare: one student does 95% of the work, two talk about sports, and one puts their name on the title slide. Both digital and analog tools have genius ways to solve this—one uses digital forensic receipts, and the other uses visible spatial teamwork!",
-          h912: "In high school and CTE, project management is career prep. How do teams collaborate fairly? Let's compare digital Kanban boards and slide audits against standing physical whiteboards."
+          h912: "In high school and CTE, group project management is vital college & career prep. How do teams collaborate fairly? Let's compare digital Kanban boards and slide audits against standing physical whiteboards."
         },
         tradeOffs: {
           k2: {
@@ -466,11 +427,11 @@
           },
           h912: {
             thisSpark: "Professional agile project management (Kanban) and live multi-user client pitch decks.",
-            thisTree: "Asynchronous group deliverables, CTE team projects, multi-day portfolio construction.",
+            thisTree: "Secondary research presentations, ELA group synthesis, CTE client deliverables.",
             thisBlizzard: "Ghost teammates: students log in, appear active on the avatar circle, but contribute zero content.",
             thisPrep: "3 minutes to set up a FigJam or Canva workspace.",
-            thatSpark: "High-stakes technical debates at standing surfaces with zero screens acting as defensive shields.",
-            thatTree: "Shop diagnostics, structural problem solving, paired technical peer critique.",
+            thatSpark: "High-stakes debates at standing surfaces with zero screens acting as defensive shields.",
+            thatTree: "Math problem solving, debate prep, science lab diagnostics, technical design review.",
             thatBlizzard: "Erased whiteboard diagrams before anyone took a verification photo for documentation.",
             thatPrep: "30 seconds to hand out dry-erase markers."
           }
@@ -482,96 +443,33 @@
           gradeTiers: {
             k2: {
               tools: [
-                { 
-                  name: "Padlet Sandbox", 
-                  badge: "100% Free • For Littles",
-                  whatItIs: "A card-style digital whiteboard built specifically for young learners to drag shapes and stamps together safely.",
-                  url: "https://padlet.com/sandbox",
-                  videoUrl: "https://www.youtube.com/results?search_query=padlet+sandbox+for+teachers+tutorial",
-                  videoLabel: "Padlet Sandbox Tour"
-                },
-                { 
-                  name: "Padlet Audio Wall", 
-                  badge: "Voice Collaboration",
-                  whatItIs: "Pre-readers don't need to type! They simply tap a large red microphone button to record a 10-second voice thought.",
-                  url: "https://padlet.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=padlet+voice+recording+elementary",
-                  videoLabel: "Padlet Audio Guide"
-                },
-                { 
-                  name: "Canva Kids Whiteboard", 
-                  badge: "Free for K-12",
-                  whatItIs: "A safe digital playground where students drag-and-drop holiday icons and sort shapes together.",
-                  url: "https://www.canva.com/education/",
-                  videoUrl: "https://www.youtube.com/results?search_query=canva+whiteboard+elementary+classroom",
-                  videoLabel: "Canva Whiteboards"
-                }
+                { name: "Padlet Sandbox", badge: "100% Free • For Littles", whatItIs: "A card-style digital whiteboard built for young learners to drag shapes and stamps together safely.", url: "https://padlet.com/sandbox", videoUrl: "https://www.youtube.com/results?search_query=padlet+sandbox+for+teachers+tutorial", videoLabel: "Padlet Sandbox Tour" },
+                { name: "Padlet Audio Wall", badge: "Voice Collaboration", whatItIs: "Pre-readers don't need to type! They tap a large microphone button to record a 10-second voice thought.", url: "https://padlet.com", videoUrl: "https://www.youtube.com/results?search_query=padlet+voice+recording+elementary", videoLabel: "Padlet Audio Guide" },
+                { name: "Canva Kids Whiteboard", badge: "Free for K-12", whatItIs: "A safe digital playground where students drag-and-drop holiday icons and sort shapes together.", url: "https://www.canva.com/education/", videoUrl: "https://www.youtube.com/results?search_query=canva+whiteboard+elementary+classroom", videoLabel: "Canva Whiteboards" }
               ],
               coachTip: "Set up a Padlet Audio Wall with a single holiday question. Kindergarteners tap to speak for 10 seconds—no passwords or typing required!"
             },
             g38: {
               tools: [
-                { 
-                  name: "Google Slides 'Version History'", 
-                  badge: "Built-in Audit Trail",
-                  whatItIs: "Click 'File > Version History > See Version History'. Every edit is color-coded by student name so you see who did the work.",
-                  url: "https://slides.google.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=google+slides+version+history+for+teachers",
-                  videoLabel: "Version History Tour"
-                },
-                { 
-                  name: "FigJam for Education", 
-                  badge: "Infinite Whiteboard",
-                  whatItIs: "A free whiteboard where students brainstorm with voting stamps, live emoji reactions, timers, and digital sticky notes.",
-                  url: "https://www.figma.com/education/",
-                  videoUrl: "https://www.youtube.com/results?search_query=figjam+for+education+tutorial",
-                  videoLabel: "FigJam Tour"
-                },
-                { 
-                  name: "Canva for Education", 
-                  badge: "Visual Pitch Decks",
-                  whatItIs: "Students co-create polished multimedia presentations, infographics, and posters with live comments.",
-                  url: "https://www.canva.com/education/",
-                  videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+collaborative+group+work",
-                  videoLabel: "Canva Collaboration"
-                }
+                { name: "Google Slides 'Version History'", badge: "Built-in Audit Trail", whatItIs: "Click 'File > Version History'. Every edit is color-coded by student name so you see who did the work.", url: "https://slides.google.com", videoUrl: "https://www.youtube.com/results?search_query=google+slides+version+history+for+teachers", videoLabel: "Version History Tour" },
+                { name: "FigJam for Education", badge: "Infinite Whiteboard", whatItIs: "A free whiteboard where students brainstorm with voting stamps, live emoji reactions, timers, and digital sticky notes.", url: "https://www.figma.com/education/", videoUrl: "https://www.youtube.com/results?search_query=figjam+for+education+tutorial", videoLabel: "FigJam Tour" },
+                { name: "Canva for Education", badge: "Visual Pitch Decks", whatItIs: "Students co-create polished multimedia presentations, infographics, and posters with live comments.", url: "https://www.canva.com/education/", videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+collaborative+group+work", videoLabel: "Canva Collaboration" }
               ],
               coachTip: "Open Version History on your projector for 30 seconds on day one. Watch accountability skyrocket!"
             },
             h912: {
               tools: [
-                { 
-                  name: "Google Revision History Audits", 
-                  badge: "Forensic Team Audit",
-                  whatItIs: "Teach secondary and CTE students how to read revision timestamps as an authentic project management tool.",
-                  url: "https://slides.google.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=google+docs+revision+history+group+work",
-                  videoLabel: "Revision Audits"
-                },
-                { 
-                  name: "FigJam Kanban Sprint Boards", 
-                  badge: "Agile Project Mgmt",
-                  whatItIs: "High school and trade teams manage group deliverables using digital 'To Do / In Progress / Done' sticky boards.",
-                  url: "https://www.figma.com/education/",
-                  videoUrl: "https://www.youtube.com/results?search_query=figjam+agile+sprint+board+classroom",
-                  videoLabel: "Digital Kanban"
-                },
-                { 
-                  name: "Canva for Teams & Portfolios", 
-                  badge: "Industry Pitch Decks",
-                  whatItIs: "Multi-user design studio where CTE teams produce authentic client deliverables and trade presentation decks.",
-                  url: "https://www.canva.com/education/",
-                  videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+group+projects",
-                  videoLabel: "Industry Presentations"
-                }
+                { name: "Google Revision History Audits", badge: "Secondary & CTE Team Audit", whatItIs: "Teach secondary students how to read revision timestamps as an authentic accountability and coaching tool.", url: "https://slides.google.com", videoUrl: "https://www.youtube.com/results?search_query=google+docs+revision+history+group+work", videoLabel: "Revision Audits" },
+                { name: "FigJam Kanban Sprint Boards", badge: "Agile Project Mgmt", whatItIs: "High school and CTE teams manage group deliverables using digital 'To Do / In Progress / Done' sticky boards.", url: "https://www.figma.com/education/", videoUrl: "https://www.youtube.com/results?search_query=figjam+agile+sprint+board+classroom", videoLabel: "Digital Kanban" },
+                { name: "Canva for Teams & Portfolios", badge: "Secondary Pitch Decks", whatItIs: "Multi-user design studio where secondary and trade teams produce authentic presentations and research decks.", url: "https://www.canva.com/education/", videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+group+projects", videoLabel: "Industry Presentations" }
               ],
-              coachTip: "Require CTE groups to designate a 'Scrum Master' who updates the shared FigJam board daily."
+              coachTip: "Require student groups to designate a project manager who updates the shared FigJam board daily."
             }
           },
           pros: [
             "Completely eliminates the 'He didn't do anything!' dispute through timestamped proof",
             "Allows non-verbal or quiet students to share ideas simultaneously without being talked over",
-            "Accessible from school Chromebooks, phones, and home for busy CTE schedules"
+            "Accessible from school Chromebooks, phones, and home for busy student schedules"
           ]
         },
         thatTech: { 
@@ -581,88 +479,25 @@
           gradeTiers: {
             k2: {
               tools: [
-                { 
-                  name: "Knee-to-Knee Turn & Talk", 
-                  badge: "Zero-Cost Routine",
-                  whatItIs: "Zero purchases needed! Young learners pivot on the carpet until their knees face their partner to practice active listening.",
-                  url: "https://www.edutopia.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=turn+and+talk+strategy+kindergarten",
-                  videoLabel: "Knee-to-Knee Routine"
-                },
-                { 
-                  name: "Double Thumbs-Up Museum Walk", 
-                  badge: "Early Peer Feedback",
-                  whatItIs: "Students walk around the room with hands clasped behind their back and give a silent double thumbs-up or star sticker to favorite work.",
-                  url: "https://www.cultofpedagogy.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+in+kindergarten",
-                  videoLabel: "Museum Walk Guide"
-                },
-                { 
-                  name: "Butcher Paper Tablecloth Pods", 
-                  badge: "Zero-Cost Spatial Teamwork",
-                  whatItIs: "Tape a scrap sheet of butcher paper across a 4-desk pod. Each student works in their corner with crayons, then draws physical 'bridges' connecting them.",
-                  url: "https://www.readingrockets.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=collaborative+drawing+elementary+butcher+paper",
-                  videoLabel: "Pod Drawing"
-                }
+                { name: "Knee-to-Knee Turn & Talk", badge: "Zero-Cost Routine", whatItIs: "Zero purchases needed! Young learners pivot on the carpet until their knees face their partner to practice active listening.", url: "https://www.edutopia.org", videoUrl: "https://www.youtube.com/results?search_query=turn+and+talk+strategy+kindergarten", videoLabel: "Knee-to-Knee Routine" },
+                { name: "Double Thumbs-Up Museum Walk", badge: "Early Peer Feedback", whatItIs: "Students walk around the room with hands clasped behind their back and give a silent double thumbs-up or star sticker to favorite work.", url: "https://www.cultofpedagogy.com", videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+in+kindergarten", videoLabel: "Museum Walk Guide" },
+                { name: "Butcher Paper Tablecloth Pods", badge: "Zero-Cost Spatial Teamwork", whatItIs: "Tape a scrap sheet of butcher paper across a 4-desk pod. Each student works in their corner with crayons, then draws physical 'bridges' connecting them.", url: "https://www.readingrockets.org", videoUrl: "https://www.youtube.com/results?search_query=collaborative+drawing+elementary+butcher+paper", videoLabel: "Pod Drawing" }
               ],
               coachTip: "Practicing the physical body pivot for Knee-to-Knee talk makes partner collaboration second nature!"
             },
             g38: {
               tools: [
-                { 
-                  name: "The Silent Gallery Walk", 
-                  badge: "Kinesthetic Peer Critique",
-                  whatItIs: "Posters hang around the room. In absolute silence with soft holiday music playing, students rotate with sticky pads leaving peer feedback.",
-                  url: "https://www.edutopia.org/article/teaching-strategy-gallery-walk",
-                  videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+teaching+strategy",
-                  videoLabel: "Gallery Walk Tips"
-                },
-                { 
-                  name: "Affinity Mapping Butcher Paper", 
-                  badge: "Physical Card Sorting",
-                  whatItIs: "Students jot 10 ideas onto physical sticky notes, slap them onto butcher paper, and physically slide them around to cluster related concepts.",
-                  url: "https://gamestorming.com/affinity-map/",
-                  videoUrl: "https://www.youtube.com/results?search_query=affinity+mapping+in+the+classroom",
-                  videoLabel: "Affinity Mapping Tour"
-                },
-                { 
-                  name: "Vertical Non-Permanent Surfaces (VNPS)", 
-                  badge: "Liljedahl Protocol",
-                  whatItIs: "From Building Thinking Classrooms—students stand at whiteboards in groups of 3 with one marker to maximize thinking time.",
-                  url: "https://buildingthinkingclassrooms.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+vertical+non-permanent+surfaces",
-                  videoLabel: "Vertical Surfaces in 3 Min"
-                }
+                { name: "The Silent Gallery Walk", badge: "Kinesthetic Peer Critique", whatItIs: "Posters hang around the room. In absolute silence with soft holiday music playing, students rotate with sticky pads leaving peer feedback.", url: "https://www.edutopia.org/article/teaching-strategy-gallery-walk", videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+teaching+strategy", videoLabel: "Gallery Walk Tips" },
+                { name: "Affinity Mapping Butcher Paper", badge: "Physical Card Sorting", whatItIs: "Students jot ideas onto physical sticky notes, slap them onto butcher paper, and physically slide them around to cluster related concepts.", url: "https://gamestorming.com/affinity-map/", videoUrl: "https://www.youtube.com/results?search_query=affinity+mapping+in+the+classroom", videoLabel: "Affinity Mapping Tour" },
+                { name: "Vertical Non-Permanent Surfaces (VNPS)", badge: "Liljedahl Protocol", whatItIs: "From Building Thinking Classrooms—students stand at whiteboards in groups of 3 with one marker to maximize thinking time.", url: "https://buildingthinkingclassrooms.com", videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+vertical+non-permanent+surfaces", videoLabel: "Vertical Surfaces in 3 Min" }
               ],
               coachTip: "Assign each group member one specific colored marker to create an analog version history on paper!"
             },
             h912: {
               tools: [
-                { 
-                  name: "Vertical Whiteboard Sprints", 
-                  badge: "Problem-Solving in Teams",
-                  whatItIs: "Randomly assign high school/CTE students to groups of 3 at standing whiteboards with only 1 dry-erase marker to force active debate.",
-                  url: "https://buildingthinkingclassrooms.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+high+school",
-                  videoLabel: "VNPS in High School"
-                },
-                { 
-                  name: "Peer Review Gallery Stations", 
-                  badge: "Technical Critique",
-                  whatItIs: "Trade drafts or project prototypes sit on perimeter tables. Students rotate in pairs with physical rubric cards, writing specific technical feedback.",
-                  url: "https://www.edutopia.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=peer+review+strategies+high+school",
-                  videoLabel: "Peer Review Stations"
-                },
-                { 
-                  name: "Systems Affinity Mapping", 
-                  badge: "Systems Thinking",
-                  whatItIs: "Teams use color-coded sticky notes on shop glass or walls to map out complex multi-variable problems.",
-                  url: "https://gamestorming.com/affinity-map/",
-                  videoUrl: "https://www.youtube.com/results?search_query=affinity+diagramming+design+thinking",
-                  videoLabel: "Systems Mapping"
-                }
+                { name: "Vertical Whiteboard Sprints", badge: "Problem-Solving in Teams", whatItIs: "Assign high school and CTE students to groups of 3 at standing whiteboards with only 1 dry-erase marker to force active debate.", url: "https://buildingthinkingclassrooms.com", videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+high+school", videoLabel: "VNPS in High School" },
+                { name: "Peer Review Gallery Stations", badge: "Technical & Essay Critique", whatItIs: "Research drafts or project prototypes sit on perimeter tables. Students rotate in pairs with physical rubric cards, writing specific technical feedback.", url: "https://www.edutopia.org", videoUrl: "https://www.youtube.com/results?search_query=peer+review+strategies+high+school", videoLabel: "Peer Review Stations" },
+                { name: "Systems Affinity Mapping", badge: "Systems Thinking", whatItIs: "Teams use color-coded sticky notes on chalkboards or walls to map out complex multi-variable problems and thesis outlines.", url: "https://gamestorming.com/affinity-map/", videoUrl: "https://www.youtube.com/results?search_query=affinity+diagramming+design+thinking", videoLabel: "Systems Mapping" }
               ],
               coachTip: "Enforce this rule: The person holding the marker CANNOT write their own ideas—they can only write what teammates dictate!"
             }
@@ -674,54 +509,39 @@
           ]
         },
         researchTakeaways: [
-          {
-            point: "Dismantling 'Social Loafing'",
-            detail: "Vygotsky's Social Development Theory tells us peers learn through co-construction. Digital Version History removes the free-rider problem by making individual effort transparent.",
-            linkUrl: "https://www.edutopia.org",
-            linkLabel: "Edutopia Group Work"
-          },
-          {
-            point: "Vertical Standing Increases Thinking Time",
-            detail: "Peter Liljedahl's research in 'Building Thinking Classrooms' proves that standing at vertical erasable surfaces (VNPS) with 1 marker per 3 students produces immediate problem engagement.",
-            linkUrl: "https://buildingthinkingclassrooms.com",
-            linkLabel: "Thinking Classrooms Guide"
-          },
-          {
-            point: "Tactile Sticky Note Critique",
-            detail: "Physical sticky notes encourage kinder, more thoughtful peer feedback because handwriting feels personal and cannot be deleted with a backspace key.",
-            linkUrl: "https://www.cultofpedagogy.com",
-            linkLabel: "Gallery Walk Strategies"
-          }
+          { point: "Dismantling 'Social Loafing'", detail: "Vygotsky's Social Development Theory proves peers learn through co-construction. Version History ends the free-rider problem by making individual work transparent.", linkUrl: "https://www.edutopia.org", linkLabel: "Edutopia: Group Work Accountability" },
+          { point: "Vertical Standing Increases Thinking Time", detail: "Peter Liljedahl's research in Building Thinking Classrooms proves that standing at vertical erasable surfaces (VNPS) with 1 marker per 3 students produces immediate problem engagement.", linkUrl: "https://buildingthinkingclassrooms.com", linkLabel: "Thinking Classrooms Guide" },
+          { point: "Tactile Sticky Note Critique", detail: "Physical sticky notes encourage kinder, more thoughtful peer feedback because handwriting feels personal and cannot be deleted with a backspace key.", linkUrl: "https://www.cultofpedagogy.com", linkLabel: "Gallery Walk Strategies" }
         ],
         recipeCards: {
           k2: {
-            title: "Butcher Paper Bridges & Voice Gallery",
-            prepTime: "2 Minutes",
+            title: "The Apple Pocket Pie (Pod Paper & Voice)",
+            prepTime: "2 Minutes to Prep Crust",
             ingredients: "1 Sheet Butcher Paper + Padlet Audio Sandbox",
             steps: [
-              "Create (Tactile): Tape butcher paper across a pod table. Each student draws their holiday community corner, then connects roads to their neighbor's drawing.",
-              "Record (Digital): Open Padlet Audio on a shared tablet. Students take a photo of their physical drawing and record a 15-second voice tour explaining how their drawings connect.",
-              "Celebrate: Play the audio clips during carpet time while students look at the real poster on the wall."
+              "1 - Preheat (Digital): Open Padlet Audio on a classroom tablet. Young learners tap the red microphone to record a 15-second voice greeting sharing their pod's team goal.",
+              "2 - Mix (Tactile): Tape butcher paper across a pod table. Each student draws their corner with crayons, then draws physical bridges connecting to their neighbor's slice.",
+              "3 - Assemble: Gather at the carpet. Play the audio clips while students admire their completed physical tablecloth poster on the wall."
             ]
           },
           g38: {
-            title: "Digital Draft & Silent Sticky Note Walk",
-            prepTime: "3 Minutes",
+            title: "The Triple-Berry Version History Pie",
+            prepTime: "3 Minutes to Mix & Bake",
             ingredients: "Google Slides (Version History Checked) + Chart Paper & Neon Sticky Notes",
             steps: [
-              "Draft (Digital): Students collaborate on a 3-slide pitch in Google Slides. The teacher displays Version History on the smartboard to celebrate equal contribution.",
-              "Pitch (Tactile): Groups transfer their single biggest idea onto a physical poster with markers.",
-              "Critique: Play soft holiday music. Students walk in absolute silence with sticky pads, leaving 1 Specific Praise and 1 Thoughtful Question on every poster."
+              "1 - Preheat (Digital): Students collaborate on a 3-slide outline in Google Slides. The teacher displays Version History on the smartboard to verify participation receipts.",
+              "2 - Mix (Tactile): Groups transfer their single biggest claim onto a physical poster with markers, dividing the poster into equal team slices.",
+              "3 - Assemble: Play soft holiday music. Students walk in absolute silence with sticky pads, leaving 1 Praise and 1 Question on every team's pie slice."
             ]
           },
           h912: {
-            title: "Canva Pitch Deck & Standing Whiteboard Sprint",
-            prepTime: "2 Minutes",
-            ingredients: "Canva for Education + Vertical Standing Whiteboards",
+            title: "The Savory Kanban Galette (Secondary & CTE)",
+            prepTime: "2 Minutes to Assemble",
+            ingredients: "Canva / FigJam Kanban Board + Vertical Standing Whiteboards",
             steps: [
-              "Sprint (Tactile): Assign groups of 3 at standing whiteboards with only 1 dry-erase marker. The marker holder can only write what teammates dictate for 10 minutes.",
-              "Deliver (Digital): Once the logic is verified, the group translates the blueprint into a client presentation deck in Canva.",
-              "Review: Peers close all laptops during final pitches and write rubric scorecards by hand for 100% eye contact."
+              "1 - Preheat (Digital): Teams review rubric constraints and digital reference docs in Canva or FigJam, assigning sprint cards.",
+              "2 - Mix (Tactile): Assign groups of 3 at standing whiteboards with only 1 dry-erase marker. The marker holder writes only what teammates dictate.",
+              "3 - Assemble: Translate the verified logic into a slide deck. Peers close laptops during final pitches and write rubric scorecards by hand."
             ]
           }
         },
@@ -734,10 +554,26 @@
         icon: Gamepad2,
         tagline: "Gamified Digital Loops vs. Face-to-Face Tabletop Strategy",
         annasCorner: "Games hijack dopamine in the best way possible! Use screens for rapid diagnostic reps with instant corrective loops, and tabletop cardboard for emotional regulation, turn-taking, and face-to-face patience.",
+        theme: {
+          name: "cinnamon-spice",
+          accentColor: "from-amber-600 to-orange-700",
+          headerBorder: "border-amber-500",
+          thisBadge: "bg-amber-600",
+          thatBadge: "bg-orange-800",
+          thisCardBorder: "border-amber-500",
+          thatCardBorder: "border-orange-700",
+          showdownBg: "bg-gradient-to-r from-amber-600 to-orange-600",
+          thatShowdownBg: "bg-gradient-to-r from-stone-800 to-amber-950",
+          bakeryIcon: "🥐",
+          bakeryType: "Warm Cinnamon Roll & Pastry Bakery",
+          garlandThis: "from-amber-500/90 via-orange-500/80 to-yellow-300/80",
+          garlandThat: "from-stone-700/80 via-amber-900/90 to-stone-950/90",
+          navActive: "bg-gradient-to-r from-amber-600 to-orange-600 ring-amber-300"
+        },
         vibeCheck: {
           k2: "Young kids naturally learn through play. But when does an iPad game help them master phonics, and when does rolling physical dice build executive function that a screen simply cannot teach?",
           g38: "Games hijack dopamine in the best way possible! Kids love games. But when does an arcade game on a Chromebook help, and when does rolling dice around a physical table build executive function that screens cannot teach?",
-          h912: "Even high schoolers love to play. Let's compare digital diagnostic gaming arenas (where tech manages the math) against tabletop strategy games (where students must enforce the rules themselves)."
+          h912: "Even high schoolers love games. Let's compare digital diagnostic gaming arenas (where tech manages the math) against tabletop strategy games (where secondary students must enforce the rules themselves)."
         },
         tradeOffs: {
           k2: {
@@ -761,12 +597,12 @@
             thatPrep: "Request a free tabletop crate from REMC 12E checkout portal."
           },
           h912: {
-            thisSpark: "Safe digital trial-and-error where students can blow up virtual circuits without burning real shop fuses.",
-            thisTree: "STEM labs, self-paced diagnostic mastery, procedural troubleshooting sets.",
-            thisBlizzard: "Trial-and-error guessing without calculating the formulas first.",
+            thisSpark: "Safe digital trial-and-error where secondary students can test hypotheses and complex physics without equipment risks.",
+            thisTree: "High school STEM labs, AP exam review, CTE technical procedures.",
+            thisBlizzard: "Trial-and-error clicking without calculating underlying formulas.",
             thisPrep: "1 minute to link a PhET simulation or Quizizz set.",
-            thatSpark: "High-level categorization and system constraint thinking with custom trade terms.",
-            thatTree: "CTE shop vocabulary, classification of technical tools, team-building communication.",
+            thatSpark: "High-level classification and system constraint thinking with custom curriculum terms.",
+            thatTree: "Secondary academic vocabulary, trade tool classification, team-building communication.",
             thatBlizzard: "Teenager skepticism until they realize the board game is genuinely competitive.",
             thatPrep: "Free courier drop-off from REMC 12E."
           }
@@ -778,96 +614,33 @@
           gradeTiers: {
             k2: {
               tools: [
-                { 
-                  name: "PBS KIDS Games", 
-                  badge: "100% Free • Zero Ads",
-                  whatItIs: "High-quality, curriculum-aligned math and SEL games featuring beloved characters. Completely free without paywalls.",
-                  url: "https://pbskids.org/games",
-                  videoUrl: "https://www.youtube.com/results?search_query=pbs+kids+games+in+the+classroom",
-                  videoLabel: "PBS KIDS Games Tour"
-                },
-                { 
-                  name: "Toy Theater Learning", 
-                  badge: "100% Free • Manipulatives",
-                  whatItIs: "Clean, ad-free educational games and digital manipulatives designed specifically for early elementary (pattern blocks, clocks, dice).",
-                  url: "https://toytheater.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=toy+theater+for+teachers+tutorial",
-                  videoLabel: "Toy Theater Guide"
-                },
-                { 
-                  name: "ABCya (Browser Edition)", 
-                  badge: "Free on Browsers",
-                  whatItIs: "Accessible directly on desktop or Chromebook web browsers for free, organized by skill area with engaging audio prompts.",
-                  url: "https://www.abcya.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=abcya+games+in+elementary+classroom",
-                  videoLabel: "ABCya Walkthrough"
-                }
+                { name: "PBS KIDS Games", badge: "100% Free • Zero Ads", whatItIs: "Curriculum-aligned math and SEL games featuring beloved characters. Free without paywalls.", url: "https://pbskids.org/games", videoUrl: "https://www.youtube.com/results?search_query=pbs+kids+games+in+the+classroom", videoLabel: "PBS KIDS Games Tour" },
+                { name: "Toy Theater Learning", badge: "100% Free • Manipulatives", whatItIs: "Clean, ad-free educational games and digital manipulatives designed specifically for early elementary.", url: "https://toytheater.com", videoUrl: "https://www.youtube.com/results?search_query=toy+theater+for+teachers+tutorial", videoLabel: "Toy Theater Guide" },
+                { name: "ABCya (Browser Edition)", badge: "Free on Browsers", whatItIs: "Accessible directly on desktop or Chromebook web browsers for free, organized by skill area.", url: "https://www.abcya.com", videoUrl: "https://www.youtube.com/results?search_query=abcya+games+in+elementary+classroom", videoLabel: "ABCya Walkthrough" }
               ],
               coachTip: "Use Toy Theater's digital pattern blocks on your interactive board for a 5-minute morning routine before kids touch physical blocks at their tables."
             },
             g38: {
               tools: [
-                { 
-                  name: "Mission.IO / Gimkit", 
-                  badge: "Game Arenas",
-                  whatItIs: "Students answer curriculum questions to earn in-game energy, collect resources, and collaborate on modes like 'Floor is Lava' and 'Snowbrawl'.",
-                  url: "https://www.gimkit.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=gimkit+modes+for+teachers+tutorial",
-                  videoLabel: "Gimkit Modes Setup"
-                },
-                { 
-                  name: "Blooket", 
-                  badge: "Arcade Formative Fun",
-                  whatItIs: "Wraps review questions inside tower defense and cafe simulations. Built-in handicap mechanics give every student a chance to win.",
-                  url: "https://www.blooket.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=blooket+tutorial+for+teachers",
-                  videoLabel: "Blooket Teacher Setup"
-                },
-                { 
-                  name: "Quizizz Team Mode", 
-                  badge: "Collaborative Feedback",
-                  whatItIs: "Run team-based question missions where students pool their correct answers together to defeat challenges with live accuracy breakdowns.",
-                  url: "https://quizizz.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=quizizz+team+mode+classroom",
-                  videoLabel: "Quizizz Team Mode"
-                }
+                { name: "Mission.IO / Gimkit", badge: "Game Arenas", whatItIs: "Students answer curriculum questions to earn in-game energy, collect resources, and collaborate on modes like 'Floor is Lava'.", url: "https://www.gimkit.com", videoUrl: "https://www.youtube.com/results?search_query=gimkit+modes+for+teachers+tutorial", videoLabel: "Gimkit Modes Setup" },
+                { name: "Blooket", badge: "Arcade Formative Fun", whatItIs: "Wraps review questions inside tower defense and cafe simulations with built-in handicap mechanics.", url: "https://www.blooket.com", videoUrl: "https://www.youtube.com/results?search_query=blooket+tutorial+for+teachers", videoLabel: "Blooket Teacher Setup" },
+                { name: "Quizizz Team Mode", badge: "Collaborative Feedback", whatItIs: "Run team-based question missions where students pool their correct answers together to defeat challenges.", url: "https://quizizz.com", videoUrl: "https://www.youtube.com/results?search_query=quizizz+team+mode+classroom", videoLabel: "Quizizz Team Mode" }
               ],
-              coachTip: "Switch Gimkit to 'Team Mode' or 'Floor is Lava' so students must combine their energy toward a shared community goal!"
+              coachTip: "Switch Gimkit to 'Team Mode' or 'Floor is Lava' so students combine their energy toward a shared community goal!"
             },
             h912: {
               tools: [
-                { 
-                  name: "Gimkit (Secondary)", 
-                  badge: "Review Missions",
-                  whatItIs: "High school and CTE students use Gimkit's 2D game arena modes for high-stakes terminology, safety protocols, and vocabulary reviews.",
-                  url: "https://www.gimkit.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=gimkit+high+school+classroom",
-                  videoLabel: "Gimkit Secondary"
-                },
-                { 
-                  name: "Quizizz Mastery Arenas", 
-                  badge: "Diagnostic Gaming",
-                  whatItIs: "Secondary students complete gamified question sets at their own pace, unlocking power-ups while giving instructors detailed data.",
-                  url: "https://quizizz.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=quizizz+for+high+school+teachers",
-                  videoLabel: "Quizizz Mastery"
-                },
-                { 
-                  name: "PhET Interactive Challenges", 
-                  badge: "STEM Sandboxes",
-                  whatItIs: "Safe digital labs where students solve circuit puzzles, balance chemical equations, and optimize trajectory vectors in a trial-and-error environment.",
-                  url: "https://phet.colorado.edu",
-                  videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+high+school",
-                  videoLabel: "PhET Challenges"
-                }
+                { name: "Gimkit (Secondary)", badge: "Review Missions", whatItIs: "High school and CTE students use Gimkit's arena modes for vocabulary, safety protocols, and complex concept reviews.", url: "https://www.gimkit.com", videoUrl: "https://www.youtube.com/results?search_query=gimkit+high+school+classroom", videoLabel: "Gimkit Secondary" },
+                { name: "Quizizz Mastery Arenas", badge: "Diagnostic Gaming", whatItIs: "Secondary students complete gamified question sets at their own pace with detailed instructor data.", url: "https://quizizz.com", videoUrl: "https://www.youtube.com/results?search_query=quizizz+for+high+school+teachers", videoLabel: "Quizizz Mastery" },
+                { name: "PhET Interactive Challenges", badge: "STEM Sandboxes", whatItIs: "Safe digital labs where students solve circuit puzzles, balance chemical equations, and optimize vectors.", url: "https://phet.colorado.edu", videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+high+school", videoLabel: "PhET Challenges" }
               ],
-              coachTip: "Challenge CTE students to build their own Gimkit question bank as an end-of-unit review project to test another class section."
+              coachTip: "Challenge secondary students to build their own Gimkit question bank as an end-of-unit review project to test peers."
             }
           },
           pros: [
             "Immediate corrective feedback prevents students from internalizing wrong answers",
             "Automated data dashboards provide instant heatmaps of which questions tripped up the class",
-            "Hooks even the most reluctant learners with engaging arcade game mechanics"
+            "Hooks even reluctant learners with engaging game mechanics"
           ]
         },
         thatTech: { 
@@ -877,90 +650,27 @@
           gradeTiers: {
             k2: {
               tools: [
-                { 
-                  name: "Spot It! (REMC 12E)", 
-                  badge: "Visual Perception",
-                  whatItIs: "Available from REMC 12E! Between any two cards, there is always exactly one matching symbol. Builds rapid visual discrimination and impulse control.",
-                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
-                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+spot+it+game",
-                  videoLabel: "Spot It! Play Guide"
-                },
-                { 
-                  name: "Buildzi (REMC 12E)", 
-                  badge: "Block Stacking",
-                  whatItIs: "Available from REMC 12E! Students flip challenge cards and race to assemble colorful tactile blocks into balanced 3D towers.",
-                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
-                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+buildzi+game",
-                  videoLabel: "Buildzi Play Guide"
-                },
-                { 
-                  name: "REMC Game Cards", 
-                  badge: "Free MI Teacher Cards",
-                  whatItIs: "Download official REMC game cards with standards-aligned lesson plans, 21st-century skill crosswalks, and timing guides for Michigan educators.",
-                  url: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/",
-                  videoUrl: "https://www.youtube.com/results?search_query=remc+critical+thinking+tabletop+games",
-                  videoLabel: "REMC Tabletop Project"
-                }
+                { name: "Spot It! (REMC 12E)", badge: "Visual Perception", whatItIs: "Available from REMC 12E! Rapid visual discrimination and impulse control with zero reading barrier.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=how+to+play+spot+it+game", videoLabel: "Spot It! Play Guide" },
+                { name: "Buildzi (REMC 12E)", badge: "Block Stacking", whatItIs: "Available from REMC 12E! Students race to assemble colorful tactile blocks into balanced 3D towers.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=how+to+play+buildzi+game", videoLabel: "Buildzi Play Guide" },
+                { name: "REMC Game Cards", badge: "Free MI Teacher Cards", whatItIs: "Download official REMC game cards with standards-aligned lesson plans and timing guides for Michigan educators.", url: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/", videoUrl: "https://www.youtube.com/results?search_query=remc+critical+thinking+tabletop+games", videoLabel: "REMC Tabletop Project" }
               ],
               coachTip: "Play Spot It! in pairs during small-group literacy centers. Ask students to shout the initial letter sound of the matching picture!"
             },
             g38: {
               tools: [
-                { 
-                  name: "Things in Rings (REMC 12E)", 
-                  badge: "Venn Deduction",
-                  whatItIs: "Borrow from REMC 12E! Players place item cards into three overlapping rings based on secret rules. Forces deductive logic and categorical classification.",
-                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
-                  videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+game+how+to+play",
-                  videoLabel: "Things in Rings Tour"
-                },
-                { 
-                  name: "Codenames (REMC 12E)", 
-                  badge: "Vocabulary & Semantics",
-                  whatItIs: "Borrow from REMC 12E! Two spymasters give one-word clues pointing to multiple word cards on the table. Forces rich lateral thinking.",
-                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
-                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+codenames+classroom",
-                  videoLabel: "Codenames Guide"
-                },
-                { 
-                  name: "REMC Checkout Portal", 
-                  badge: "Free Courier Delivery",
-                  whatItIs: "REMC 12E delivers full board game crates directly to your school via regional courier at zero cost to your budget.",
-                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
-                  videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking",
-                  videoLabel: "Tabletop in School"
-                }
+                { name: "Things in Rings (REMC 12E)", badge: "Venn Deduction", whatItIs: "Borrow from REMC 12E! Players place item cards into three overlapping rings based on secret rules.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+game+how+to+play", videoLabel: "Things in Rings Tour" },
+                { name: "Codenames (REMC 12E)", badge: "Vocabulary & Semantics", whatItIs: "Borrow from REMC 12E! Two spymasters give one-word clues pointing to multiple word cards on the table.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=how+to+play+codenames+classroom", videoLabel: "Codenames Guide" },
+                { name: "REMC Checkout Portal", badge: "Free Courier Delivery", whatItIs: "REMC 12E delivers full board game crates directly to your school via regional courier at zero cost.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking", videoLabel: "Tabletop in School" }
               ],
-              coachTip: "Host a 15-minute 'Tabletop Warm-up' on Friday mornings using your borrowed REMC crate. Watch genuine classroom community flourish!"
+              coachTip: "Host a 15-minute 'Tabletop Warm-up' on Friday mornings using your borrowed REMC crate. Watch genuine community flourish!"
             },
             h912: {
               tools: [
-                { 
-                  name: "Things in Rings (Systems Logic)", 
-                  badge: "REMC 12E Checkout",
-                  whatItIs: "High school & CTE students use overlapping Venn logic to categorize complex technical materials and trade processes based on hidden rules.",
-                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
-                  videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+board+game",
-                  videoLabel: "Things in Rings Logic"
-                },
-                { 
-                  name: "Codenames: Technical Edition", 
-                  badge: "REMC 12E Checkout",
-                  whatItIs: "Swap out standard cards for trade-specific terms (automotive parts, health science jargon). Spymasters connect 3 technical terms with one conceptual clue.",
-                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
-                  videoUrl: "https://www.youtube.com/results?search_query=codenames+in+the+classroom",
-                  videoLabel: "Codenames Adaptations"
-                },
-                { 
-                  name: "REMC Checkout Portal", 
-                  badge: "Free Courier Delivery",
-                  whatItIs: "REMC 12E delivers full board game crates directly to your school or career center via regional courier at zero cost.",
-                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true",
-                  videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking",
-                  videoLabel: "Why Tabletop Belongs"
-                }
+                { name: "Things in Rings (Systems Logic)", badge: "REMC 12E Checkout", whatItIs: "Secondary and CTE students use overlapping Venn logic to categorize complex scientific materials, historical figures, or technical tools.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+board+game", videoLabel: "Things in Rings Logic" },
+                { name: "Codenames: Curriculum Edition", badge: "REMC 12E Checkout", whatItIs: "Swap out standard cards for course-specific terms (history, literature, science, or trade terms). Spymasters connect 3 terms with one clue.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=codenames+in+the+classroom", videoLabel: "Codenames Adaptations" },
+                { name: "REMC Checkout Portal", badge: "Free Courier Delivery", whatItIs: "REMC 12E delivers full board game crates directly to your high school or career center via regional courier at zero cost.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking", videoLabel: "Why Tabletop Belongs" }
               ],
-              coachTip: "Have CTE students design their own custom card pack for Things in Rings testing safety and tool classification!"
+              coachTip: "Have secondary students design their own custom card pack for Things in Rings testing unit concepts or tool classification!"
             }
           },
           pros: [
@@ -970,54 +680,39 @@
           ]
         },
         researchTakeaways: [
-          {
-            point: "Formative Speed (Hattie d = 0.70)",
-            detail: "John Hattie's research proves immediate feedback carries one of the highest effect sizes in education. Digital games correct misconceptions on the spot before students drill mistakes.",
-            linkUrl: "https://visible-learning.org",
-            linkLabel: "Visible Learning Meta-Analysis"
-          },
-          {
-            point: "Adele Diamond on Prefrontal Self-Regulation",
-            detail: "Neuroscientist Adele Diamond proves tabletop games develop working memory and inhibitory control in ways video games cannot, because children must self-police without an algorithm stepping in.",
-            linkUrl: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/",
-            linkLabel: "REMC Tabletop Research"
-          },
-          {
-            point: "Emotional Regulation in Defeat",
-            detail: "Losing a card game with physical peers teaches grace and perspective. Digital games often prompt anger at screens, whereas physical games invite laughter and community.",
-            linkUrl: "https://www.edutopia.org",
-            linkLabel: "Edutopia Games & SEL"
-          }
+          { point: "Formative Speed (Hattie d = 0.70)", detail: "John Hattie's research proves immediate feedback carries one of the highest effect sizes in education. Digital games correct misconceptions on the spot before students drill mistakes.", linkUrl: "https://visible-learning.org", linkLabel: "Visible Learning Meta-Analysis" },
+          { point: "Adele Diamond on Prefrontal Self-Regulation", detail: "Neuroscientist Adele Diamond proves tabletop games develop working memory and inhibitory control in ways video games cannot, because children must self-police without an algorithm stepping in.", linkUrl: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/", linkLabel: "REMC Tabletop Research" },
+          { point: "Emotional Regulation in Defeat", detail: "Losing a card game with physical peers teaches grace and perspective. Digital games often prompt anger at screens, whereas physical games invite laughter and community.", linkUrl: "https://www.edutopia.org", linkLabel: "Edutopia Games & SEL" }
         ],
         recipeCards: {
           k2: {
-            title: "Subitizing Dice & Digital Pattern Blocks",
-            prepTime: "2 Minutes",
+            title: "The Glazed Cinnamon Roll Twist",
+            prepTime: "2 Minutes to Twist",
             ingredients: "Chunky Foam Dice + Toy Theater Digital Blocks",
             steps: [
-              "Roll & Move (Tactile): Roll physical foam dice on the rug. Students race to clap the number of dots (subitizing) and place that many counting bears in their tray.",
-              "Level Up (Digital): Transition to Toy Theater pattern blocks on tablets to assemble digital gingerbread figures with symmetry.",
-              "Debrief: Ask students: 'Which was faster: moving the real wooden bears or sliding the blocks on screen?'"
+              "1 - Preheat (Digital): Open Toy Theater pattern blocks on tablets to assemble digital pastry figures with geometric symmetry.",
+              "2 - Mix (Tactile): Roll physical foam dice on the rug. Students race to clap the number of dots and place that many counting bears in their tray.",
+              "3 - Assemble: Debrief as a class: 'Which was faster: moving the real wooden bears or sliding the blocks on screen?'"
             ]
           },
           g38: {
-            title: "The 2-Station Arcade & Deduction Rotation",
-            prepTime: "3 Minutes",
+            title: "The Braided Arcade Pastry",
+            prepTime: "3 Minutes to Roll & Bake",
             ingredients: "Gimkit (Floor is Lava Mode) + Things in Rings (REMC Lending Library)",
             steps: [
-              "Station A (Digital Reps): 12 minutes in Gimkit. Students answer 50+ science vocab questions to earn shields and survive the game arena.",
-              "Station B (Analog Deduction): 12 minutes playing Things in Rings from the REMC lending box. Students categorize science items into Venn rings using hidden rules.",
-              "Switch & Reflect: Both stations tackle the same vocabulary, but Station A drills fluency while Station B builds conceptual logic."
+              "1 - Preheat (Digital): 12 minutes in Gimkit. Students answer 50+ curriculum questions to earn shields and survive the game arena.",
+              "2 - Mix (Tactile): 12 minutes playing Things in Rings from the REMC box. Students categorize items into Venn rings using hidden rules.",
+              "3 - Assemble: Regroup as a whole class to contrast rapid fluency (Station A) with deeper logical deduction (Station B)."
             ]
           },
           h912: {
-            title: "Safety Sim & Student-Built Card Sort",
-            prepTime: "5 Minutes",
-            ingredients: "PhET / Formative Diagnostic + Index Cards",
+            title: "The Spiced Danish Logic Wheel (Secondary & CTE)",
+            prepTime: "4 Minutes to Prep",
+            ingredients: "PhET Simulation / Formative Diagnostic + Physical Index Cards",
             steps: [
-              "Simulate (Digital): Students troubleshoot virtual short circuits or hazardous reactions in a PhET simulation without blowing actual fuses.",
-              "Design (Tactile): Students write 5 hazardous shop scenarios on index cards and swap with another table to categorize them into OSHA severity rings.",
-              "Challenge: The table that correctly sorts all peer challenge cards earns first pick of equipment during lab time."
+              "1 - Preheat (Digital): Students troubleshoot virtual circuits or chemical formulas in a PhET simulation without equipment risks.",
+              "2 - Mix (Tactile): Students write 5 challenging scenario cards and swap with another table to categorize them into conceptual Venn rings.",
+              "3 - Assemble: The group that correctly sorts all peer challenge cards presents their rationale to the class."
             ]
           }
         },
@@ -1029,7 +724,23 @@
         navTitle: "4. Tech & The 5E Model",
         icon: TreePine,
         tagline: "Engage, Explore, Explain, Elaborate, Evaluate: Selecting the Right Vehicle",
-        annasCorner: "Technology is a magnifier: it makes great pedagogy greater, but it also makes unfocused pedagogy faster. Let the 5E Instructional Model guide whether you need an impossible digital simulation or a hands-on physical mystery box today!",
+        annasCorner: "Technology is a magnifier: it makes great pedagogy greater, but it also makes unfocused pedagogy faster. Let the 5E Instructional Model guide whether you need a digital simulation or a hands-on physical mystery box today!",
+        theme: {
+          name: "sugar-plum",
+          accentColor: "from-purple-700 to-fuchsia-800",
+          headerBorder: "border-purple-600",
+          thisBadge: "bg-purple-700",
+          thatBadge: "bg-teal-700",
+          thisCardBorder: "border-purple-500",
+          thatCardBorder: "border-teal-600",
+          showdownBg: "bg-gradient-to-r from-purple-700 to-fuchsia-700",
+          thatShowdownBg: "bg-gradient-to-r from-teal-800 to-slate-900",
+          bakeryIcon: "☕",
+          bakeryType: "Holiday Hot Cocoa & Marshmallow Bar",
+          garlandThis: "from-purple-600/90 via-fuchsia-500/80 to-pink-300/80",
+          garlandThat: "from-teal-600/80 via-emerald-900/90 to-purple-950/90",
+          navActive: "bg-gradient-to-r from-purple-700 to-fuchsia-700 ring-fuchsia-300"
+        },
         vibeCheck: {
           k2: "In early elementary, we want kids touching and exploring the physical world. How does a digital microscope compare to a tactile mystery box? The 5E model shows us where pixels shine and where playdough wins.",
           g38: "Ever see someone use a smartboard just to show a PDF worksheet? Or watch a teacher spend 40 minutes grading multiple choice tests by hand? The 5E Instructional Model gives us a roadmap: let's put tech where it transforms, and put paper where touch matters most!",
@@ -1057,14 +768,14 @@
             thatPrep: "5 minutes to prep salt water and a raw potato."
           },
           h912: {
-            thisSpark: "Live heatmaps that instantly spotlight which technical safety procedure 60% of students missed.",
-            thisTree: "5E Evaluate phase, real-time diagnostic checks before starting heavy machinery.",
+            thisSpark: "Live heatmaps that instantly spotlight which concept or technical safety procedure 60% of students missed.",
+            thisTree: "5E Evaluate phase, real-time diagnostic checks before laboratory or machinery work.",
             thisBlizzard: "Tech glitches or dying Chromebook batteries right when you need exit data.",
             thisPrep: "2 minutes to launch a Formative or Quizizz live check.",
-            thatSpark: "Holding real fractured metal or smelling a burnt spark plug—physical reality cannot be simulated.",
-            thatTree: "5E Engage phase, technical hand-sketches on grid paper, signature safety sign-offs.",
-            thatBlizzard: "Smudged pencil diagrams on oil-stained shop paper.",
-            thatPrep: "Keep broken shop parts in a labeled bin for quick retrieval."
+            thatSpark: "Holding real broken artifacts or smelling a burnt spark plug—physical reality cannot be simulated.",
+            thatTree: "5E Engage phase, technical hand-sketches on grid paper, signature safety and proof sign-offs.",
+            thatBlizzard: "Smudged pencil diagrams or lost paper worksheets.",
+            thatPrep: "Keep broken lab parts or historical artifacts in a labeled bin for quick retrieval."
           }
         },
         thisTech: { 
@@ -1074,90 +785,27 @@
           gradeTiers: {
             k2: {
               tools: [
-                { 
-                  name: "Digital Handheld Microscope", 
-                  badge: "5E: Explore Phase",
-                  whatItIs: "Connect a simple digital USB or tablet microscope to zoom in 500x on plant leaves, classroom hydroponic roots, or fabric fibers so young learners see hidden structures on screen.",
-                  url: "https://www.readingrockets.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=digital+microscope+elementary+science",
-                  videoLabel: "Handheld Microscopes"
-                },
-                { 
-                  name: "PBS KIDS ScratchJr Coding", 
-                  badge: "5E: Explain Phase",
-                  whatItIs: "Pre-readers snap graphical programming blocks together to animate characters, retell science lifecycles, and explain cause-and-effect visually without typing code.",
-                  url: "https://www.scratchjr.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=scratchjr+in+kindergarten+science",
-                  videoLabel: "ScratchJr Science"
-                },
-                { 
-                  name: "Seesaw Audio Voice Check", 
-                  badge: "5E: Evaluate Phase",
-                  whatItIs: "Pre-readers tap the big red microphone to record a 15-second verbal response explaining what they noticed, removing the barrier of written handwriting.",
-                  url: "https://web.seesaw.me",
-                  videoUrl: "https://www.youtube.com/results?search_query=seesaw+voice+recording+exit+ticket",
-                  videoLabel: "Voice Exit Tickets"
-                }
+                { name: "Digital Handheld Microscope", badge: "5E: Explore Phase", whatItIs: "Connect a simple digital USB microscope to zoom in 500x on plant leaves, seeds, or fabrics on screen.", url: "https://www.readingrockets.org", videoUrl: "https://www.youtube.com/results?search_query=digital+microscope+elementary+science", videoLabel: "Handheld Microscopes" },
+                { name: "PBS KIDS ScratchJr Coding", badge: "5E: Explain Phase", whatItIs: "Pre-readers snap graphical blocks to animate characters and retell science lifecycles visually.", url: "https://www.scratchjr.org", videoUrl: "https://www.youtube.com/results?search_query=scratchjr+in+kindergarten+science", videoLabel: "ScratchJr Science" },
+                { name: "Seesaw Audio Voice Check", badge: "5E: Evaluate Phase", whatItIs: "Pre-readers record a 15-second verbal response explaining what they noticed without written barriers.", url: "https://web.seesaw.me", videoUrl: "https://www.youtube.com/results?search_query=seesaw+voice+recording+exit+ticket", videoLabel: "Voice Exit Tickets" }
               ],
               coachTip: "Use the camera zoom on an iPad to inspect classroom hydroponic seeds germinating—project it live to start your morning carpet time!"
             },
             g38: {
               tools: [
-                { 
-                  name: "Desmos Classroom Activities (Math)", 
-                  badge: "5E: Explore & Math Inquiry",
-                  whatItIs: "Interactive, inquiry-based math activities where students manipulate sliders, test hypotheses about shapes and equations, and see mathematical patterns emerge dynamically.",
-                  url: "https://teacher.desmos.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=desmos+classroom+activities+tutorial",
-                  videoLabel: "Desmos Classroom Tour"
-                },
-                { 
-                  name: "CommonLit & Diffit (ELA Scaffolds)", 
-                  badge: "5E: Explain / ELA Reading",
-                  whatItIs: "Provides high-interest literary and informational texts with built-in guided reading questions, audio read-alouds, and leveled comprehension checks.",
-                  url: "https://www.commonlit.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=commonlit+for+teachers+tutorial",
-                  videoLabel: "CommonLit Guide"
-                },
-                { 
-                  name: "PhET Interactive Simulations", 
-                  badge: "5E: Explore & Science Labs",
-                  whatItIs: "Safe interactive digital sandboxes from UC Boulder. Students balance chemical reactions, test electric circuits, and bend light without dangerous chemicals.",
-                  url: "https://phet.colorado.edu",
-                  videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+in+the+classroom",
-                  videoLabel: "PhET Inquiry Science"
-                }
+                { name: "Desmos Classroom Activities", badge: "5E: Explore & Math Inquiry", whatItIs: "Interactive activities where students manipulate sliders and see mathematical patterns emerge dynamically.", url: "https://teacher.desmos.com", videoUrl: "https://www.youtube.com/results?search_query=desmos+classroom+activities+tutorial", videoLabel: "Desmos Classroom Tour" },
+                { name: "CommonLit & Diffit", badge: "5E: Explain / ELA Reading", whatItIs: "Provides high-interest texts with built-in guided reading questions, audio read-alouds, and leveled comprehension checks.", url: "https://www.commonlit.org", videoUrl: "https://www.youtube.com/results?search_query=commonlit+for+teachers+tutorial", videoLabel: "CommonLit Guide" },
+                { name: "PhET Interactive Simulations", badge: "5E: Explore & Science Labs", whatItIs: "Safe interactive digital sandboxes. Students balance chemical reactions, test electric circuits, and bend light safely.", url: "https://phet.colorado.edu", videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+in+the+classroom", videoLabel: "PhET Inquiry Science" }
               ],
-              coachTip: "In the 5E Explore phase, give students 10 minutes of free play in Desmos or PhET before giving any direct instructions or formal rules!"
+              coachTip: "In the 5E Explore phase, give students 10 minutes of free play in Desmos or PhET before giving any direct instructions!"
             },
             h912: {
               tools: [
-                { 
-                  name: "Desmos STEM & Physics Modeling", 
-                  badge: "5E: Explore & Modeling",
-                  whatItIs: "High school math and physics students model real-world trade data, parabolic trajectories, and engineering stress formulas using dynamic interactive sliders.",
-                  url: "https://teacher.desmos.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=desmos+graphing+calculator+tutorial+teachers",
-                  videoLabel: "Desmos STEM Modeling"
-                },
-                { 
-                  name: "CommonLit 360 / Diffit for CTE", 
-                  badge: "5E: Explain & Text Synthesis",
-                  whatItIs: "Scaffold secondary and CTE informational articles with targeted tiered vocabulary, paired text sets, and embedded evidence-based writing prompts.",
-                  url: "https://www.commonlit.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=diffit+for+teachers+tutorial",
-                  videoLabel: "Diffit Text Scaffolding"
-                },
-                { 
-                  name: "Formative / Quizizz Live Dashboards", 
-                  badge: "5E: Evaluate Phase",
-                  whatItIs: "Live heatmaps that reveal in real-time which specific technical procedure 60% of your class missed, enabling on-the-spot reteaching.",
-                  url: "https://www.formative.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=formative+assessment+with+quizizz",
-                  videoLabel: "Instant Data Dashboards"
-                }
+                { name: "Desmos STEM & Physics Modeling", badge: "5E: Explore & Modeling", whatItIs: "High school math and physics students model real-world trade data, parabolic curves, and stress formulas using dynamic sliders.", url: "https://teacher.desmos.com", videoUrl: "https://www.youtube.com/results?search_query=desmos+graphing+calculator+tutorial+teachers", videoLabel: "Desmos STEM Modeling" },
+                { name: "CommonLit 360 / Diffit for Secondary", badge: "5E: Explain & Text Synthesis", whatItIs: "Scaffold secondary academic and technical articles with tiered vocabulary, paired text sets, and writing prompts.", url: "https://www.commonlit.org", videoUrl: "https://www.youtube.com/results?search_query=diffit+for+teachers+tutorial", videoLabel: "Diffit Text Scaffolding" },
+                { name: "Formative / Quizizz Live Dashboards", badge: "5E: Evaluate Phase", whatItIs: "Live heatmaps that reveal in real-time which specific conceptual misconception 60% of your class missed.", url: "https://www.formative.com", videoUrl: "https://www.youtube.com/results?search_query=formative+assessment+with+quizizz", videoLabel: "Instant Data Dashboards" }
               ],
-              coachTip: "Use Formative's live dashboard at the midway mark of a CTE shop period to spot common tool-handling misunderstandings instantly."
+              coachTip: "Use Formative's live dashboard at the midway mark of a secondary block period to spot misconceptions instantly."
             }
           },
           pros: [
@@ -1173,90 +821,27 @@
           gradeTiers: {
             k2: {
               tools: [
-                { 
-                  name: "The Mystery Sensory Box", 
-                  badge: "5E: Engage Phase",
-                  whatItIs: "A cardboard shoe box with a sock glued to a hole. Students slide their hands inside without looking to touch natural items and verbally describe properties.",
-                  url: "https://ngss.nsta.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=mystery+box+science+kindergarten",
-                  videoLabel: "Mystery Box Science"
-                },
-                { 
-                  name: "Playdough & Clay Schema Sculpting", 
-                  badge: "5E: Explain Phase",
-                  whatItIs: "Students mold physical playdough to demonstrate conceptual understanding: sculpting insect body segments or plant roots instead of writing words.",
-                  url: "https://www.readingrockets.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=playdough+modeling+in+elementary+science",
-                  videoLabel: "Playdough Modeling"
-                },
-                { 
-                  name: "Smiley-Face Magnet Door Check", 
-                  badge: "5E: Evaluate Phase",
-                  whatItIs: "Before walking to recess, students physically slap a magnetic token under the Green Smiley, Yellow Neutral, or Red Question face on the metal door.",
-                  url: "https://www.edutopia.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=kindergarten+exit+ticket+routines",
-                  videoLabel: "Door Exit Routines"
-                }
+                { name: "The Mystery Sensory Box", badge: "5E: Engage Phase", whatItIs: "A cardboard box with a sock hole. Students slide their hands inside without looking to touch natural items and describe tactile properties.", url: "https://ngss.nsta.org", videoUrl: "https://www.youtube.com/results?search_query=mystery+box+science+kindergarten", videoLabel: "Mystery Box Science" },
+                { name: "Playdough & Clay Schema Sculpting", badge: "5E: Explain Phase", whatItIs: "Students mold physical playdough to demonstrate conceptual understanding: sculpting insect segments or plant roots instead of writing.", url: "https://www.readingrockets.org", videoUrl: "https://www.youtube.com/results?search_query=playdough+modeling+in+elementary+science", videoLabel: "Playdough Modeling" },
+                { name: "Smiley-Face Magnet Door Check", badge: "5E: Evaluate Phase", whatItIs: "Before walking to recess, students slap a magnetic token under the Green Smiley, Yellow Neutral, or Red Question face on the door.", url: "https://www.edutopia.org", videoUrl: "https://www.youtube.com/results?search_query=kindergarten+exit+ticket+routines", videoLabel: "Door Exit Routines" }
               ],
               coachTip: "The Mystery Box works wonders for sparking curiosity! Watch 100% of wiggles stop the moment you pull out the box."
             },
             g38: {
               tools: [
-                { 
-                  name: "Discrepant Event Mystery Demos", 
-                  badge: "5E: Engage Phase",
-                  whatItIs: "A physical phenomenon that violates expectations (e.g. water drops on a penny, potato floating in salt water). Hands-on physical surprise creates curiosity.",
-                  url: "https://ngss.nsta.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=discrepant+events+science+teaching",
-                  videoLabel: "Discrepant Demos"
-                },
-                { 
-                  name: "Sketchnoting & Hand Schematics", 
-                  badge: "5E: Explain Phase",
-                  whatItIs: "Students synthesize concepts by drawing physical diagrams, arrows, and visual metaphors in their notebooks instead of typing bullet points.",
-                  url: "https://sylviaduckworth.com/sketchnotes/",
-                  videoUrl: "https://www.youtube.com/results?search_query=sketchnoting+in+the+classroom+for+beginners",
-                  videoLabel: "Beginner Sketchnoting"
-                },
-                { 
-                  name: "Physical Index Card Exit Tickets (3-2-1)", 
-                  badge: "5E: Evaluate Phase",
-                  whatItIs: "A simple 3x5 index card handed to you at the door: 3 things learned, 2 questions, 1 big idea. Unfiltered handwriting free from copy-paste.",
-                  url: "https://www.edutopia.org/article/3-2-1-strategy",
-                  videoUrl: "https://www.youtube.com/results?search_query=exit+ticket+strategies+for+teachers",
-                  videoLabel: "3-2-1 Strategy Guide"
-                }
+                { name: "Discrepant Event Mystery Demos", badge: "5E: Engage Phase", whatItIs: "A physical phenomenon that violates expectations (e.g., potato floating in salt water). Hands-on physical surprise creates curiosity.", url: "https://ngss.nsta.org", videoUrl: "https://www.youtube.com/results?search_query=discrepant+events+science+teaching", videoLabel: "Discrepant Demos" },
+                { name: "Sketchnoting & Hand Schematics", badge: "5E: Explain Phase", whatItIs: "Students synthesize concepts by drawing physical diagrams, arrows, and visual metaphors in their notebooks instead of typing bullet points.", url: "https://sylviaduckworth.com/sketchnotes/", videoUrl: "https://www.youtube.com/results?search_query=sketchnoting+in+the+classroom+for+beginners", videoLabel: "Beginner Sketchnoting" },
+                { name: "Physical Index Card Exit Tickets (3-2-1)", badge: "5E: Evaluate Phase", whatItIs: "A simple 3x5 index card handed to you at the door: 3 things learned, 2 questions, 1 big idea. Unfiltered handwriting free from copy-paste.", url: "https://www.edutopia.org/article/3-2-1-strategy", videoUrl: "https://www.youtube.com/results?search_query=exit+ticket+strategies+for+teachers", videoLabel: "3-2-1 Strategy Guide" }
               ],
               coachTip: "Have students draw a 30-second doodle explaining the day's big concept on their exit card. You will instantly see who gets it!"
             },
             h912: {
               tools: [
-                { 
-                  name: "Broken Part / Fault Demo", 
-                  badge: "5E: Engage Phase",
-                  whatItIs: "Place an actual failed spark plug, fractured weld, or incorrect blueprint on a table. Students physically touch and examine to brainstorm causes.",
-                  url: "https://ngss.nsta.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=discrepant+event+phenomenon+high+school",
-                  videoLabel: "Physical Phenomena"
-                },
-                { 
-                  name: "Technical Schematic Hand-Sketches", 
-                  badge: "5E: Explain Phase",
-                  whatItIs: "Students hand-draw wiring schematics, architectural views, or medical flowcharts on grid paper to force active spatial encoding of technical systems.",
-                  url: "https://buildingthinkingclassrooms.com",
-                  videoUrl: "https://www.youtube.com/results?search_query=technical+sketching+cte",
-                  videoLabel: "Technical Sketching"
-                },
-                { 
-                  name: "3x5 Index Card Safety Ticket", 
-                  badge: "5E: Evaluate Phase",
-                  whatItIs: "Students write their procedural diagnosis or safety check in handwriting on a card before touching power equipment or leaving the shop.",
-                  url: "https://www.edutopia.org",
-                  videoUrl: "https://www.youtube.com/results?search_query=exit+tickets+high+school",
-                  videoLabel: "Secondary Exit Routines"
-                }
+                { name: "Broken Part / Real Artifact Demo", badge: "5E: Engage Phase", whatItIs: "Place an actual failed circuit, fractured weld, or historical primary artifact on a table. Students physically touch and examine to brainstorm causes.", url: "https://ngss.nsta.org", videoUrl: "https://www.youtube.com/results?search_query=discrepant+event+phenomenon+high+school", videoLabel: "Physical Phenomena" },
+                { name: "Technical Schematic Hand-Sketches", badge: "5E: Explain Phase", whatItIs: "Students hand-draw wiring schematics, architectural views, or essay maps on grid paper to force active spatial encoding of systems.", url: "https://buildingthinkingclassrooms.com", videoUrl: "https://www.youtube.com/results?search_query=technical+sketching+cte", videoLabel: "Technical Sketching" },
+                { name: "3x5 Index Card Safety & Mastery Ticket", badge: "5E: Evaluate Phase", whatItIs: "Students write their conceptual synthesis or safety check in handwriting on a card before leaving class.", url: "https://www.edutopia.org", videoUrl: "https://www.youtube.com/results?search_query=exit+tickets+high+school", videoLabel: "Secondary Exit Routines" }
               ],
-              coachTip: "Require secondary students to sign their name in ink next to their hand-drawn safety diagram—it reinforces professional liability!"
+              coachTip: "Require secondary students to sign their name in ink next to their hand-drawn diagram—it reinforces ownership and pride of workmanship!"
             }
           },
           pros: [
@@ -1266,54 +851,39 @@
           ]
         },
         researchTakeaways: [
-          {
-            point: "SAMR Redefinition Through Simulation",
-            detail: "Under Ruben Puentedura's SAMR model, tech reaches 'Redefinition' when students do work that was previously physically impossible, such as manipulating magnetic fields or atomic bonds.",
-            linkUrl: "https://phet.colorado.edu",
-            linkLabel: "PhET Research Papers"
-          },
-          {
-            point: "The Pen vs. Keyboard Memory Gap",
-            detail: "Pam Mueller & Daniel Oppenheimer's famous Princeton study proves handwriting notes creates superior conceptual retention over typing, because the speed bottleneck forces summarizing and mental synthesis.",
-            linkUrl: "https://www.scientificamerican.com",
-            linkLabel: "Scientific American Summary"
-          },
-          {
-            point: "Discrepant Events Ignite Intrinsic Curiosity",
-            detail: "A real, physical mystery event on a table triggers a powerful cognitive dissonance that compels students to lean in, while video clips are often perceived as passive entertainment.",
-            linkUrl: "https://ngss.nsta.org",
-            linkLabel: "NSTA Phenomena Guide"
-          }
+          { point: "SAMR Redefinition Through Simulation", detail: "Under Ruben Puentedura's SAMR model, tech reaches 'Redefinition' when students do work that was previously physically impossible, such as manipulating atomic bonds or parabolic equations.", linkUrl: "https://phet.colorado.edu", linkLabel: "PhET Research Papers" },
+          { point: "The Pen vs. Keyboard Memory Gap", detail: "Pam Mueller & Daniel Oppenheimer's famous Princeton study proves handwriting notes creates superior conceptual retention over typing, because the speed bottleneck forces summarizing and mental synthesis.", linkUrl: "https://www.scientificamerican.com", linkLabel: "Scientific American Summary" },
+          { point: "Discrepant Events Ignite Intrinsic Curiosity", detail: "A real, physical mystery event on a table triggers a powerful cognitive dissonance that compels students to lean in, while video clips are often perceived as passive entertainment.", linkUrl: "https://ngss.nsta.org", linkLabel: "NSTA Phenomena Guide" }
         ],
         recipeCards: {
           k2: {
-            title: "The Mystery Box & 500x Microscope Reveal",
-            prepTime: "3 Minutes",
+            title: "The Marshmallow Cocoa Mug",
+            prepTime: "3 Minutes to Stir",
             ingredients: "Cardboard Box with Sock Hole + USB Handheld Microscope",
             steps: [
-              "Engage (Tactile): Slide natural items (pinecone, wet soil sponge) inside a cardboard box. Students slide their hand inside to feel and verbally describe properties.",
-              "Explore (Digital): Plug in a $20 handheld USB microscope to zoom in 500x on the big screen, revealing the crystalline sap on the pinecone.",
-              "Evaluate: Students sculpt what they saw using playdough at their tables."
+              "1 - Preheat (Digital): Plug in a handheld USB microscope to zoom in 500x on the big screen, revealing hidden crystalline patterns.",
+              "2 - Mix (Tactile): Slide natural items (pinecone, wet soil sponge) inside a cardboard box. Students slide their hand inside to feel and verbally describe properties.",
+              "3 - Assemble: Students sculpt what they felt and saw using playdough at their tables."
             ]
           },
           g38: {
-            title: "Discrepant Demo & Desmos Sandbox",
-            prepTime: "4 Minutes",
-            ingredients: "Potato in Salt Water (Demo) + Desmos Math/PhET Science",
+            title: "The Peppermint Cocoa Density Stack",
+            prepTime: "4 Minutes to Layer",
+            ingredients: "Potato in Salt Water (Demo) + Desmos Math / PhET Science",
             steps: [
-              "Engage (Tactile): Drop a potato in fresh water (it sinks); drop it in salted water (it floats). Students write 1 'How is that possible?' question on an index card.",
-              "Explore (Digital): Open a PhET density lab or Desmos activity to test variable sliders and discover the underlying mathematical density principle.",
-              "Evaluate: Hand back their original index cards to write the scientific answer on the back before leaving."
+              "1 - Preheat (Digital): Open a PhET simulation or Desmos activity to test variable sliders and discover the underlying mathematical density principle.",
+              "2 - Mix (Tactile): Drop a potato in fresh water (it sinks); drop it in salted water (it floats). Students write 1 'How is that possible?' question on an index card.",
+              "3 - Assemble: Hand back their original index cards to write the scientific solution on the back before leaving."
             ]
           },
           h912: {
-            title: "Broken Part Autopsy & Formative Heatmap",
-            prepTime: "3 Minutes",
-            ingredients: "Real Fractured Shop Part + Formative Live Exit Check",
+            title: "The Dark Mocha Diagnostic Blend (Secondary & CTE)",
+            prepTime: "3 Minutes to Brew",
+            ingredients: "Real Physical Artifact or Broken Part + Formative Live Exit Check",
             steps: [
-              "Engage (Tactile): Place a fractured weld or fried circuit component on each table. Groups physically inspect and touch to brainstorm failure modes.",
-              "Explain (Tactile): Students sketch the proper tolerance diagram on grid paper by hand and sign their initials in ink.",
-              "Evaluate (Digital): Launch a 3-question Formative live heatmap to instantly verify 100% safety protocol understanding before touching live machines."
+              "1 - Preheat (Digital): Launch a 3-question Formative live heatmap to instantly verify baseline understanding and safety protocols.",
+              "2 - Mix (Tactile): Place a real fractured mechanical component or historical document on tables. Groups physically inspect to brainstorm causes and sketch diagrams.",
+              "3 - Assemble: Synthesize findings on hand-drawn schematics, signing their initials in ink to verify mastery before lab work."
             ]
           }
         },
@@ -1325,7 +895,7 @@
       const [currentView, setCurrentView] = useState('1'); 
       const [moduleStep, setModuleStep] = useState(0); 
       const [activeGrade, setActiveGrade] = useState('g38'); 
-      const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+      const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
       
       const [favoriteTools, setFavoriteTools] = useState([]);
 
@@ -1443,9 +1013,7 @@
           let nextThis = cur.thisCount;
           let nextThat = cur.thatCount;
 
-          if (cur.userVote === chosenSide) {
-            return prev;
-          }
+          if (cur.userVote === chosenSide) return prev;
 
           if (cur.userVote === 'this' && chosenSide === 'that') {
             nextThis = Math.max(0, nextThis - 1);
@@ -1468,8 +1036,8 @@
           } catch(e) {}
 
           triggerToast(chosenSide === 'this' 
-            ? "🎄 Unwrapped THIS (Pixels)! Tinsel meter updated." 
-            : "🎁 Unwrapped THAT (Paper & Tactile)! Tinsel meter updated."
+            ? "✨ Unwrapped THIS (Pixels)! Garland shifted." 
+            : "🎄 Unwrapped THAT (Paper & Tactile)! Garland shifted."
           );
 
           return updated;
@@ -1491,7 +1059,6 @@
       const handleSelectModule = (modIdStr) => {
         setCurrentView(modIdStr);
         setModuleStep(0);
-        setIsMobileMenuOpen(false);
       };
 
       const triggerToast = (msg) => {
@@ -1600,7 +1167,8 @@
       };
 
       const progress = getProgress();
-      const currentModule = modulesData.find(m => m.id === parseInt(currentView));
+      const currentModule = modulesData.find(m => m.id === parseInt(currentView)) || modulesData[0];
+      const activeTheme = currentModule.theme;
       
       const defaultAnnasCorner = "You've explored the tools—now it's time to build your masterpiece! Your final artifact is where intentional integration comes to life.";
       const activeAnnasCorner = currentModule ? currentModule.annasCorner : defaultAnnasCorner;
@@ -1624,41 +1192,59 @@
             </div>
           )}
 
-          {/* HEADER */}
-          <header className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 text-white shadow-xl relative z-30 border-b-4 border-red-600">
+          {/* DYNAMIC HEADER */}
+          <header className={`bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 text-white shadow-xl relative z-30 border-b-4 ${activeTheme.headerBorder}`}>
             <div className="h-2 w-full bg-gradient-to-r from-red-500 via-amber-400 to-emerald-400 opacity-90 flex justify-between px-2 overflow-hidden">
               {Array.from({ length: 30 }).map((_, i) => (
                 <span key={i} className="inline-block w-1.5 h-1.5 rounded-full bg-white opacity-80 animate-pulse"></span>
               ))}
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-              <div 
-                className="flex items-center space-x-3.5 cursor-pointer group" 
-                onClick={() => handleSelectModule('1')}
-              >
-                <EventLogo className="w-14 h-14 md:w-16 md:h-16 group-hover:scale-105 transition-transform" />
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <RemcLogo className="h-6 md:h-7" />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+              
+              {/* TOP LEFT: COLLAPSIBLE MENU BUTTON & CUSTOM LOGO */}
+              <div className="flex items-center space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  className="p-2.5 rounded-2xl bg-emerald-900/90 hover:bg-emerald-800 text-amber-300 border border-amber-400/40 hover:border-amber-300 transition-all flex items-center space-x-1.5 shadow-md group"
+                  title={sidebarCollapsed ? "Expand Navigation Menu" : "Collapse Navigation Menu"}
+                  aria-label="Toggle navigation menu"
+                >
+                  <PanelLeft className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span className="hidden xl:inline text-xs font-black uppercase tracking-wider text-emerald-100">
+                    {sidebarCollapsed ? "Menu" : "Hide"}
+                  </span>
+                </button>
+
+                <div 
+                  className="flex items-center space-x-3 cursor-pointer group" 
+                  onClick={() => handleSelectModule('1')}
+                >
+                  <EventLogo className="w-12 h-12 md:w-14 md:h-14 group-hover:scale-105 transition-transform" />
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <RemcLogo className="h-5 md:h-6" />
+                    </div>
+                    <h1 className="text-base md:text-xl font-black tracking-tight text-white flex items-center mt-0.5">
+                      <span className="text-red-400">Tech</span>
+                      <span className="text-white mx-1">the Halls:</span>
+                      <span className="bg-gradient-to-r from-amber-300 via-emerald-300 to-sky-300 bg-clip-text text-transparent italic">
+                        This or That!
+                      </span>
+                    </h1>
                   </div>
-                  <h1 className="text-lg md:text-2xl font-black tracking-tight text-white flex items-center mt-0.5">
-                    <span className="text-red-400">Tech</span>
-                    <span className="text-white mx-1">the Halls:</span>
-                    <span className="bg-gradient-to-r from-amber-300 via-emerald-300 to-sky-300 bg-clip-text text-transparent italic">
-                      This or That!
-                    </span>
-                  </h1>
                 </div>
               </div>
 
-              <div className="hidden lg:flex items-center space-x-5 text-emerald-100">
-                <div className="bg-emerald-950/80 border border-emerald-700/80 px-4 py-2 rounded-2xl flex items-center space-x-3 shadow-inner">
+              {/* Header Right Actions */}
+              <div className="flex items-center space-x-3 sm:space-x-5 text-emerald-100">
+                <div className="hidden sm:flex bg-emerald-950/80 border border-emerald-700/80 px-3.5 py-1.5 rounded-2xl items-center space-x-3 shadow-inner">
                   <div className="text-right">
                     <div className="text-[10px] uppercase font-black text-amber-300 tracking-wider">SCECH Progress</div>
                     <div className="text-xs font-black text-white">{progress.count} of 5 Completed</div>
                   </div>
-                  <div className="w-16 bg-emerald-900 rounded-full h-2.5 overflow-hidden ring-1 ring-emerald-500">
+                  <div className="w-14 bg-emerald-900 rounded-full h-2.5 overflow-hidden ring-1 ring-emerald-500">
                     <div 
                       className="bg-gradient-to-r from-amber-400 to-red-500 h-full rounded-full transition-all duration-500"
                       style={{ width: `${progress.percentage}%` }}
@@ -1668,14 +1254,14 @@
 
                 <button
                   onClick={() => setCurrentView('facilitator')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center space-x-1.5 border ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center space-x-1.5 border ${
                     currentView === 'facilitator' 
                       ? 'bg-amber-400 text-emerald-950 border-amber-300 shadow-md' 
                       : 'bg-emerald-800/80 text-emerald-100 border-emerald-700 hover:bg-emerald-700'
                   }`}
                 >
                   <ShieldCheck className="w-4 h-4 text-amber-400" />
-                  <span>Facilitator Dashboard</span>
+                  <span className="hidden sm:inline">Facilitator</span>
                   {submissionsList.length > 0 && (
                     <span className="ml-1 bg-red-600 text-white px-1.5 py-0.2 rounded-full text-[10px] font-bold">
                       {submissionsList.length}
@@ -1684,156 +1270,161 @@
                 </button>
               </div>
 
-              <button 
-                className="lg:hidden p-2 rounded-xl bg-emerald-800 text-emerald-100"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
             </div>
           </header>
 
           {/* MAIN LAYOUT */}
-          <div className="flex-1 flex flex-col lg:flex-row max-w-7xl w-full mx-auto overflow-hidden">
+          <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto overflow-hidden">
             
-            {/* SIDEBAR */}
-            <aside className={`
-              ${isMobileMenuOpen ? 'block' : 'hidden'} 
-              lg:block w-full lg:w-80 bg-emerald-950 text-emerald-50 shadow-2xl flex-shrink-0 lg:h-[calc(100vh-4.75rem)] overflow-y-auto z-20 border-r border-emerald-800/80
-            `}>
-              <div className="p-5 space-y-6">
-                
-                <div className="bg-gradient-to-b from-emerald-900/90 to-emerald-950 p-4 rounded-3xl border-2 border-amber-400/60 shadow-lg text-center">
-                  <EventLogo className="w-28 h-28 mx-auto mb-2 drop-shadow-md" />
-                  <div className="text-[10px] uppercase font-black tracking-widest text-amber-300">
-                    Professional Learning Series
-                  </div>
-                  <div className="text-xs font-bold text-emerald-200 mt-1 flex justify-center">
-                    <RemcLogo className="h-6" />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-3 px-2">
-                    <span className="text-[11px] font-black uppercase tracking-widest text-amber-300">Course Modules</span>
-                    <span className="text-[11px] text-emerald-300 font-bold bg-emerald-900/80 px-2 py-0.5 rounded-full">4 Weeks</span>
-                  </div>
+            {/* COLLAPSIBLE SIDEBAR */}
+            {!sidebarCollapsed && (
+              <aside className="w-full md:w-72 lg:w-80 bg-emerald-950 text-emerald-50 shadow-2xl flex-shrink-0 md:h-[calc(100vh-4.75rem)] overflow-y-auto z-20 border-r border-emerald-800/80 animate-in slide-in-from-left-4 duration-200">
+                <div className="p-4 sm:p-5 space-y-5">
                   
-                  <nav className="space-y-2">
-                    {modulesData.map((mod) => {
-                      const Icon = mod.icon;
-                      const isActive = currentView === String(mod.id);
-                      const isDone = isReflectionComplete(mod.id);
+                  {/* Event Logo Badge in Sidebar */}
+                  <div className="bg-gradient-to-b from-emerald-900/90 to-emerald-950 p-4 rounded-3xl border-2 border-amber-400/60 shadow-lg text-center">
+                    <EventLogo className="w-24 h-24 lg:w-28 lg:h-28 mx-auto mb-2 drop-shadow-md" />
+                    <div className="text-[10px] uppercase font-black tracking-widest text-amber-300">
+                      Professional Learning Series
+                    </div>
+                    <div className="text-xs font-bold text-emerald-200 mt-1 flex justify-center">
+                      <RemcLogo className="h-6" />
+                    </div>
+                  </div>
 
-                      return (
-                        <button
-                          key={mod.id}
-                          onClick={() => handleSelectModule(String(mod.id))}
-                          className={`
-                            w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-200 text-left group
-                            ${isActive 
-                              ? 'bg-gradient-to-r from-red-600 via-red-600 to-rose-600 text-white shadow-xl shadow-red-950/40 ring-2 ring-amber-300 font-bold' 
-                              : 'hover:bg-emerald-900/90 text-emerald-100 bg-emerald-900/40 border border-emerald-800/60'}
-                          `}
-                        >
-                          <div className="flex items-center space-x-3 truncate mr-2">
-                            <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20 text-white' : 'bg-emerald-800 text-amber-300'}`}>
-                              <Icon className="w-4 h-4 shrink-0" />
-                            </div>
-                            <div className="truncate">
-                              <div className="text-xs truncate">{mod.navTitle}</div>
-                              <div className={`text-[10px] font-normal ${isActive ? 'text-red-100' : 'text-emerald-400'}`}>
-                                {isDone ? 'Reflection Complete' : 'Interactive Walkthrough'}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-1.5 shrink-0">
-                            {isDone ? (
-                              <span className="bg-amber-400 text-emerald-950 p-1 rounded-full" title="Saved">
-                                <Check className="w-3 h-3 stroke-[3]" />
-                              </span>
-                            ) : (
-                              <span className="w-2 h-2 rounded-full bg-emerald-700"></span>
-                            )}
-                            {isActive && <ChevronRight className="w-4 h-4 text-amber-300" />}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </nav>
-                </div>
-
-                <div className="pt-2 border-t border-emerald-800/80">
-                  <span className="text-[11px] font-black uppercase tracking-widest text-amber-300 px-2 block mb-3">
-                    Final SCECH Portfolio
-                  </span>
-
-                  <button
-                    onClick={() => {
-                      setCurrentView('capstone');
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`
-                      w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left font-black text-xs
-                      ${currentView === 'capstone'
-                        ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-emerald-950 shadow-2xl ring-2 ring-white'
-                        : 'bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 text-white border-2 border-amber-400/40'}
-                    `}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-xl ${currentView === 'capstone' ? 'bg-emerald-950 text-amber-300' : 'bg-emerald-900 text-amber-400'}`}>
-                        <Award className="w-5 h-5" />
+                  {/* ANNA'S CORNER: HIGH-VISIBILITY SHOWCASE BOX */}
+                  <div className="bg-gradient-to-br from-amber-950/80 via-emerald-950 to-emerald-900 p-4 rounded-3xl border-2 border-amber-400 shadow-lg shadow-amber-950/30 relative overflow-hidden group">
+                    <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-amber-400/30">
+                      <div className="flex items-center space-x-2 text-amber-300 font-black tracking-wide uppercase text-xs">
+                        <span className="p-1 bg-amber-400 text-emerald-950 rounded-lg shadow-sm">
+                          <Sparkles className="w-3.5 h-3.5" />
+                        </span>
+                        <span>Anna's Corner</span>
                       </div>
-                      <div>
-                        <div className="font-black text-sm">SCECH Capstone</div>
-                        <div className={`text-[10px] font-semibold ${currentView === 'capstone' ? 'text-emerald-900' : 'text-emerald-200'}`}>
-                          Turn In Notes & Artifact
+                      <span className="text-base drop-shadow">{activeTheme.bakeryIcon}</span>
+                    </div>
+                    <p className="text-amber-100 text-xs leading-relaxed font-medium italic relative pl-3 border-l-2 border-amber-400">
+                      "{activeAnnasCorner}"
+                    </p>
+                    <div className="mt-3 pt-2 border-t border-emerald-800/80 text-[10px] uppercase tracking-wider text-amber-300/80 font-bold flex items-center justify-between">
+                      <span>EdTech Thought of the Week</span>
+                      <span className="text-[11px]">✨</span>
+                    </div>
+                  </div>
+
+                  {/* Course Modules Switcher */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2.5 px-2">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-amber-300">Course Modules</span>
+                      <span className="text-[11px] text-emerald-300 font-bold bg-emerald-900/80 px-2 py-0.5 rounded-full">4 Weeks</span>
+                    </div>
+                    
+                    <nav className="space-y-1.5">
+                      {modulesData.map((mod) => {
+                        const isActive = currentView === String(mod.id);
+                        const isDone = isReflectionComplete(mod.id);
+
+                        return (
+                          <button
+                            key={mod.id}
+                            onClick={() => handleSelectModule(String(mod.id))}
+                            className={`
+                              w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-200 text-left group
+                              ${isActive 
+                                ? `${mod.theme.navActive} text-white shadow-xl ring-2 font-bold` 
+                                : 'hover:bg-emerald-900/90 text-emerald-100 bg-emerald-900/40 border border-emerald-800/60'}
+                            `}
+                          >
+                            <div className="flex items-center space-x-3 truncate mr-2">
+                              <span className="text-xl shrink-0 drop-shadow-sm">{mod.theme.bakeryIcon}</span>
+                              <span className="text-xs font-bold tracking-tight truncate">{mod.navTitle}</span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-1.5 shrink-0">
+                              {isDone ? (
+                                <span className="bg-amber-400 text-emerald-950 p-1 rounded-full shadow" title="Reflection Complete">
+                                  <Check className="w-3 h-3 stroke-[3]" />
+                                </span>
+                              ) : (
+                                <span className="w-2 h-2 rounded-full bg-emerald-700"></span>
+                              )}
+                              {isActive && <ChevronRight className="w-4 h-4 text-amber-300" />}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </nav>
+                  </div>
+
+                  {/* Final SCECH Capstone Button */}
+                  <div className="pt-2 border-t border-emerald-800/80">
+                    <span className="text-[11px] font-black uppercase tracking-widest text-amber-300 px-2 block mb-2.5">
+                      Final SCECH Portfolio
+                    </span>
+
+                    <button
+                      onClick={() => setCurrentView('capstone')}
+                      className={`
+                        w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left font-black text-xs
+                        ${currentView === 'capstone'
+                          ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-emerald-950 shadow-2xl ring-2 ring-white'
+                          : 'bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 text-white border-2 border-amber-400/40'}
+                      `}
+                    >
+                      <div className="flex items-center space-x-2.5">
+                        <div className={`p-2 rounded-xl ${currentView === 'capstone' ? 'bg-emerald-950 text-amber-300' : 'bg-emerald-900 text-amber-400'}`}>
+                          <Award className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-black text-xs">SCECH Capstone</div>
+                          <div className={`text-[10px] font-semibold ${currentView === 'capstone' ? 'text-emerald-900' : 'text-emerald-200'}`}>
+                            Turn In Notes & Artifact
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <ArrowRight className="w-4 h-4 opacity-75" />
-                  </button>
-                </div>
-
-                {/* Free REMC 12E Lending Box Portal Link */}
-                <a 
-                  href="https://remc12echeckout.myturn.com/library/?defaultPage=true"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block bg-emerald-900/60 hover:bg-emerald-800/80 p-4 rounded-2xl border border-emerald-700 hover:border-emerald-500 transition-all text-xs text-emerald-200 leading-relaxed group cursor-pointer"
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center space-x-2 text-sky-300 font-black">
-                      <Gift className="w-4 h-4 text-sky-400" />
-                      <span>Free REMC 12E Kits</span>
-                    </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-emerald-400 group-hover:text-sky-300" />
+                      <ArrowRight className="w-4 h-4 opacity-75" />
+                    </button>
                   </div>
-                  <p className="text-[11px] text-emerald-300/90">
-                    Need physical supplies? Request free classroom tabletop games, hydroponics, and maker supplies directly through the REMC 12E lending portal.
-                  </p>
-                </a>
 
-              </div>
-            </aside>
+                  {/* STEM & TABLETOP LENDING CHECKOUT PORTAL LINK */}
+                  <a 
+                    href="https://remc12echeckout.myturn.com/library/?defaultPage=true"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block bg-emerald-900/60 hover:bg-emerald-800/80 p-4 rounded-2xl border border-emerald-700 hover:border-emerald-500 transition-all text-xs text-emerald-200 leading-relaxed group cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center space-x-2 text-sky-300 font-black">
+                        <Gift className="w-4 h-4 text-sky-400" />
+                        <span>Free REMC 12E Kits</span>
+                      </div>
+                      <ExternalLink className="w-3.5 h-3.5 text-emerald-400 group-hover:text-sky-300" />
+                    </div>
+                    <p className="text-[11px] text-emerald-300/90">
+                      Need physical supplies? Request free classroom tabletop games, hydroponics, and maker supplies directly through the REMC 12E lending portal.
+                    </p>
+                  </a>
+
+                </div>
+              </aside>
+            )}
 
             {/* WORKSPACE */}
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto lg:h-[calc(100vh-4.75rem)] bg-slate-100">
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto md:h-[calc(100vh-4.75rem)] bg-slate-100">
               
               {/* VIEW: MODULES 1 - 4 */}
               {currentModule && currentView !== 'capstone' && currentView !== 'facilitator' && (
                 <div className="max-w-4xl mx-auto space-y-6 pb-12">
                   
                   {/* Module Header */}
-                  <section className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200 relative">
+                  <section className={`bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 ${activeTheme.headerBorder} relative`}>
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
                       <div className="flex items-center space-x-2">
-                        <span className="bg-red-600 text-white text-xs font-black uppercase px-3 py-1 rounded-full tracking-wider flex items-center space-x-1">
-                          <Gift className="w-3.5 h-3.5" />
-                          <span>Module {currentModule.id} of 4</span>
+                        <span className={`${activeTheme.thisBadge} text-white text-xs font-black uppercase px-3 py-1 rounded-full tracking-wider flex items-center space-x-1.5 shadow-sm`}>
+                          <span>{activeTheme.bakeryIcon}</span>
+                          <span>Module {currentModule.id} of 4: {activeTheme.bakeryType}</span>
                         </span>
-                        <span className="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full border border-emerald-200">
+                        <span className="bg-slate-100 text-slate-800 text-xs font-extrabold px-3 py-1 rounded-full border border-slate-200">
                           Interactive Walkthrough
                         </span>
                       </div>
@@ -1849,7 +1440,7 @@
                     <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mt-1">
                       {currentModule.title}
                     </h2>
-                    <p className="text-emerald-700 font-bold text-sm md:text-base mt-1">
+                    <p className="text-slate-600 font-bold text-sm md:text-base mt-1">
                       {currentModule.tagline}
                     </p>
 
@@ -1900,7 +1491,7 @@
                           onClick={() => setModuleStep(idx)}
                           className={`flex-1 min-w-[130px] p-2.5 rounded-xl text-left transition-all flex items-center space-x-2.5 ${
                             isCurrent
-                              ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md ring-2 ring-red-400 font-bold'
+                              ? `${activeTheme.showdownBg} text-white shadow-md ring-2 ring-amber-300 font-bold`
                               : isPast
                               ? 'bg-emerald-50 text-emerald-900 hover:bg-emerald-100'
                               : 'hover:bg-slate-50 text-slate-600'
@@ -1911,7 +1502,7 @@
                           </div>
                           <div className="truncate">
                             <div className="text-[11px] font-black uppercase tracking-wider">{step.title}</div>
-                            <div className={`text-[10px] truncate ${isCurrent ? 'text-red-100' : 'text-slate-400'}`}>
+                            <div className={`text-[10px] truncate ${isCurrent ? 'text-white/80' : 'text-slate-400'}`}>
                               {step.desc}
                             </div>
                           </div>
@@ -1920,59 +1511,38 @@
                     })}
                   </div>
 
-                  {/* ========================================================= */}
-                  {/* STEP 0: HOLIDAY SHOWDOWN & TINSEL TUG-OF-WAR             */}
-                  {/* ========================================================= */}
+                  {/* STEP 0: HOLIDAY SHOWDOWN */}
                   {moduleStep === 0 && (
                     <div className="space-y-6 animate-in fade-in duration-200">
                       
-                      {/* Big Question & Anna's Corner */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div className="lg:col-span-2 bg-gradient-to-br from-amber-50 via-white to-amber-50/50 rounded-3xl p-6 border-2 border-amber-300 shadow-sm flex flex-col justify-between">
-                          <div>
-                            <div className="flex items-center space-x-2 text-amber-800 font-black text-xs uppercase tracking-widest mb-2">
-                              <Sparkles className="w-4 h-4 text-amber-500" />
-                              <span>The Big Question ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'})</span>
-                            </div>
-                            <p className="text-slate-700 text-sm md:text-base leading-relaxed font-medium">
-                              {currentModule.vibeCheck[activeGrade] || currentModule.vibeCheck.g38}
-                            </p>
-                          </div>
-                          <div className="mt-4 pt-3 border-t border-amber-200/60 text-[11px] font-bold text-amber-900/80 flex items-center justify-between">
-                            <span>Which tool or strategy would you unwrap in your classroom tomorrow?</span>
-                            <span className="text-red-600 uppercase font-black tracking-wider text-[10px]">Vote in the Tinsel Tug-of-War ↓</span>
-                          </div>
+                      {/* Big Question Card */}
+                      <div className="bg-gradient-to-br from-amber-50 via-white to-amber-50/50 rounded-3xl p-6 md:p-8 border-2 border-amber-300 shadow-sm">
+                        <div className="flex items-center space-x-2 text-amber-800 font-black text-xs uppercase tracking-widest mb-2">
+                          <Sparkles className="w-4 h-4 text-amber-500" />
+                          <span>The Big Question ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / Secondary & CTE'})</span>
                         </div>
-
-                        <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white rounded-3xl p-6 border-2 border-emerald-700 shadow-sm flex flex-col justify-between">
-                          <div>
-                            <div className="flex items-center space-x-2 text-amber-300 font-black text-xs uppercase tracking-widest mb-2">
-                              <Sparkles className="w-4 h-4 text-amber-400" />
-                              <span>Anna's Corner</span>
-                            </div>
-                            <p className="text-emerald-100 text-xs md:text-sm leading-relaxed italic">
-                              "{activeAnnasCorner}"
-                            </p>
-                          </div>
-                          <div className="mt-4 pt-3 border-t border-emerald-800/80 text-[10px] uppercase font-bold text-emerald-400 tracking-wider">
-                            EdTech Thought of the Week
-                          </div>
+                        <p className="text-slate-700 text-base md:text-lg leading-relaxed font-medium">
+                          {currentModule.vibeCheck[activeGrade] || currentModule.vibeCheck.g38}
+                        </p>
+                        <div className="mt-4 pt-3 border-t border-amber-200/60 text-xs font-bold text-amber-900 flex items-center justify-between">
+                          <span>Which tool or strategy would you unwrap in your classroom tomorrow?</span>
+                          <span className="text-red-600 uppercase font-black tracking-wider text-[11px]">Unwrap Your Choice Below ↓</span>
                         </div>
                       </div>
 
-                      {/* 🎄 THE TINSEL TUG-OF-WAR (VOTING ARENA) */}
-                      <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-amber-300 shadow-sm space-y-5 relative overflow-hidden">
+                      {/* EVERGREEN & TINSEL GARLAND TUG-OF-WAR (ANIMATED) */}
+                      <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-emerald-700 shadow-sm space-y-5 relative overflow-hidden">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center space-x-2.5">
-                            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-red-600 to-amber-500 text-white flex items-center justify-center font-black shadow-sm">
-                              <Gift className="w-5 h-5" />
+                            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-800 to-emerald-950 text-white flex items-center justify-center font-black shadow border border-emerald-600">
+                              <span className="animate-tree-grow text-lg">🎄</span>
                             </div>
                             <div>
                               <h3 className="text-base font-black text-slate-900 flex items-center space-x-1.5">
-                                <span>The Great Tinsel Tug-of-War</span>
-                                <span className="text-[10px] bg-red-100 text-red-800 font-black uppercase px-2 py-0.5 rounded-full">Interactive Vote</span>
+                                <span>The Holiday Garland Tug-of-War</span>
+                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-black uppercase px-2 py-0.5 rounded-full border border-emerald-300">Live Community Vote</span>
                               </h3>
-                              <p className="text-xs text-slate-500">Unwrap your favorite approach for this challenge. Watch the live community tinsel shift!</p>
+                              <p className="text-xs text-slate-500">Cast your vote to tug the pine & tinsel garland toward your preferred approach!</p>
                             </div>
                           </div>
 
@@ -1988,15 +1558,17 @@
                             onClick={() => handleTinselVote(currentModule.id, 'this')}
                             className={`p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden group ${
                               activeVoteData.userVote === 'this'
-                                ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-red-700 shadow-lg ring-2 ring-amber-300 scale-[1.01]'
+                                ? `${activeTheme.showdownBg} text-white border-red-700 shadow-lg ring-2 ring-amber-300 scale-[1.01]`
                                 : 'bg-rose-50/70 hover:bg-rose-100/90 text-rose-950 border-rose-300 hover:border-red-500 shadow-sm'
                             }`}
                           >
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center space-x-1 ${
                                 activeVoteData.userVote === 'this' ? 'bg-white/20 text-white' : 'bg-red-200 text-red-900'
                               }`}>
-                                Team Tinsel: High-Tech
+                                <span className="animate-twinkle text-amber-300">✨</span>
+                                <span>Team Tinsel: High-Tech</span>
+                                <span className="animate-twinkle-alt text-yellow-300">⭐</span>
                               </span>
                               {activeVoteData.userVote === 'this' && (
                                 <span className="text-[11px] font-black bg-white text-red-700 px-2.5 py-0.5 rounded-full shadow-sm flex items-center space-x-1">
@@ -2007,9 +1579,10 @@
                             </div>
                             <div className="text-sm font-black flex items-center space-x-1.5">
                               <span>🎁 Unwrap THIS (Pixels)</span>
+                              <span className="animate-twinkle text-amber-400">✨</span>
                             </div>
                             <p className={`text-xs mt-1 ${activeVoteData.userVote === 'this' ? 'text-red-100' : 'text-slate-600'}`}>
-                              Pick for audio scaffolding, automated leveling, and digital speed.
+                              Pick for audio scaffolds, adaptive leveling, and dynamic engagement.
                             </p>
                           </button>
 
@@ -2018,15 +1591,16 @@
                             onClick={() => handleTinselVote(currentModule.id, 'that')}
                             className={`p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden group ${
                               activeVoteData.userVote === 'that'
-                                ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white border-emerald-800 shadow-lg ring-2 ring-amber-300 scale-[1.01]'
+                                ? 'bg-gradient-to-r from-emerald-800 to-teal-900 text-white border-emerald-900 shadow-lg ring-2 ring-amber-300 scale-[1.01]'
                                 : 'bg-emerald-50/70 hover:bg-emerald-100/90 text-emerald-950 border-emerald-300 hover:border-emerald-600 shadow-sm'
                             }`}
                           >
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center space-x-1 ${
                                 activeVoteData.userVote === 'that' ? 'bg-white/20 text-white' : 'bg-emerald-200 text-emerald-900'
                               }`}>
-                                Team Evergreen: Analog
+                                <span className="animate-tree-grow text-xs">🎄</span>
+                                <span>Team Evergreen: Analog</span>
                               </span>
                               {activeVoteData.userVote === 'that' && (
                                 <span className="text-[11px] font-black bg-white text-emerald-800 px-2.5 py-0.5 rounded-full shadow-sm flex items-center space-x-1">
@@ -2036,64 +1610,71 @@
                               )}
                             </div>
                             <div className="text-sm font-black flex items-center space-x-1.5">
-                              <span>🎄 Unwrap THAT (Paper & Tactile)</span>
+                              <span className="animate-tree-grow mr-0.5">🎄</span>
+                              <span>Unwrap THAT (Paper & Tactile)</span>
                             </div>
                             <p className={`text-xs mt-1 ${activeVoteData.userVote === 'that' ? 'text-emerald-100' : 'text-slate-600'}`}>
-                              Pick for zero notifications, tactile fine-motor focus, and spatial memory.
+                              Pick for zero distractions, tactile fine-motor encoding, and deep focus.
                             </p>
                           </button>
                         </div>
 
-                        {/* Animated Tinsel Tug-of-War Bar */}
+                        {/* PINE GARLAND SLIDER */}
                         <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between text-xs font-black">
                             <span className="text-red-700 flex items-center space-x-1">
-                              <span>🔴 THIS (Pixels): {thisPercent}%</span>
+                              <span className="animate-twinkle text-amber-500">✨</span>
+                              <span>THIS (Pixels): {thisPercent}%</span>
                             </span>
                             <span className="text-emerald-800 flex items-center space-x-1">
-                              <span>🟢 THAT (Paper & Analog): {thatPercent}%</span>
+                              <span>THAT (Paper & Analog): {thatPercent}%</span>
+                              <span className="animate-tree-grow">🎄</span>
                             </span>
                           </div>
 
-                          <div className="relative h-5 w-full bg-slate-200 rounded-full overflow-hidden p-0.5 shadow-inner flex">
+                          <div className="relative h-7 w-full garland-pattern rounded-full p-1 shadow-inner border-2 border-emerald-900 flex items-center overflow-hidden animate-garland-shimmer">
                             <div 
-                              className="h-full bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 rounded-l-full transition-all duration-700 flex items-center justify-start pl-2"
+                              className={`h-full bg-gradient-to-r ${activeTheme.garlandThis} rounded-l-full transition-all duration-700 flex items-center justify-start pl-3 space-x-1`}
                               style={{ width: `${thisPercent}%` }}
                             >
-                              <span className="text-[9px] font-black text-white drop-shadow">THIS</span>
-                            </div>
-                            <div 
-                              className="h-full bg-gradient-to-r from-emerald-600 to-teal-700 rounded-r-full transition-all duration-700 flex items-center justify-end pr-2"
-                              style={{ width: `${thatPercent}%` }}
-                            >
-                              <span className="text-[9px] font-black text-white drop-shadow">THAT</span>
+                              <span className="animate-twinkle text-white text-[11px]">✨</span>
+                              <span className="text-[10px] font-black text-white drop-shadow hidden sm:inline">TINSEL</span>
+                              <span className="animate-twinkle-alt text-amber-200 text-[10px]">⭐</span>
                             </div>
 
                             <div 
-                              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-7 h-7 bg-amber-400 border-2 border-white rounded-full shadow-md flex items-center justify-center transition-all duration-700"
+                              className={`h-full bg-gradient-to-r ${activeTheme.garlandThat} rounded-r-full transition-all duration-700 flex items-center justify-end pr-3 space-x-1`}
+                              style={{ width: `${thatPercent}%` }}
+                            >
+                              <span className="text-[10px] font-black text-white drop-shadow hidden sm:inline">EVERGREEN</span>
+                              <span className="animate-tree-grow text-xs">🎄</span>
+                            </div>
+
+                            <div 
+                              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-amber-400 border-2 border-white rounded-full shadow-lg flex items-center justify-center transition-all duration-700 text-sm z-10"
                               style={{ left: `${thisPercent}%` }}
                             >
-                              <span className="text-[10px]">🎄</span>
+                              <span className="animate-tree-grow">🎄</span>
                             </div>
                           </div>
 
                           <p className="text-[11px] text-center text-slate-500 italic pt-1">
                             {thisPercent > thatPercent
-                              ? `Teachers are leaning toward Team Tinsel (Pixels) for fast audio scaffolding!`
-                              : `Teachers are leaning toward Team Evergreen (Analog) for high-focus tactile connection!`
+                              ? `Teachers are pulling the garland toward Team Tinsel (Pixels) for fast scaffolding!`
+                              : `Teachers are pulling the garland toward Team Evergreen (Analog) for tactile focus!`
                             }
                           </p>
                         </div>
                       </section>
 
-                      {/* 🎁 THE HOLIDAY SHOWDOWN: UNWRAPPING THE TRADE-OFFS */}
+                      {/* UNWRAPPING THE TRADE-OFFS */}
                       <div className="space-y-4">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div>
                             <h3 className="text-xl font-black text-slate-900 flex items-center space-x-2">
                               <span>Unwrapping the Trade-Offs</span>
                               <span className="text-xs bg-amber-100 text-amber-900 font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300">
-                                {activeGrade === 'k2' ? 'K–2 Primary' : activeGrade === 'g38' ? '3–8 Intermediate' : '9–12 / CTE'}
+                                {activeGrade === 'k2' ? 'K–2 Primary' : activeGrade === 'g38' ? '3–8 Intermediate' : '9–12 / Secondary & CTE'}
                               </span>
                             </h3>
                             <p className="text-xs text-slate-500">Every instructional tool has its season. Here is the honest breakdown for your classroom.</p>
@@ -2119,13 +1700,13 @@
                           </div>
                         </div>
 
-                        {/* Side-by-Side Trade-Off Cards */}
+                        {/* Trade-Off Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           
                           {/* THIS: PIXELS */}
-                          <div className="bg-white rounded-3xl border-2 border-red-500 shadow-md overflow-hidden flex flex-col justify-between">
+                          <div className={`bg-white rounded-3xl border-2 ${activeTheme.thisCardBorder} shadow-md overflow-hidden flex flex-col justify-between`}>
                             <div>
-                              <div className="bg-gradient-to-r from-red-600 to-rose-600 p-5 text-white flex items-center justify-between">
+                              <div className={`${activeTheme.showdownBg} p-5 text-white flex items-center justify-between`}>
                                 <div>
                                   <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
                                     {currentModule.thisTech.badge}
@@ -2138,44 +1719,38 @@
                               </div>
 
                               <div className="p-5 md:p-6 space-y-4 text-xs">
-                                
-                                {/* The Magic Spark */}
                                 <div className="bg-rose-50/70 p-3.5 rounded-2xl border border-rose-200">
                                   <div className="font-black text-red-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>✨ The Magic Spark: What Sets This Apart</span>
+                                    <span>✨ Magic Sparkle</span>
                                   </div>
                                   <p className="text-slate-700 leading-relaxed font-medium">
                                     {activeTradeOff.thisSpark}
                                   </p>
                                 </div>
 
-                                {/* When it Shines */}
                                 <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
                                   <div className="font-black text-slate-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>🎯 When It Shines: The Sweet Spot for Student Success</span>
+                                    <span>🎯 When it Shines</span>
                                   </div>
                                   <p className="text-slate-600 leading-relaxed">
                                     {activeTradeOff.thisTree}
                                   </p>
                                 </div>
 
-                                {/* The Blizzard */}
                                 <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200">
                                   <div className="font-black text-amber-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>❄️ The Blizzard: The Catch</span>
+                                    <span>❄️ The Blizzard</span>
                                   </div>
                                   <p className="text-slate-700 leading-relaxed">
                                     {activeTradeOff.thisBlizzard}
                                   </p>
                                 </div>
 
-                                {/* Santa's Workshop Prep */}
                                 <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500 font-bold border-t border-slate-100">
                                   <span>⏱️ Santa's Workshop Prep:</span>
                                   <span className="text-slate-800">{activeTradeOff.thisPrep}</span>
                                 </div>
 
-                                {/* Featured Tool Links */}
                                 <div className="pt-2 border-t border-slate-100 space-y-2">
                                   <span className="text-[10px] font-black uppercase text-slate-400 block tracking-wider">
                                     Featured Tools ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'}):
@@ -2222,7 +1797,6 @@
                                     );
                                   })}
                                 </div>
-
                               </div>
                             </div>
 
@@ -2232,9 +1806,9 @@
                           </div>
 
                           {/* THAT: ANALOG */}
-                          <div className="bg-white rounded-3xl border-2 border-emerald-600 shadow-md overflow-hidden flex flex-col justify-between">
+                          <div className={`bg-white rounded-3xl border-2 ${activeTheme.thatCardBorder} shadow-md overflow-hidden flex flex-col justify-between`}>
                             <div>
-                              <div className="bg-gradient-to-r from-emerald-800 to-teal-800 p-5 text-white flex items-center justify-between">
+                              <div className={`${activeTheme.thatShowdownBg} p-5 text-white flex items-center justify-between`}>
                                 <div>
                                   <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
                                     {currentModule.thatTech.badge}
@@ -2242,49 +1816,43 @@
                                   <h4 className="text-lg font-black text-white mt-1">{currentModule.thatTech.title}</h4>
                                 </div>
                                 <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center font-bold text-xl">
-                                  🎄
+                                  <span className="animate-tree-grow text-lg">🎄</span>
                                 </div>
                               </div>
 
                               <div className="p-5 md:p-6 space-y-4 text-xs">
-                                
-                                {/* The Magic Spark */}
                                 <div className="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200">
                                   <div className="font-black text-emerald-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>✨ The Magic Spark: What Sets This Apart</span>
+                                    <span>🌟 Brightest Light</span>
                                   </div>
                                   <p className="text-slate-700 leading-relaxed font-medium">
                                     {activeTradeOff.thatSpark}
                                   </p>
                                 </div>
 
-                                {/* When it Shines */}
                                 <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
                                   <div className="font-black text-slate-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>🎯 When It Shines: The Sweet Spot for Student Success</span>
+                                    <span>🎯 The Sweet Spot</span>
                                   </div>
                                   <p className="text-slate-600 leading-relaxed">
                                     {activeTradeOff.thatTree}
                                   </p>
                                 </div>
 
-                                {/* The Blizzard */}
                                 <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200">
                                   <div className="font-black text-amber-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>❄️ The Blizzard: The Catch</span>
+                                    <span>🪵 Coals</span>
                                   </div>
                                   <p className="text-slate-700 leading-relaxed">
                                     {activeTradeOff.thatBlizzard}
                                   </p>
                                 </div>
 
-                                {/* Santa's Workshop Prep */}
                                 <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500 font-bold border-t border-slate-100">
                                   <span>⏱️ Santa's Workshop Prep:</span>
                                   <span className="text-slate-800">{activeTradeOff.thatPrep}</span>
                                 </div>
 
-                                {/* Featured Resource Links */}
                                 <div className="pt-2 border-t border-slate-100 space-y-2">
                                   <span className="text-[10px] font-black uppercase text-slate-400 block tracking-wider">
                                     Featured Strategies ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'}):
@@ -2331,7 +1899,6 @@
                                     );
                                   })}
                                 </div>
-
                               </div>
                             </div>
 
@@ -2356,40 +1923,38 @@
                     </div>
                   )}
 
-                  {/* ========================================================= */}
-                  {/* STEP 1: RESEARCH & RECIPES (HOLIDAY RECIPES THEME)        */}
-                  {/* ========================================================= */}
+                  {/* STEP 1: RESEARCH & RECIPES */}
                   {moduleStep === 1 && (
                     <div className="space-y-6 animate-in fade-in duration-200">
                       
-                      {/* The Secret Sauce: Research in 60 Seconds */}
+                      {/* The Science in 60 Seconds */}
                       <div className="bg-slate-900 text-white rounded-3xl p-6 md:p-8 shadow-xl border-2 border-slate-700">
                         <div className="flex items-center space-x-3 mb-4">
-                          <div className="bg-amber-400/20 p-2.5 rounded-2xl text-amber-400">
+                          <div className="bg-amber-400/20 p-2.5 rounded-2xl text-amber-300">
                             <BookOpen className="w-6 h-6" />
                           </div>
                           <div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">The Secret Sauce</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">Cognitive Science & Balanced Research</span>
                             <h3 className="text-xl md:text-2xl font-black text-white">The Science in 60 Seconds</h3>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                           {(currentModule.researchTakeaways || []).map((item, idx) => (
-                            <div key={idx} className="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 flex flex-col justify-between">
+                            <div key={idx} className="bg-slate-800 rounded-2xl p-4 border border-slate-700 flex flex-col justify-between">
                               <div>
-                                <div className="font-black text-amber-300 text-sm mb-1.5 flex items-center space-x-1">
-                                  <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                <div className="font-black text-yellow-200 text-sm mb-1.5 flex items-center space-x-1">
+                                  <Sparkles className="w-3.5 h-3.5 text-yellow-300 shrink-0" />
                                   <span>{item.point}</span>
                                 </div>
-                                <p className="text-slate-300 leading-relaxed font-light">{item.detail}</p>
+                                <p className="text-slate-100 leading-relaxed font-normal">{item.detail}</p>
                               </div>
                               <div className="mt-3 pt-2 border-t border-slate-700">
                                 <a 
                                   href={item.linkUrl} 
                                   target="_blank" 
                                   rel="noreferrer" 
-                                  className="text-amber-400 hover:text-amber-300 font-bold inline-flex items-center space-x-1"
+                                  className="text-sky-300 hover:text-sky-200 font-bold underline inline-flex items-center space-x-1"
                                 >
                                   <span>{item.linkLabel}</span>
                                   <ExternalLink className="w-3 h-3" />
@@ -2400,7 +1965,7 @@
                         </div>
                       </div>
 
-                      {/* Pantry Ingredients: When to Add Each */}
+                      {/* Pantry Ingredients */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="bg-emerald-50 border-2 border-emerald-300 rounded-3xl p-5">
                           <div className="font-black text-xs uppercase tracking-wider text-emerald-900 mb-2 flex items-center">
@@ -2409,7 +1974,7 @@
                           </div>
                           <ul className="space-y-2">
                             {currentModule.thisTech.pros.map((item, idx) => (
-                              <li key={idx} className="flex items-start text-xs text-emerald-950">
+                              <li key={idx} className="flex items-start text-xs text-emerald-950 font-medium">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mr-2 shrink-0 mt-0.5" />
                                 <span>{item}</span>
                               </li>
@@ -2424,8 +1989,8 @@
                           </div>
                           <ul className="space-y-2">
                             {currentModule.thatTech.pros.map((item, idx) => (
-                              <li key={idx} className="flex items-start text-xs text-red-950">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 mr-2 shrink-0 mt-0.5" />
+                              <li key={idx} className="flex items-start text-xs text-red-950 font-medium">
+                                <CheckCircle2 className="w-3.5 h-3.6 text-red-600 mr-2 shrink-0 mt-0.5" />
                                 <span>{item}</span>
                               </li>
                             ))}
@@ -2433,22 +1998,21 @@
                         </div>
                       </div>
 
-                      {/* Classroom Recipe Card */}
+                      {/* Holiday Recipe Card */}
                       <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-amber-300 relative overflow-hidden">
                         <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
-                          <div className="flex items-center space-x-2">
-                            <span className="w-8 h-8 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center font-black">
-                              🥣
+                          <div className="flex items-center space-x-2.5">
+                            <span className="w-10 h-10 rounded-2xl bg-amber-400 text-slate-900 flex items-center justify-center font-black text-xl shadow-sm">
+                              {activeTheme.bakeryIcon}
                             </span>
                             <div>
                               <h3 className="text-xl font-black text-slate-900">
-                                {activeRecipe?.title || 'Classroom Integration Recipe'}
+                                {activeRecipe?.title || `${activeTheme.bakeryType} Recipe`}
                               </h3>
-                              <p className="text-xs text-slate-500 font-medium">Ready-to-use lesson blend for tomorrow morning</p>
+                              <p className="text-xs text-slate-500 font-medium">Ready-to-bake lesson blend for your classroom tomorrow</p>
                             </div>
                           </div>
 
-                          {/* Grade Selector Tabs */}
                           <div className="bg-slate-100 p-1.5 rounded-2xl flex space-x-1 border border-slate-200">
                             {[
                               { id: 'k2', label: 'Primary (K–2)' },
@@ -2470,22 +2034,20 @@
                           </div>
                         </div>
 
-                        {/* Recipe Metadata Banner */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 text-xs bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200">
                           <div>
-                            <span className="font-black text-amber-900 uppercase text-[10px] block">⏱️ Kitchen Prep Time:</span>
-                            <span className="text-slate-800 font-bold">{activeRecipe?.prepTime || '3 Minutes'}</span>
+                            <span className="font-black text-amber-900 uppercase text-[10px] block">⏱️ Prep & Bake Time:</span>
+                            <span className="text-slate-800 font-bold">{activeRecipe?.prepTime || '3 Minutes to Assemble'}</span>
                           </div>
                           <div>
-                            <span className="font-black text-amber-900 uppercase text-[10px] block">🥣 Key Ingredients:</span>
+                            <span className="font-black text-amber-900 uppercase text-[10px] block">🥣 Ingredients:</span>
                             <span className="text-slate-800 font-medium">{activeRecipe?.ingredients || '1 Digital Tool + 1 Analog Strategy'}</span>
                           </div>
                         </div>
 
-                        {/* Step-by-Step Directions */}
                         <div className="space-y-3">
                           <span className="text-xs font-black uppercase text-slate-400 block tracking-wider">
-                            Step-by-Step Recipe Directions:
+                            Step-by-Step Directions:
                           </span>
                           {(activeRecipe?.steps || []).map((step, idx) => (
                             <div key={idx} className="flex items-start space-x-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
@@ -2518,9 +2080,7 @@
                     </div>
                   )}
 
-                  {/* ========================================================= */}
-                  {/* STEP 2: REFLECTION                                        */}
-                  {/* ========================================================= */}
+                  {/* STEP 2: REFLECTION */}
                   {moduleStep === 2 && (
                     <div className="space-y-6 animate-in fade-in duration-200">
                       <div className="bg-gradient-to-br from-amber-50 via-white to-emerald-50 rounded-3xl p-6 md:p-8 shadow-sm border-2 border-amber-300">
@@ -2542,10 +2102,9 @@
                           {currentModule.reflectionPrompt}
                         </p>
 
-                        {/* 3-PART MICRO REFLECTION FORM */}
                         <div className="space-y-5 bg-white p-5 md:p-6 rounded-2xl border border-amber-200 shadow-sm">
                           
-                          {/* PART 1: DIGITAL TOOL */}
+                          {/* PART 1 */}
                           <div>
                             <label className="block text-xs font-black uppercase tracking-wider text-emerald-800 mb-1.5 flex items-center space-x-1.5">
                               <span className="bg-emerald-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px]">1</span>
@@ -2574,7 +2133,7 @@
                             )}
                           </div>
 
-                          {/* PART 2: ANALOG STRATEGY */}
+                          {/* PART 2 */}
                           <div>
                             <label className="block text-xs font-black uppercase tracking-wider text-red-800 mb-1.5 flex items-center space-x-1.5">
                               <span className="bg-red-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px]">2</span>
@@ -2603,7 +2162,7 @@
                             )}
                           </div>
 
-                          {/* PART 3: WHY THIS BLEND MATTERS */}
+                          {/* PART 3 */}
                           <div>
                             <div className="flex items-center justify-between mb-1.5">
                               <label className="block text-xs font-black uppercase tracking-wider text-slate-700 flex items-center space-x-1.5">
@@ -2640,19 +2199,17 @@
                         </div>
 
                         <div className="flex items-center justify-between flex-wrap gap-3 mt-5">
-                          <div className="flex items-center space-x-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setPrintScope('current');
-                                setIsPrintModalOpen(true);
-                              }}
-                              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-300 flex items-center space-x-1.5"
-                            >
-                              <Printer className="w-3.5 h-3.5 text-slate-500" />
-                              <span>Make Me a Print Copy</span>
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPrintScope('current');
+                              setIsPrintModalOpen(true);
+                            }}
+                            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-300 flex items-center space-x-1.5"
+                          >
+                            <Printer className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Make Me a Print Copy</span>
+                          </button>
 
                           <div className="flex items-center space-x-3">
                             <button
@@ -2853,7 +2410,10 @@
                           return (
                             <div key={mod.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                               <div className="flex items-center justify-between">
-                                <span className="text-xs font-black text-slate-900">Module {mod.id}: {mod.navTitle}</span>
+                                <span className="text-xs font-black text-slate-900 flex items-center space-x-1.5">
+                                  <span>{mod.theme.bakeryIcon}</span>
+                                  <span>Module {mod.id}: {mod.navTitle}</span>
+                                </span>
                                 <button
                                   type="button"
                                   onClick={() => handleSelectModule(String(mod.id))}
@@ -3213,9 +2773,7 @@
             </main>
           </div>
 
-          {/* ========================================================= */}
-          {/* PRINT & DESK REFERENCE CONFIGURATION MODAL                */}
-          {/* ========================================================= */}
+          {/* PRINT MODAL */}
           {isPrintModalOpen && (
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
@@ -3342,9 +2900,7 @@
             </div>
           )}
 
-          {/* ========================================================= */}
-          {/* HIGH-CONTRAST PRINT DESK REFERENCE SECTION                */}
-          {/* ========================================================= */}
+          {/* PRINT TEMPLATE */}
           <div id="print-area" className="hidden">
             <div className="border-b-2 border-slate-900 pb-4 mb-6">
               <div className="flex items-center justify-between">
@@ -3382,8 +2938,8 @@
               return (
                 <div key={mod.id} className="mb-8 page-break-inside-avoid">
                   <div className="bg-slate-100 p-3 rounded-lg border border-slate-300 mb-3">
-                    <h2 className="text-base font-black text-slate-900">Module {mod.id}: {mod.title}</h2>
-                    <p className="text-xs text-slate-600 italic mt-0.5">{mod.tagline}</p>
+                    <h2 className="text-base font-black text-slate-900">{mod.theme.bakeryIcon} Module {mod.id}: {mod.title}</h2>
+                    <p className="text-xs text-slate-600 italic mt-0.5">{mod.tagline} ({mod.theme.bakeryType})</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-4">
