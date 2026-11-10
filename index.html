@@ -128,22 +128,28 @@
     const School = makeIcon(<><path d="m4 6 8-4 8 4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 5v17"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></>);
     const Star = makeIcon(<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>);
     const Printer = makeIcon(<><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></>);
+    const AlertTriangle = makeIcon(<><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>);
 
-    // --- ROCK-SOLID EVENT LOGO COMPONENT ---
-    // Anchored directly to your uploaded image file with crisp circular clipping
+    // --- STABLE EVENT LOGO COMPONENT ---
+    // Targets "This_or_that_logo.jpeg" as the primary official filename
     function EventLogo({ className = "w-12 h-12" }) {
-      const [src, setSrc] = useState("Gemini_Generated_Image_4iybt44iybt44iyb.jpeg");
-      const [hasFailed, setHasFailed] = useState(false);
+      const [attempt, setAttempt] = useState(0);
+      const possibleSources = [
+        "This_or_that_logo.jpeg",
+        "./This_or_that_logo.jpeg",
+        "Gemini_Generated_Image_4iybt44iybt44iyb.jpeg",
+        "./Gemini_Generated_Image_4iybt44iybt44iyb.jpeg"
+      ];
 
       const handleError = () => {
-        if (src === "Gemini_Generated_Image_4iybt44iybt44iyb.jpeg") {
-          setSrc("Gemini_Generated_Image_4iybt44iybt44iyb_2.jpeg");
+        if (attempt < possibleSources.length - 1) {
+          setAttempt(attempt + 1);
         } else {
-          setHasFailed(true);
+          setAttempt(-1); // render high-res SVG fallback
         }
       };
 
-      if (hasFailed) {
+      if (attempt === -1) {
         return (
           <div className={`relative rounded-full bg-emerald-950 p-1 flex items-center justify-center border-2 border-amber-400 shadow-md select-none shrink-0 ${className}`}>
             <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -159,7 +165,7 @@
 
       return (
         <img 
-          src={src} 
+          src={possibleSources[attempt]} 
           alt="Tech the Halls: This or That! - REMC 12E" 
           onError={handleError}
           className={`object-cover bg-white drop-shadow-md shrink-0 ${className}`}
@@ -190,7 +196,7 @@
       );
     }
 
-    // --- CURATED MODULE DATA ---
+    // --- CURATED MODULE DATA WITH REFINED GEMINI NOTEBOOK BRANDING & TEASERS ---
     const modulesData = [
       {
         id: 1,
@@ -235,7 +241,7 @@
             thisSpark: "Dynamic text leveling and instant 2-host audio overviews tailored to students' exact reading level.",
             thisTree: "Dense informational articles, bellringer hooks, multi-tier vocabulary support.",
             thisBlizzard: "Copy-paste skimming: students rely on the AI summary without touching the real text.",
-            thisPrep: "1 minute to drop a PDF into NotebookLM or level with Brisk.",
+            thisPrep: "1 minute to drop sources into Gemini Notebook or level with Brisk.",
             thatSpark: "Zero digital distractions, physical spatial anchoring, and true face-to-face peer interdependence.",
             thatTree: "Deep analytical reading, cooperative expert jigsaws, high-focus silent annotation.",
             thatBlizzard: "Highlighter wars: students turn the entire page neon green without thinking critically.",
@@ -245,7 +251,7 @@
             thisSpark: "Natural language query of complex primary sources, college research papers, and technical trade manuals.",
             thisTree: "High school DBQs, science lab procedures, ELA research, and CTE safety specs.",
             thisBlizzard: "Hallucination trust: students fail to double-check AI citations against original physical texts.",
-            thisPrep: "1 minute to upload sources into NotebookLM.",
+            thisPrep: "1 minute to upload sources into Gemini Notebook.",
             thatSpark: "Tactile fine-motor encoding that reinforces muscle memory, close analytical reading, and spatial schematic mapping.",
             thatTree: "Close literary analysis, historical primary source marginalia, science schematics, and shop blueprints.",
             thatBlizzard: "Marking fatigue: students color half the page or lose paper handouts between class periods.",
@@ -259,26 +265,90 @@
           gradeTiers: {
             k2: {
               tools: [
-                { name: "Storyline Online", badge: "100% Free • Read Alouds", whatItIs: "Celebrated actors read classic children's literature aloud with animated illustrations and closed captions.", url: "https://www.youtube.com/playlist?list=PL04F0FB771098124D", videoUrl: "https://www.youtube.com/results?search_query=storyline+online+classroom+ideas", videoLabel: "Storyline Guide" },
-                { name: "ReadWorks Audio", badge: "100% Free • Non-Profit", whatItIs: "High-interest K-2 passages with human read-aloud audio, sentence tracking, and picture vocabulary cards.", url: "https://www.readworks.org", videoUrl: "https://youtu.be/_-pv3bFARDE?si=pHKXLkztCyTBVQVY", videoLabel: "ReadWorks Walkthrough" }
+                { 
+                  name: "Storyline Online", 
+                  badge: "100% Free • Read Alouds", 
+                  teaser: "Award-winning streaming library where celebrated actors read beloved picture books aloud with expressive narration.",
+                  whatItIs: "Celebrated actors read classic children's literature aloud with animated illustrations and closed captions.", 
+                  url: "https://www.youtube.com/playlist?list=PL04F0FB771098124D", 
+                  videoUrl: "https://www.youtube.com/results?search_query=storyline+online+classroom+ideas", 
+                  videoLabel: "Storyline Guide" 
+                },
+                { 
+                  name: "ReadWorks Audio", 
+                  badge: "100% Free • Non-Profit", 
+                  teaser: "Free reading passages paired with human-narrated audio tracking and visual vocabulary support.",
+                  whatItIs: "High-interest K-2 passages with human read-aloud audio, sentence tracking, and picture vocabulary cards.", 
+                  url: "https://www.readworks.org", 
+                  videoUrl: "https://youtu.be/_-pv3bFARDE?si=pHKXLkztCyTBVQVY", 
+                  videoLabel: "ReadWorks Walkthrough" 
+                }
               ],
               coachTip: "Play a Storyline Online read-aloud on your screen, pause halfway through, and have students predict the ending!"
             },
             g38: {
               tools: [
-                { name: "Google NotebookLM", badge: "Grounded AI Assistant", whatItIs: "Upload PDFs. It grounds an AI assistant strictly in your sources and generates a lively 2-host podcast explaining key ideas.", url: "https://notebooklm.google.com", videoUrl: "https://www.youtube.com/results?search_query=notebooklm+for+teachers+tutorial", videoLabel: "NotebookLM Tour" },
-                { name: "Brisk Teaching", badge: "Free Chrome Extension", whatItIs: "Levels any online article or Doc in reading grade level with one click and generates targeted vocabulary scaffolds.", url: "https://www.briskteaching.com", videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+tutorial+for+teachers", videoLabel: "Brisk Setup" },
-                { name: "Edpuzzle", badge: "Interactive Video", whatItIs: "Embed audio notes and check-in questions directly inside YouTube or teacher videos so students actively process content.", url: "https://edpuzzle.com", videoUrl: "https://www.youtube.com/results?search_query=edpuzzle+tutorial+for+teachers", videoLabel: "Edpuzzle Tour" }
+                { 
+                  name: "Gemini Notebook (Teacher Scaffolding)", 
+                  badge: "13+ Only • Teacher-Facing", 
+                  teaser: "Turns your teacher-uploaded curriculum sources into a lively 2-host audio podcast to introduce dense topics.",
+                  whatItIs: "NOTE: Gemini Notebook is restricted to ages 13+ and many districts restrict direct student access. In Grades 3–8, teachers use it as an instructional tool to generate audio overview podcasts or leveled study guides to play whole-class without student logins.", 
+                  url: "https://notebooklm.google.com", 
+                  videoUrl: "https://www.youtube.com/shorts/Xc1DWJFOdnU", 
+                  videoLabel: "Gemini Notebook in 60s" 
+                },
+                { 
+                  name: "Brisk Teaching", 
+                  badge: "Free Chrome Extension", 
+                  teaser: "One-click Chrome assistant that instantly levels reading passages and generates targeted vocabulary scaffolds.",
+                  whatItIs: "Levels any online article or Doc in reading grade level with one click and generates targeted vocabulary scaffolds.", 
+                  url: "https://www.briskteaching.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+tutorial+for+teachers", 
+                  videoLabel: "Brisk Setup" 
+                },
+                { 
+                  name: "Edpuzzle", 
+                  badge: "Interactive Video", 
+                  teaser: "Turns any online educational video into an interactive check-for-understanding with embedded audio questions.",
+                  whatItIs: "Embed audio notes and check-in questions directly inside YouTube or teacher videos so students actively process content.", 
+                  url: "https://edpuzzle.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=edpuzzle+tutorial+for+teachers", 
+                  videoLabel: "Edpuzzle Tour" 
+                }
               ],
-              coachTip: "Play NotebookLM's generated podcast as the opening bellringer while students get settled!"
+              coachTip: "Play Gemini Notebook's teacher-generated podcast as an opening hook while students get settled!"
             },
             h912: {
               tools: [
-                { name: "Google NotebookLM", badge: "Secondary & CTE Research", whatItIs: "Upload primary sources, dense history texts, or technical manuals. Students query the source directly to cross-reference citations.", url: "https://notebooklm.google.com", videoUrl: "https://www.youtube.com/results?search_query=notebooklm+high+school+research", videoLabel: "NotebookLM Deep Dive" },
-                { name: "Brisk Teaching", badge: "Forensic Scaffolding", whatItIs: "Translate dense secondary literature or technical manuals into tiered reading levels and inspect writing revision histories.", url: "https://www.briskteaching.com", videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+high+school", videoLabel: "Brisk Secondary" },
-                { name: "Perusall", badge: "Social Annotation", whatItIs: "Students collaboratively annotate difficult secondary or CTE texts in the margins, debating complex claims together.", url: "https://perusall.com", videoUrl: "https://www.youtube.com/results?search_query=perusall+collaborative+annotation", videoLabel: "Perusall Reading" }
+                { 
+                  name: "Gemini Notebook (Secondary & CTE)", 
+                  badge: "13+ Only • District Approval Req.", 
+                  teaser: "AI research tool that queries uploaded sources, DBQs, and trade manuals to create learning and study materials.",
+                  whatItIs: "AI research tool that queries uploaded sources, DBQs, and trade manuals to create learning and study materials. NOTE: While legally 13+, ensure your district's specific AI policy allows secondary students to log in directly; otherwise, use as a teacher demonstration tool.", 
+                  url: "https://notebooklm.google.com", 
+                  videoUrl: "https://www.youtube.com/shorts/Xc1DWJFOdnU", 
+                  videoLabel: "Gemini Notebook in 60s" 
+                },
+                { 
+                  name: "Brisk Teaching (Secondary)", 
+                  badge: "Forensic Scaffolding", 
+                  teaser: "Differentiates complex secondary reading levels and provides forensic audits of student writing revision histories.",
+                  whatItIs: "Translate dense secondary literature or technical manuals into tiered reading levels and inspect writing revision histories.", 
+                  url: "https://www.briskteaching.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+high+school", 
+                  videoLabel: "Brisk Secondary" 
+                },
+                { 
+                  name: "Perusall", 
+                  badge: "Social Annotation", 
+                  teaser: "Collaborative reading platform where high schoolers annotate complex texts together right in the digital margins.",
+                  whatItIs: "Students collaboratively annotate difficult secondary or CTE texts in the margins, debating complex claims together.", 
+                  url: "https://perusall.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=perusall+collaborative+annotation", 
+                  videoLabel: "Perusall Reading" 
+                }
               ],
-              coachTip: "Before students write an essay or operate shop machinery, have them query NotebookLM for core evidence or safety specs."
+              coachTip: "Before students write an essay or operate shop machinery, have them query source documents in Gemini Notebook for core evidence or safety specs."
             }
           },
           pros: [
@@ -294,24 +364,88 @@
           gradeTiers: {
             k2: {
               tools: [
-                { name: "The Picture Sequence Jigsaw", badge: "Early Cooperative Puzzle", whatItIs: "Give small groups illustrated cards. In 'home' circles, students physically order their cards sequentially (First, Next, Then, Finally).", url: "https://www.readingrockets.org/classroom/classroom-strategies/story-sequence", videoUrl: "https://www.youtube.com/results?search_query=picture+sequencing+cards+early+reading", videoLabel: "Picture Sequencing" },
-                { name: "Pipe Cleaners & Reading Windows", badge: "Zero-Cost Tactile Hunts", whatItIs: "Students bend craft pipe cleaners to frame sight words, or cut a small rectangle out of a recycled card to isolate phonics sounds.", url: "https://www.readingrockets.org/topics/phonics-and-decoding/articles/six-games-reading-words", videoUrl: "https://www.youtube.com/results?search_query=reading+window+index+card+strategy", videoLabel: "Reading Windows" }
+                { 
+                  name: "The Picture Sequence Jigsaw", 
+                  badge: "Early Cooperative Puzzle", 
+                  teaser: "Kinesthetic carpet strategy where young learners physically arrange illustrated story cards in chronological order.",
+                  whatItIs: "Give small groups illustrated cards. In 'home' circles, students physically order their cards sequentially (First, Next, Then, Finally).", 
+                  url: "https://www.readingrockets.org/classroom/classroom-strategies/story-sequence", 
+                  videoUrl: "https://www.youtube.com/results?search_query=picture+sequencing+cards+early+reading", 
+                  videoLabel: "Picture Sequencing" 
+                },
+                { 
+                  name: "Pipe Cleaners & Reading Windows", 
+                  badge: "Zero-Cost Tactile Hunts", 
+                  teaser: "Everyday craft pipe cleaners and cut index cards that allow pre-readers to isolate and frame phonics sounds.",
+                  whatItIs: "Students bend craft pipe cleaners to frame sight words, or cut a small rectangle out of a recycled card to isolate phonics sounds.", 
+                  url: "https://www.readingrockets.org/topics/phonics-and-decoding/articles/six-games-reading-words", 
+                  videoUrl: "https://www.youtube.com/results?search_query=reading+window+index+card+strategy", 
+                  videoLabel: "Reading Windows" 
+                }
               ],
               coachTip: "Have students use pipe cleaners to make \"magnifying glasses\" to hunt for sight or spelling words."
             },
             g38: {
               tools: [
-                { name: "The Aronson Jigsaw Method", badge: "Cooperative Learning Protocol", whatItIs: "Students break into 'expert' groups to master a physical sub-section of a text, then regroup where every peer is needed to complete the puzzle.", url: "https://www.jigsaw.org", videoUrl: "https://www.youtube.com/results?search_query=jigsaw+method+classroom+strategy", videoLabel: "How Jigsaw Works" },
-                { name: "Color-Coded Highlighting Matrix", badge: "Active Reading Technique", whatItIs: "Students use 3 physical highlighter colors with intentional jobs: Yellow for Claims, Pink for Evidence, Green for Questions.", url: "https://www.cultofpedagogy.com/jigsaw-method/", videoUrl: "https://www.youtube.com/results?search_query=annotation+strategies+for+students", videoLabel: "Active Paper Annotation" },
-                { name: "11x17 Butcher Paper Placemats", badge: "Tactile Synthesis", whatItIs: "Large format paper in the middle of a table with designated quadrants for each student to write their key takeaways.", url: "https://www.readingrockets.org/strategies/jigsaw", videoUrl: "https://www.youtube.com/results?search_query=graphic+organizers+cooperative+learning", videoLabel: "Butcher Paper Placemats" }
+                { 
+                  name: "The Aronson Jigsaw Method", 
+                  badge: "Cooperative Learning Protocol", 
+                  teaser: "Classic face-to-face peer teaching protocol where students become topic experts to complete a shared learning puzzle.",
+                  whatItIs: "Students break into 'expert' groups to master a physical sub-section of a text, then regroup where every peer is needed to complete the puzzle.", 
+                  url: "https://www.jigsaw.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=jigsaw+method+classroom+strategy", 
+                  videoLabel: "How Jigsaw Works" 
+                },
+                { 
+                  name: "Color-Coded Highlighting Matrix", 
+                  badge: "Active Reading Technique", 
+                  teaser: "Multi-colored physical highlighting system that requires learners to categorize claims, evidence, and questions by hand.",
+                  whatItIs: "Students use 3 physical highlighter colors with intentional jobs: Yellow for Claims, Pink for Evidence, Green for Questions.", 
+                  url: "https://www.cultofpedagogy.com/jigsaw-method/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=annotation+strategies+for+students", 
+                  videoLabel: "Active Paper Annotation" 
+                },
+                { 
+                  name: "11x17 Butcher Paper Placemats", 
+                  badge: "Tactile Synthesis", 
+                  teaser: "Oversized table workspace where each student synthesizes their quadrant before discussing as a team.",
+                  whatItIs: "Large format paper in the middle of a table with designated quadrants for each student to write their key takeaways.", 
+                  url: "https://www.readingrockets.org/strategies/jigsaw", 
+                  videoUrl: "https://www.youtube.com/results?search_query=graphic+organizers+cooperative+learning", 
+                  videoLabel: "Butcher Paper Placemats" 
+                }
               ],
               coachTip: "Give each expert group a distinct color pen to make participation immediately visible!"
             },
             h912: {
               tools: [
-                { name: "Secondary Source & Blueprint Jigsaw", badge: "High School & CTE Protocol", whatItIs: "Divide complex historical DBQs, science research studies, or trade schematics into quadrants. Each student masters one subsystem before synthesizing.", url: "https://www.jigsaw.org", videoUrl: "https://www.youtube.com/results?search_query=cooperative+learning+cte+classroom", videoLabel: "Secondary Jigsaws" },
-                { name: "Margin Marginalia & Highlighting", badge: "Deep Processing Protocol", whatItIs: "Students read printed primary sources with strict analog rules: highlight no more than 10 words per page and write a 3-word summary in the margin.", url: "https://www.cultofpedagogy.com", videoUrl: "https://www.youtube.com/results?search_query=text+marginalia+high+school", videoLabel: "Text Marginalia" },
-                { name: "Graphic Synthesis Placemats", badge: "Tactile System Mapping", whatItIs: "Students physically sketch argument flowcharts or step-by-step diagnostic workflows on oversized paper before typing or lab work.", url: "https://buildingthinkingclassrooms.com", videoUrl: "https://www.youtube.com/results?search_query=visual+thinking+strategies+cte", videoLabel: "Visual Thinking in Secondary" }
+                { 
+                  name: "Secondary Source & Blueprint Jigsaw", 
+                  badge: "High School & CTE Protocol", 
+                  teaser: "Cooperative analysis routine dividing complex DBQs or technical trade schematics among student specialists.",
+                  whatItIs: "Divide complex historical DBQs, science research studies, or trade schematics into quadrants. Each student masters one subsystem before synthesizing.", 
+                  url: "https://www.jigsaw.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=cooperative+learning+cte+classroom", 
+                  videoLabel: "Secondary Jigsaws" 
+                },
+                { 
+                  name: "Margin Marginalia & Highlighting", 
+                  badge: "Deep Processing Protocol", 
+                  teaser: "Disciplined analog reading routine enforcing a strict limit on highlights and requiring 3-word margin summaries.",
+                  whatItIs: "Students read printed primary sources with strict analog rules: highlight no more than 10 words per page and write a 3-word summary in the margin.", 
+                  url: "https://www.cultofpedagogy.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=text+marginalia+high+school", 
+                  videoLabel: "Text Marginalia" 
+                },
+                { 
+                  name: "Graphic Synthesis Placemats", 
+                  badge: "Tactile System Mapping", 
+                  teaser: "Oversized paper mapping routine where teams physically sketch argument flows or diagnostic paths before writing.",
+                  whatItIs: "Students physically sketch argument flowcharts or step-by-step diagnostic workflows on oversized paper before typing or lab work.", 
+                  url: "https://buildingthinkingclassrooms.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=visual+thinking+strategies+cte", 
+                  videoLabel: "Visual Thinking in Secondary" 
+                }
               ],
               coachTip: "Have students sign their initials in ink next to their verified text claims or circuit checkpoints!"
             }
@@ -356,19 +490,20 @@
           g38: {
             title: "The Gingerbread Jigsaw",
             prepTime: "2 Minutes to Mix & Bake",
-            ingredients: "NotebookLM Audio Overview + Printed Article & 3 Highlighter Colors",
+            ingredients: "Gemini Notebook Audio Overview + Printed Article & 3 Highlighter Colors",
             steps: [
-              "1 - Preheat (Digital): As the opening bellringer, play NotebookLM's 4-minute two-host podcast summarizing the day's dense article to give students the big-picture flavor.",
+              "1 - Preheat (Digital): As the opening bellringer, play Gemini Notebook's teacher-generated 4-minute podcast summarizing the day's dense article (zero student logins required!).",
               "2 - Mix (Tactile): Close all Chromebooks! Hand out printed articles. Expert groups highlight: Yellow = Main Claims, Pink = Data/Evidence, Green = Questions.",
-              "3 - Assemble: Regroup into home circles. Each student brings their piece to the table to teach their portion from highlighted paper without screens."
+              "3 - Assemble: Regroup into home circles. Each student brings their piece to the table to teach their portion from highlighted paper without screens.",
+              "4 - Enjoy! (Digital Evidence): How can students showcase their learning? Have them produce a 60-second micro-podcast, record a quick video reflection, or design a collaborative infographic in Canva to capture their takeaways."
             ]
           },
           h912: {
             title: "The Secondary Snickerdoodle (General High School & CTE)",
             prepTime: "3 Minutes to Mix & Bake",
-            ingredients: "NotebookLM Source Query + Printed Primary Sources, DBQs, or Technical Schematics",
+            ingredients: "Gemini Notebook Source Query + Printed Primary Sources, DBQs, or Technical Schematics",
             steps: [
-              "1 - Preheat (Digital): Students query NotebookLM with a complex historical document, biology research paper, or trade manual to generate 3 focus inquiry questions.",
+              "1 - Preheat (Digital): Students (or teacher demonstration) query Gemini Notebook with a complex historical document, research paper, or trade manual to generate 3 focus questions.",
               "2 - Mix (Tactile): Step away from screens. Students use strict marginalia (max 10 highlighted words, 3-word margin notes) or trace diagnostic schematics with grease pencils.",
               "3 - Assemble: Groups conduct a standing vertical discussion or trade peer critiques, verifying their arguments directly against the physical source text."
             ]
@@ -443,25 +578,97 @@
           gradeTiers: {
             k2: {
               tools: [
-                { name: "Padlet Sandbox", badge: "100% Free • For Littles", whatItIs: "A card-style digital whiteboard built for young learners to drag shapes and stamps together safely.", url: "https://padlet.com/sandbox", videoUrl: "https://www.youtube.com/results?search_query=padlet+sandbox+for+teachers+tutorial", videoLabel: "Padlet Sandbox Tour" },
-                { name: "Padlet Audio Wall", badge: "Voice Collaboration", whatItIs: "Pre-readers don't need to type! They tap a large microphone button to record a 10-second voice thought.", url: "https://padlet.com", videoUrl: "https://www.youtube.com/results?search_query=padlet+voice+recording+elementary", videoLabel: "Padlet Audio Guide" },
-                { name: "Canva Kids Whiteboard", badge: "Free for K-12", whatItIs: "A safe digital playground where students drag-and-drop holiday icons and sort shapes together.", url: "https://www.canva.com/education/", videoUrl: "https://www.youtube.com/results?search_query=canva+whiteboard+elementary+classroom", videoLabel: "Canva Whiteboards" }
+                { 
+                  name: "Padlet Sandbox", 
+                  badge: "100% Free • For Littles", 
+                  teaser: "Child-friendly collaborative canvas where pre-readers stamp, draw, and sort visual cards without complex menus.",
+                  whatItIs: "A card-style digital whiteboard built for young learners to drag shapes and stamps together safely.", 
+                  url: "https://padlet.com/sandbox", 
+                  videoUrl: "https://www.youtube.com/results?search_query=padlet+sandbox+for+teachers+tutorial", 
+                  videoLabel: "Padlet Sandbox Tour" 
+                },
+                { 
+                  name: "Padlet Audio Wall", 
+                  badge: "Voice Collaboration", 
+                  teaser: "Audio-first sticky note board letting young learners record 10-second spoken thoughts with one tap.",
+                  whatItIs: "Pre-readers don't need to type! They tap a large microphone button to record a 10-second voice thought.", 
+                  url: "https://padlet.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=padlet+voice+recording+elementary", 
+                  videoLabel: "Padlet Audio Guide" 
+                },
+                { 
+                  name: "Canva Kids Whiteboard", 
+                  badge: "Free for K-12", 
+                  teaser: "Expansive digital playground packed with kid-safe educational stickers, shapes, and group drawing tools.",
+                  whatItIs: "A safe digital playground where students drag-and-drop holiday icons and sort shapes together.", 
+                  url: "https://www.canva.com/education/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=canva+whiteboard+elementary+classroom", 
+                  videoLabel: "Canva Whiteboards" 
+                }
               ],
               coachTip: "Set up a Padlet Audio Wall with a single holiday question. Kindergarteners tap to speak for 10 seconds—no passwords or typing required!"
             },
             g38: {
               tools: [
-                { name: "Google Slides 'Version History'", badge: "Built-in Audit Trail", whatItIs: "Click 'File > Version History'. Every edit is color-coded by student name so you see who did the work.", url: "https://slides.google.com", videoUrl: "https://www.youtube.com/results?search_query=google+slides+version+history+for+teachers", videoLabel: "Version History Tour" },
-                { name: "FigJam for Education", badge: "Infinite Whiteboard", whatItIs: "A free whiteboard where students brainstorm with voting stamps, live emoji reactions, timers, and digital sticky notes.", url: "https://www.figma.com/education/", videoUrl: "https://www.youtube.com/results?search_query=figjam+for+education+tutorial", videoLabel: "FigJam Tour" },
-                { name: "Canva for Education", badge: "Visual Pitch Decks", whatItIs: "Students co-create polished multimedia presentations, infographics, and posters with live comments.", url: "https://www.canva.com/education/", videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+collaborative+group+work", videoLabel: "Canva Collaboration" }
+                { 
+                  name: "Google Slides 'Version History'", 
+                  badge: "Built-in Audit Trail", 
+                  teaser: "Infallible timestamped record that color-codes every edit by student name to eliminate group work disputes.",
+                  whatItIs: "Click 'File > Version History'. Every edit is color-coded by student name so you see who did the work.", 
+                  url: "https://slides.google.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=google+slides+version+history+for+teachers", 
+                  videoLabel: "Version History Tour" 
+                },
+                { 
+                  name: "FigJam for Education", 
+                  badge: "Infinite Whiteboard", 
+                  teaser: "Playground-style brainstorming space with digital stickies, live timers, voting stamps, and sound effects.",
+                  whatItIs: "A free whiteboard where students brainstorm with voting stamps, live emoji reactions, timers, and digital sticky notes.", 
+                  url: "https://www.figma.com/education/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=figjam+for+education+tutorial", 
+                  videoLabel: "FigJam Tour" 
+                },
+                { 
+                  name: "Canva for Education", 
+                  badge: "Visual Pitch Decks", 
+                  teaser: "Collaborative design platform with thousands of classroom templates for student presentations and posters.",
+                  whatItIs: "Students co-create polished multimedia presentations, infographics, and posters with live comments.", 
+                  url: "https://www.canva.com/education/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+collaborative+group+work", 
+                  videoLabel: "Canva Collaboration" 
+                }
               ],
               coachTip: "Open Version History on your projector for 30 seconds on day one. Watch accountability skyrocket!"
             },
             h912: {
               tools: [
-                { name: "Google Revision History Audits", badge: "Secondary & CTE Team Audit", whatItIs: "Teach secondary students how to read revision timestamps as an authentic accountability and coaching tool.", url: "https://slides.google.com", videoUrl: "https://www.youtube.com/results?search_query=google+docs+revision+history+group+work", videoLabel: "Revision Audits" },
-                { name: "FigJam Kanban Sprint Boards", badge: "Agile Project Mgmt", whatItIs: "High school and CTE teams manage group deliverables using digital 'To Do / In Progress / Done' sticky boards.", url: "https://www.figma.com/education/", videoUrl: "https://www.youtube.com/results?search_query=figjam+agile+sprint+board+classroom", videoLabel: "Digital Kanban" },
-                { name: "Canva for Teams & Portfolios", badge: "Secondary Pitch Decks", whatItIs: "Multi-user design studio where secondary and trade teams produce authentic presentations and research decks.", url: "https://www.canva.com/education/", videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+group+projects", videoLabel: "Industry Presentations" }
+                { 
+                  name: "Google Revision History Audits", 
+                  badge: "Secondary & CTE Team Audit", 
+                  teaser: "Teaches secondary students project retrospectives by auditing real-time editing timestamps and individual contributions.",
+                  whatItIs: "Teach secondary students how to read revision timestamps as an authentic accountability and coaching tool.", 
+                  url: "https://slides.google.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=google+docs+revision+history+group+work", 
+                  videoLabel: "Revision Audits" 
+                },
+                { 
+                  name: "FigJam Kanban Sprint Boards", 
+                  badge: "Agile Project Mgmt", 
+                  teaser: "Industry-standard agile task board where teams organize deliverables across To-Do, In-Progress, and Done.",
+                  whatItIs: "High school and CTE teams manage group deliverables using digital 'To Do / In Progress / Done' sticky boards.", 
+                  url: "https://www.figma.com/education/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=figjam+agile+sprint+board+classroom", 
+                  videoLabel: "Digital Kanban" 
+                },
+                { 
+                  name: "Canva for Teams & Portfolios", 
+                  badge: "Secondary Pitch Decks", 
+                  teaser: "Multi-user graphic studio where high school and trade teams build professional client presentations and resumes.",
+                  whatItIs: "Multi-user design studio where secondary and trade teams produce authentic presentations and research decks.", 
+                  url: "https://www.canva.com/education/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=canva+for+education+group+projects", 
+                  videoLabel: "Industry Presentations" 
+                }
               ],
               coachTip: "Require student groups to designate a project manager who updates the shared FigJam board daily."
             }
@@ -479,25 +686,97 @@
           gradeTiers: {
             k2: {
               tools: [
-                { name: "Knee-to-Knee Turn & Talk", badge: "Zero-Cost Routine", whatItIs: "Zero purchases needed! Young learners pivot on the carpet until their knees face their partner to practice active listening.", url: "https://www.edutopia.org", videoUrl: "https://www.youtube.com/results?search_query=turn+and+talk+strategy+kindergarten", videoLabel: "Knee-to-Knee Routine" },
-                { name: "Double Thumbs-Up Museum Walk", badge: "Early Peer Feedback", whatItIs: "Students walk around the room with hands clasped behind their back and give a silent double thumbs-up or star sticker to favorite work.", url: "https://www.cultofpedagogy.com", videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+in+kindergarten", videoLabel: "Museum Walk Guide" },
-                { name: "Butcher Paper Tablecloth Pods", badge: "Zero-Cost Spatial Teamwork", whatItIs: "Tape a scrap sheet of butcher paper across a 4-desk pod. Each student works in their corner with crayons, then draws physical 'bridges' connecting them.", url: "https://www.readingrockets.org", videoUrl: "https://www.youtube.com/results?search_query=collaborative+drawing+elementary+butcher+paper", videoLabel: "Pod Drawing" }
+                { 
+                  name: "Knee-to-Knee Turn & Talk", 
+                  badge: "Zero-Cost Routine", 
+                  teaser: "Zero-budget active listening protocol where students physically align bodies on the rug to practice eye contact.",
+                  whatItIs: "Zero purchases needed! Young learners pivot on the carpet until their knees face their partner to practice active listening.", 
+                  url: "https://www.edutopia.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=turn+and+talk+strategy+kindergarten", 
+                  videoLabel: "Knee-to-Knee Routine" 
+                },
+                { 
+                  name: "Double Thumbs-Up Museum Walk", 
+                  badge: "Early Peer Feedback", 
+                  teaser: "Gentle critique routine where pre-readers walk silently with hands clasped and leave star stickers on peer art.",
+                  whatItIs: "Students walk around the room with hands clasped behind their back and give a silent double thumbs-up or star sticker to favorite work.", 
+                  url: "https://www.cultofpedagogy.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+in+kindergarten", 
+                  videoLabel: "Museum Walk Guide" 
+                },
+                { 
+                  name: "Butcher Paper Tablecloth Pods", 
+                  badge: "Zero-Cost Spatial Teamwork", 
+                  teaser: "Butcher paper taped across desks where students draw in their quadrant and sketch connecting bridges to neighbors.",
+                  whatItIs: "Tape a scrap sheet of butcher paper across a 4-desk pod. Each student works in their corner with crayons, then draws physical 'bridges' connecting them.", 
+                  url: "https://www.readingrockets.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=collaborative+drawing+elementary+butcher+paper", 
+                  videoLabel: "Pod Drawing" 
+                }
               ],
               coachTip: "Practicing the physical body pivot for Knee-to-Knee talk makes partner collaboration second nature!"
             },
             g38: {
               tools: [
-                { name: "The Silent Gallery Walk", badge: "Kinesthetic Peer Critique", whatItIs: "Posters hang around the room. In absolute silence with soft holiday music playing, students rotate with sticky pads leaving peer feedback.", url: "https://www.edutopia.org/article/teaching-strategy-gallery-walk", videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+teaching+strategy", videoLabel: "Gallery Walk Tips" },
-                { name: "Affinity Mapping Butcher Paper", badge: "Physical Card Sorting", whatItIs: "Students jot ideas onto physical sticky notes, slap them onto butcher paper, and physically slide them around to cluster related concepts.", url: "https://gamestorming.com/affinity-map/", videoUrl: "https://www.youtube.com/results?search_query=affinity+mapping+in+the+classroom", videoLabel: "Affinity Mapping Tour" },
-                { name: "Vertical Non-Permanent Surfaces (VNPS)", badge: "Liljedahl Protocol", whatItIs: "From Building Thinking Classrooms—students stand at whiteboards in groups of 3 with one marker to maximize thinking time.", url: "https://buildingthinkingclassrooms.com", videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+vertical+non-permanent+surfaces", videoLabel: "Vertical Surfaces in 3 Min" }
+                { 
+                  name: "The Silent Gallery Walk", 
+                  badge: "Kinesthetic Peer Critique", 
+                  teaser: "Music-accompanied silent carousel where students circulate with sticky notes leaving Praise and Ponder comments.",
+                  whatItIs: "Posters hang around the room. In absolute silence with soft holiday music playing, students rotate with sticky pads leaving peer feedback.", 
+                  url: "https://www.edutopia.org/article/teaching-strategy-gallery-walk", 
+                  videoUrl: "https://www.youtube.com/results?search_query=gallery+walk+teaching+strategy", 
+                  videoLabel: "Gallery Walk Tips" 
+                },
+                { 
+                  name: "Affinity Mapping Butcher Paper", 
+                  badge: "Physical Card Sorting", 
+                  teaser: "Kinesthetic sorting routine where students slap sticky notes on butcher paper and cluster them to find thematic trends.",
+                  whatItIs: "Students jot ideas onto physical sticky notes, slap them onto butcher paper, and physically slide them around to cluster related concepts.", 
+                  url: "https://gamestorming.com/affinity-map/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=affinity+mapping+in+the+classroom", 
+                  videoLabel: "Affinity Mapping Tour" 
+                },
+                { 
+                  name: "Vertical Non-Permanent Surfaces (VNPS)", 
+                  badge: "Liljedahl Protocol", 
+                  teaser: "Liljedahl's protocol having triads stand at whiteboards with 1 marker to dramatically increase active math thinking.",
+                  whatItIs: "From Building Thinking Classrooms—students stand at whiteboards in groups of 3 with one marker to maximize thinking time.", 
+                  url: "https://buildingthinkingclassrooms.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+vertical+non-permanent+surfaces", 
+                  videoLabel: "Vertical Surfaces in 3 Min" 
+                }
               ],
               coachTip: "Assign each group member one specific colored marker to create an analog version history on paper!"
             },
             h912: {
               tools: [
-                { name: "Vertical Whiteboard Sprints", badge: "Problem-Solving in Teams", whatItIs: "Assign high school and CTE students to groups of 3 at standing whiteboards with only 1 dry-erase marker to force active debate.", url: "https://buildingthinkingclassrooms.com", videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+high+school", videoLabel: "VNPS in High School" },
-                { name: "Peer Review Gallery Stations", badge: "Technical & Essay Critique", whatItIs: "Research drafts or project prototypes sit on perimeter tables. Students rotate in pairs with physical rubric cards, writing specific technical feedback.", url: "https://www.edutopia.org", videoUrl: "https://www.youtube.com/results?search_query=peer+review+strategies+high+school", videoLabel: "Peer Review Stations" },
-                { name: "Systems Affinity Mapping", badge: "Systems Thinking", whatItIs: "Teams use color-coded sticky notes on chalkboards or walls to map out complex multi-variable problems and thesis outlines.", url: "https://gamestorming.com/affinity-map/", videoUrl: "https://www.youtube.com/results?search_query=affinity+diagramming+design+thinking", videoLabel: "Systems Mapping" }
+                { 
+                  name: "Vertical Whiteboard Sprints", 
+                  badge: "Problem-Solving in Teams", 
+                  teaser: "Secondary problem-solving sprints where standing groups debate solutions with only one student allowed to write.",
+                  whatItIs: "Assign high school and CTE students to groups of 3 at standing whiteboards with only 1 dry-erase marker to force active debate.", 
+                  url: "https://buildingthinkingclassrooms.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=building+thinking+classrooms+high+school", 
+                  videoLabel: "VNPS in High School" 
+                },
+                { 
+                  name: "Peer Review Gallery Stations", 
+                  badge: "Technical & Essay Critique", 
+                  teaser: "Structured critique carousel where student pairs rotate around physical prototype drafts with index-card rubrics.",
+                  whatItIs: "Research drafts or project prototypes sit on perimeter tables. Students rotate in pairs with physical rubric cards, writing specific technical feedback.", 
+                  url: "https://www.edutopia.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=peer+review+strategies+high+school", 
+                  videoLabel: "Peer Review Stations" 
+                },
+                { 
+                  name: "Systems Affinity Mapping", 
+                  badge: "Systems Thinking", 
+                  teaser: "Color-coded sticky note mapping routine on glass walls or chalkboards to outline multi-variable trade problems.",
+                  whatItIs: "Teams use color-coded sticky notes on chalkboards or walls to map out complex multi-variable problems and thesis outlines.", 
+                  url: "https://gamestorming.com/affinity-map/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=affinity+diagramming+design+thinking", 
+                  videoLabel: "Systems Mapping" 
+                }
               ],
               coachTip: "Enforce this rule: The person holding the marker CANNOT write their own ideas—they can only write what teammates dictate!"
             }
@@ -614,25 +893,97 @@
           gradeTiers: {
             k2: {
               tools: [
-                { name: "PBS KIDS Games", badge: "100% Free • Zero Ads", whatItIs: "Curriculum-aligned math and SEL games featuring beloved characters. Free without paywalls.", url: "https://pbskids.org/games", videoUrl: "https://www.youtube.com/results?search_query=pbs+kids+games+in+the+classroom", videoLabel: "PBS KIDS Games Tour" },
-                { name: "Toy Theater Learning", badge: "100% Free • Manipulatives", whatItIs: "Clean, ad-free educational games and digital manipulatives designed specifically for early elementary.", url: "https://toytheater.com", videoUrl: "https://www.youtube.com/results?search_query=toy+theater+for+teachers+tutorial", videoLabel: "Toy Theater Guide" },
-                { name: "ABCya (Browser Edition)", badge: "Free on Browsers", whatItIs: "Accessible directly on desktop or Chromebook web browsers for free, organized by skill area.", url: "https://www.abcya.com", videoUrl: "https://www.youtube.com/results?search_query=abcya+games+in+elementary+classroom", videoLabel: "ABCya Walkthrough" }
+                { 
+                  name: "PBS KIDS Games", 
+                  badge: "100% Free • Zero Ads", 
+                  teaser: "Ad-free early literacy and math games featuring beloved PBS characters with gentle verbal narration.",
+                  whatItIs: "Curriculum-aligned math and SEL games featuring beloved characters. Free without paywalls.", 
+                  url: "https://pbskids.org/games", 
+                  videoUrl: "https://www.youtube.com/results?search_query=pbs+kids+games+in+the+classroom", 
+                  videoLabel: "PBS KIDS Games Tour" 
+                },
+                { 
+                  name: "Toy Theater Learning", 
+                  badge: "100% Free • Manipulatives", 
+                  teaser: "Clean digital manipulatives including pattern blocks, clocks, and counting frames with zero login friction.",
+                  whatItIs: "Clean, ad-free educational games and digital manipulatives designed specifically for early elementary.", 
+                  url: "https://toytheater.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=toy+theater+for+teachers+tutorial", 
+                  videoLabel: "Toy Theater Guide" 
+                },
+                { 
+                  name: "ABCya (Browser Edition)", 
+                  badge: "Free on Browsers", 
+                  teaser: "Popular browser-based game arcade categorized by grade and skill area for early literacy and numeracy reps.",
+                  whatItIs: "Accessible directly on desktop or Chromebook web browsers for free, organized by skill area.", 
+                  url: "https://www.abcya.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=abcya+games+in+elementary+classroom", 
+                  videoLabel: "ABCya Walkthrough" 
+                }
               ],
               coachTip: "Use Toy Theater's digital pattern blocks on your interactive board for a 5-minute morning routine before kids touch physical blocks at their tables."
             },
             g38: {
               tools: [
-                { name: "Mission.IO / Gimkit", badge: "Game Arenas", whatItIs: "Students answer curriculum questions to earn in-game energy, collect resources, and collaborate on modes like 'Floor is Lava'.", url: "https://www.gimkit.com", videoUrl: "https://www.youtube.com/results?search_query=gimkit+modes+for+teachers+tutorial", videoLabel: "Gimkit Modes Setup" },
-                { name: "Blooket", badge: "Arcade Formative Fun", whatItIs: "Wraps review questions inside tower defense and cafe simulations with built-in handicap mechanics.", url: "https://www.blooket.com", videoUrl: "https://www.youtube.com/results?search_query=blooket+tutorial+for+teachers", videoLabel: "Blooket Teacher Setup" },
-                { name: "Quizizz Team Mode", badge: "Collaborative Feedback", whatItIs: "Run team-based question missions where students pool their correct answers together to defeat challenges.", url: "https://quizizz.com", videoUrl: "https://www.youtube.com/results?search_query=quizizz+team+mode+classroom", videoLabel: "Quizizz Team Mode" }
+                { 
+                  name: "Mission.IO / Gimkit", 
+                  badge: "Game Arenas", 
+                  teaser: "High-energy 2D game arena where students answer curriculum questions to earn power-ups and collaborate in survival modes.",
+                  whatItIs: "Students answer curriculum questions to earn in-game energy, collect resources, and collaborate on modes like 'Floor is Lava'.", 
+                  url: "https://www.gimkit.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=gimkit+modes+for+teachers+tutorial", 
+                  videoLabel: "Gimkit Modes Setup" 
+                },
+                { 
+                  name: "Blooket", 
+                  badge: "Arcade Formative Fun", 
+                  teaser: "Gamified question sets embedded inside tower-defense, cafe simulations, and competitive arcade modes.",
+                  whatItIs: "Wraps review questions inside tower defense and cafe simulations with built-in handicap mechanics.", 
+                  url: "https://www.blooket.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=blooket+tutorial+for+teachers", 
+                  videoLabel: "Blooket Teacher Setup" 
+                },
+                { 
+                  name: "Quizizz Team Mode", 
+                  badge: "Collaborative Feedback", 
+                  teaser: "Formative assessment where students work in teams to pool correct answers and unlock class rewards with live accuracy data.",
+                  whatItIs: "Run team-based question missions where students pool their correct answers together to defeat challenges.", 
+                  url: "https://quizizz.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=quizizz+team+mode+classroom", 
+                  videoLabel: "Quizizz Team Mode" 
+                }
               ],
               coachTip: "Switch Gimkit to 'Team Mode' or 'Floor is Lava' so students combine their energy toward a shared community goal!"
             },
             h912: {
               tools: [
-                { name: "Gimkit (Secondary)", badge: "Review Missions", whatItIs: "High school and CTE students use Gimkit's arena modes for vocabulary, safety protocols, and complex concept reviews.", url: "https://www.gimkit.com", videoUrl: "https://www.youtube.com/results?search_query=gimkit+high+school+classroom", videoLabel: "Gimkit Secondary" },
-                { name: "Quizizz Mastery Arenas", badge: "Diagnostic Gaming", whatItIs: "Secondary students complete gamified question sets at their own pace with detailed instructor data.", url: "https://quizizz.com", videoUrl: "https://www.youtube.com/results?search_query=quizizz+for+high+school+teachers", videoLabel: "Quizizz Mastery" },
-                { name: "PhET Interactive Challenges", badge: "STEM Sandboxes", whatItIs: "Safe digital labs where students solve circuit puzzles, balance chemical equations, and optimize vectors.", url: "https://phet.colorado.edu", videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+high+school", videoLabel: "PhET Challenges" }
+                { 
+                  name: "Gimkit (Secondary)", 
+                  badge: "Review Missions", 
+                  teaser: "Engaging arena mode for high school and CTE terminology, trade safety rules, and exam review sets.",
+                  whatItIs: "High school and CTE students use Gimkit's arena modes for vocabulary, safety protocols, and complex concept reviews.", 
+                  url: "https://www.gimkit.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=gimkit+high+school+classroom", 
+                  videoLabel: "Gimkit Secondary" 
+                },
+                { 
+                  name: "Quizizz Mastery Arenas", 
+                  badge: "Diagnostic Gaming", 
+                  teaser: "Self-paced diagnostic challenges providing teachers with granular heatmaps of procedural misconceptions.",
+                  whatItIs: "Secondary students complete gamified question sets at their own pace with detailed instructor data.", 
+                  url: "https://quizizz.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=quizizz+for+high+school+teachers", 
+                  videoLabel: "Quizizz Mastery" 
+                },
+                { 
+                  name: "PhET Interactive Challenges", 
+                  badge: "STEM Sandboxes", 
+                  teaser: "Award-winning STEM simulations where students test electric circuits and balance chemical reactions without lab risk.",
+                  whatItIs: "Safe digital labs where students solve circuit puzzles, balance chemical equations, and optimize vectors.", 
+                  url: "https://phet.colorado.edu", 
+                  videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+high+school", 
+                  videoLabel: "PhET Challenges" 
+                }
               ],
               coachTip: "Challenge secondary students to build their own Gimkit question bank as an end-of-unit review project to test peers."
             }
@@ -650,25 +1001,97 @@
           gradeTiers: {
             k2: {
               tools: [
-                { name: "Spot It! (REMC 12E)", badge: "Visual Perception", whatItIs: "Available from REMC 12E! Rapid visual discrimination and impulse control with zero reading barrier.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=how+to+play+spot+it+game", videoLabel: "Spot It! Play Guide" },
-                { name: "Buildzi (REMC 12E)", badge: "Block Stacking", whatItIs: "Available from REMC 12E! Students race to assemble colorful tactile blocks into balanced 3D towers.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=how+to+play+buildzi+game", videoLabel: "Buildzi Play Guide" },
-                { name: "REMC Game Cards", badge: "Free MI Teacher Cards", whatItIs: "Download official REMC game cards with standards-aligned lesson plans and timing guides for Michigan educators.", url: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/", videoUrl: "https://www.youtube.com/results?search_query=remc+critical+thinking+tabletop+games", videoLabel: "REMC Tabletop Project" }
+                { 
+                  name: "Spot It! (REMC 12E)", 
+                  badge: "Visual Perception", 
+                  teaser: "Fast-paced visual matching game from the REMC 12E library building rapid discrimination with zero reading barriers.",
+                  whatItIs: "Available from REMC 12E! Rapid visual discrimination and impulse control with zero reading barrier.", 
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", 
+                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+spot+it+game", 
+                  videoLabel: "Spot It! Play Guide" 
+                },
+                { 
+                  name: "Buildzi (REMC 12E)", 
+                  badge: "Block Stacking", 
+                  teaser: "Speed block-stacking game borrowing from REMC 12E that builds spatial reasoning and cooperative dexterity.",
+                  whatItIs: "Available from REMC 12E! Students race to assemble colorful tactile blocks into balanced 3D towers.", 
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", 
+                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+buildzi+game", 
+                  videoLabel: "Buildzi Play Guide" 
+                },
+                { 
+                  name: "REMC Game Cards", 
+                  badge: "Free MI Teacher Cards", 
+                  teaser: "Free downloadable Michigan educator game cards with standards-aligned lesson guides for tabletop play.",
+                  whatItIs: "Download official REMC game cards with standards-aligned lesson plans and timing guides for Michigan educators.", 
+                  url: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=remc+critical+thinking+tabletop+games", 
+                  videoLabel: "REMC Tabletop Project" 
+                }
               ],
               coachTip: "Play Spot It! in pairs during small-group literacy centers. Ask students to shout the initial letter sound of the matching picture!"
             },
             g38: {
               tools: [
-                { name: "Things in Rings (REMC 12E)", badge: "Venn Deduction", whatItIs: "Borrow from REMC 12E! Players place item cards into three overlapping rings based on secret rules.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+game+how+to+play", videoLabel: "Things in Rings Tour" },
-                { name: "Codenames (REMC 12E)", badge: "Vocabulary & Semantics", whatItIs: "Borrow from REMC 12E! Two spymasters give one-word clues pointing to multiple word cards on the table.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=how+to+play+codenames+classroom", videoLabel: "Codenames Guide" },
-                { name: "REMC Checkout Portal", badge: "Free Courier Delivery", whatItIs: "REMC 12E delivers full board game crates directly to your school via regional courier at zero cost.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking", videoLabel: "Tabletop in School" }
+                { 
+                  name: "Things in Rings (REMC 12E)", 
+                  badge: "Venn Deduction", 
+                  teaser: "Brilliant deductive game from REMC 12E where players place items into overlapping Venn rings based on secret rules.",
+                  whatItIs: "Borrow from REMC 12E! Players place item cards into three overlapping rings based on secret rules.", 
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", 
+                  videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+game+how+to+play", 
+                  videoLabel: "Things in Rings Tour" 
+                },
+                { 
+                  name: "Codenames (REMC 12E)", 
+                  badge: "Vocabulary & Semantics", 
+                  teaser: "Strategic vocabulary deduction game from REMC 12E where spymasters give single-word conceptual clues.",
+                  whatItIs: "Borrow from REMC 12E! Two spymasters give one-word clues pointing to multiple word cards on the table.", 
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", 
+                  videoUrl: "https://www.youtube.com/results?search_query=how+to+play+codenames+classroom", 
+                  videoLabel: "Codenames Guide" 
+                },
+                { 
+                  name: "REMC Checkout Portal", 
+                  badge: "Free Courier Delivery", 
+                  teaser: "Regional lending library that delivers full crates of tabletop games directly to your school at zero cost.",
+                  whatItIs: "REMC 12E delivers full board game crates directly to your school via regional courier at zero cost.", 
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", 
+                  videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking", 
+                  videoLabel: "Tabletop in School" 
+                }
               ],
               coachTip: "Host a 15-minute 'Tabletop Warm-up' on Friday mornings using your borrowed REMC crate. Watch genuine community flourish!"
             },
             h912: {
               tools: [
-                { name: "Things in Rings (Systems Logic)", badge: "REMC 12E Checkout", whatItIs: "Secondary and CTE students use overlapping Venn logic to categorize complex scientific materials, historical figures, or technical tools.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+board+game", videoLabel: "Things in Rings Logic" },
-                { name: "Codenames: Curriculum Edition", badge: "REMC 12E Checkout", whatItIs: "Swap out standard cards for course-specific terms (history, literature, science, or trade terms). Spymasters connect 3 terms with one clue.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=codenames+in+the+classroom", videoLabel: "Codenames Adaptations" },
-                { name: "REMC Checkout Portal", badge: "Free Courier Delivery", whatItIs: "REMC 12E delivers full board game crates directly to your high school or career center via regional courier at zero cost.", url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking", videoLabel: "Why Tabletop Belongs" }
+                { 
+                  name: "Things in Rings (Systems Logic)", 
+                  badge: "REMC 12E Checkout", 
+                  teaser: "Advanced Venn diagram game adapted for high schoolers to classify complex materials, functions, or historical figures.",
+                  whatItIs: "Secondary and CTE students use overlapping Venn logic to categorize complex scientific materials, historical figures, or technical tools.", 
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", 
+                  videoUrl: "https://www.youtube.com/results?search_query=things+in+rings+board+game", 
+                  videoLabel: "Things in Rings Logic" 
+                },
+                { 
+                  name: "Codenames: Curriculum Edition", 
+                  badge: "REMC 12E Checkout", 
+                  teaser: "Classroom adaptation of Codenames where students connect course-specific terminology through lateral thinking.",
+                  whatItIs: "Swap out standard cards for course-specific terms (history, literature, science, or trade terms). Spymasters connect 3 terms with one clue.", 
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", 
+                  videoUrl: "https://www.youtube.com/results?search_query=codenames+in+the+classroom", 
+                  videoLabel: "Codenames Adaptations" 
+                },
+                { 
+                  name: "REMC Checkout Portal", 
+                  badge: "Free Courier Delivery", 
+                  teaser: "Free regional courier service delivering crates of strategic classroom board games to Branch & Calhoun schools.",
+                  whatItIs: "REMC 12E delivers full board game crates directly to your high school or career center via regional courier at zero cost.", 
+                  url: "https://remc12echeckout.myturn.com/library/?defaultPage=true", 
+                  videoUrl: "https://www.youtube.com/results?search_query=board+games+in+the+classroom+critical+thinking", 
+                  videoLabel: "Why Tabletop Belongs" 
+                }
               ],
               coachTip: "Have secondary students design their own custom card pack for Things in Rings testing unit concepts or tool classification!"
             }
@@ -785,25 +1208,97 @@
           gradeTiers: {
             k2: {
               tools: [
-                { name: "Digital Handheld Microscope", badge: "5E: Explore Phase", whatItIs: "Connect a simple digital USB microscope to zoom in 500x on plant leaves, seeds, or fabrics on screen.", url: "https://www.readingrockets.org", videoUrl: "https://www.youtube.com/results?search_query=digital+microscope+elementary+science", videoLabel: "Handheld Microscopes" },
-                { name: "PBS KIDS ScratchJr Coding", badge: "5E: Explain Phase", whatItIs: "Pre-readers snap graphical blocks to animate characters and retell science lifecycles visually.", url: "https://www.scratchjr.org", videoUrl: "https://www.youtube.com/results?search_query=scratchjr+in+kindergarten+science", videoLabel: "ScratchJr Science" },
-                { name: "Seesaw Audio Voice Check", badge: "5E: Evaluate Phase", whatItIs: "Pre-readers record a 15-second verbal response explaining what they noticed without written barriers.", url: "https://web.seesaw.me", videoUrl: "https://www.youtube.com/results?search_query=seesaw+voice+recording+exit+ticket", videoLabel: "Voice Exit Tickets" }
+                { 
+                  name: "Digital Handheld Microscope", 
+                  badge: "5E: Explore Phase", 
+                  teaser: "Plugs into tablets or laptops to project 500x magnified details of leaves, fabrics, and seeds on screen.",
+                  whatItIs: "Connect a simple digital USB microscope to zoom in 500x on plant leaves, seeds, or fabrics on screen.", 
+                  url: "https://www.readingrockets.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=digital+microscope+elementary+science", 
+                  videoLabel: "Handheld Microscopes" 
+                },
+                { 
+                  name: "PBS KIDS ScratchJr Coding", 
+                  badge: "5E: Explain Phase", 
+                  teaser: "Visual block coding app where pre-readers snap blocks together to animate stories and explain lifecycles.",
+                  whatItIs: "Pre-readers snap graphical blocks to animate characters and retell science lifecycles visually.", 
+                  url: "https://www.scratchjr.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=scratchjr+in+kindergarten+science", 
+                  videoLabel: "ScratchJr Science" 
+                },
+                { 
+                  name: "Seesaw Audio Voice Check", 
+                  badge: "5E: Evaluate Phase", 
+                  teaser: "Digital learning journal letting early learners record 15-second oral reflections to demonstrate mastery.",
+                  whatItIs: "Pre-readers record a 15-second verbal response explaining what they noticed without written barriers.", 
+                  url: "https://web.seesaw.me", 
+                  videoUrl: "https://www.youtube.com/results?search_query=seesaw+voice+recording+exit+ticket", 
+                  videoLabel: "Voice Exit Tickets" 
+                }
               ],
               coachTip: "Use the camera zoom on an iPad to inspect classroom hydroponic seeds germinating—project it live to start your morning carpet time!"
             },
             g38: {
               tools: [
-                { name: "Desmos Classroom Activities", badge: "5E: Explore & Math Inquiry", whatItIs: "Interactive activities where students manipulate sliders and see mathematical patterns emerge dynamically.", url: "https://teacher.desmos.com", videoUrl: "https://www.youtube.com/results?search_query=desmos+classroom+activities+tutorial", videoLabel: "Desmos Classroom Tour" },
-                { name: "CommonLit & Diffit", badge: "5E: Explain / ELA Reading", whatItIs: "Provides high-interest texts with built-in guided reading questions, audio read-alouds, and leveled comprehension checks.", url: "https://www.commonlit.org", videoUrl: "https://www.youtube.com/results?search_query=commonlit+for+teachers+tutorial", videoLabel: "CommonLit Guide" },
-                { name: "PhET Interactive Simulations", badge: "5E: Explore & Science Labs", whatItIs: "Safe interactive digital sandboxes. Students balance chemical reactions, test electric circuits, and bend light safely.", url: "https://phet.colorado.edu", videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+in+the+classroom", videoLabel: "PhET Inquiry Science" }
+                { 
+                  name: "Desmos Classroom Activities", 
+                  badge: "5E: Explore & Math Inquiry", 
+                  teaser: "Interactive mathematical playground with sliders and challenges where students discover equations dynamically.",
+                  whatItIs: "Interactive activities where students manipulate sliders and see mathematical patterns emerge dynamically.", 
+                  url: "https://teacher.desmos.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=desmos+classroom+activities+tutorial", 
+                  videoLabel: "Desmos Classroom Tour" 
+                },
+                { 
+                  name: "CommonLit & Diffit", 
+                  badge: "5E: Explain / ELA Reading", 
+                  teaser: "Free platform providing high-interest leveled articles with embedded guided reading checks and vocabulary scaffolds.",
+                  whatItIs: "Provides high-interest texts with built-in guided reading questions, audio read-alouds, and leveled comprehension checks.", 
+                  url: "https://www.commonlit.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=commonlit+for+teachers+tutorial", 
+                  videoLabel: "CommonLit Guide" 
+                },
+                { 
+                  name: "PhET Interactive Simulations", 
+                  badge: "5E: Explore & Science Labs", 
+                  teaser: "University of Colorado digital sandboxes allowing students to safely test circuits, light waves, and molecules.",
+                  whatItIs: "Safe interactive digital sandboxes. Students balance chemical reactions, test electric circuits, and bend light safely.", 
+                  url: "https://phet.colorado.edu", 
+                  videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+in+the+classroom", 
+                  videoLabel: "PhET Inquiry Science" 
+                }
               ],
               coachTip: "In the 5E Explore phase, give students 10 minutes of free play in Desmos or PhET before giving any direct instructions!"
             },
             h912: {
               tools: [
-                { name: "Desmos STEM & Physics Modeling", badge: "5E: Explore & Modeling", whatItIs: "High school math and physics students model real-world trade data, parabolic curves, and stress formulas using dynamic sliders.", url: "https://teacher.desmos.com", videoUrl: "https://www.youtube.com/results?search_query=desmos+graphing+calculator+tutorial+teachers", videoLabel: "Desmos STEM Modeling" },
-                { name: "CommonLit 360 / Diffit for Secondary", badge: "5E: Explain & Text Synthesis", whatItIs: "Scaffold secondary academic and technical articles with tiered vocabulary, paired text sets, and writing prompts.", url: "https://www.commonlit.org", videoUrl: "https://www.youtube.com/results?search_query=diffit+for+teachers+tutorial", videoLabel: "Diffit Text Scaffolding" },
-                { name: "Formative / Quizizz Live Dashboards", badge: "5E: Evaluate Phase", whatItIs: "Live heatmaps that reveal in real-time which specific conceptual misconception 60% of your class missed.", url: "https://www.formative.com", videoUrl: "https://www.youtube.com/results?search_query=formative+assessment+with+quizizz", videoLabel: "Instant Data Dashboards" }
+                { 
+                  name: "Desmos STEM & Physics Modeling", 
+                  badge: "5E: Explore & Modeling", 
+                  teaser: "Advanced STEM modeling calculator where students graph real trade data and stress formulas dynamically.",
+                  whatItIs: "High school math and physics students model real-world trade data, parabolic curves, and stress formulas using dynamic sliders.", 
+                  url: "https://teacher.desmos.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=desmos+graphing+calculator+tutorial+teachers", 
+                  videoLabel: "Desmos STEM Modeling" 
+                },
+                { 
+                  name: "CommonLit 360 / Diffit for Secondary", 
+                  badge: "5E: Explain & Text Synthesis", 
+                  teaser: "Comprehensive curriculum scaffold providing secondary articles paired with evidence-based writing prompts.",
+                  whatItIs: "Scaffold secondary academic and technical articles with tiered vocabulary, paired text sets, and writing prompts.", 
+                  url: "https://www.commonlit.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=diffit+for+teachers+tutorial", 
+                  videoLabel: "Diffit Text Scaffolding" 
+                },
+                { 
+                  name: "Formative / Quizizz Live Dashboards", 
+                  badge: "5E: Evaluate Phase", 
+                  teaser: "Real-time diagnostic heatmaps that instantly reveal which safety protocol or concept students missed.",
+                  whatItIs: "Live heatmaps that reveal in real-time which specific conceptual misconception 60% of your class missed.", 
+                  url: "https://www.formative.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=formative+assessment+with+quizizz", 
+                  videoLabel: "Instant Data Dashboards" 
+                }
               ],
               coachTip: "Use Formative's live dashboard at the midway mark of a secondary block period to spot misconceptions instantly."
             }
@@ -821,25 +1316,97 @@
           gradeTiers: {
             k2: {
               tools: [
-                { name: "The Mystery Sensory Box", badge: "5E: Engage Phase", whatItIs: "A cardboard box with a sock hole. Students slide their hands inside without looking to touch natural items and describe tactile properties.", url: "https://ngss.nsta.org", videoUrl: "https://www.youtube.com/results?search_query=mystery+box+science+kindergarten", videoLabel: "Mystery Box Science" },
-                { name: "Playdough & Clay Schema Sculpting", badge: "5E: Explain Phase", whatItIs: "Students mold physical playdough to demonstrate conceptual understanding: sculpting insect segments or plant roots instead of writing.", url: "https://www.readingrockets.org", videoUrl: "https://www.youtube.com/results?search_query=playdough+modeling+in+elementary+science", videoLabel: "Playdough Modeling" },
-                { name: "Smiley-Face Magnet Door Check", badge: "5E: Evaluate Phase", whatItIs: "Before walking to recess, students slap a magnetic token under the Green Smiley, Yellow Neutral, or Red Question face on the door.", url: "https://www.edutopia.org", videoUrl: "https://www.youtube.com/results?search_query=kindergarten+exit+ticket+routines", videoLabel: "Door Exit Routines" }
+                { 
+                  name: "The Mystery Sensory Box", 
+                  badge: "5E: Engage Phase", 
+                  teaser: "Shoebox with a sock-hole where students reach in blindly to touch natural objects and verbally describe texture.",
+                  whatItIs: "A cardboard box with a sock hole. Students slide their hands inside without looking to touch natural items and describe tactile properties.", 
+                  url: "https://ngss.nsta.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=mystery+box+science+kindergarten", 
+                  videoLabel: "Mystery Box Science" 
+                },
+                { 
+                  name: "Playdough & Clay Schema Sculpting", 
+                  badge: "5E: Explain Phase", 
+                  teaser: "Tactile modeling strategy where children sculpt physical plant roots or soil layers rather than writing words.",
+                  whatItIs: "Students mold physical playdough to demonstrate conceptual understanding: sculpting insect segments or plant roots instead of writing.", 
+                  url: "https://www.readingrockets.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=playdough+modeling+in+elementary+science", 
+                  videoLabel: "Playdough Modeling" 
+                },
+                { 
+                  name: "Smiley-Face Magnet Door Check", 
+                  badge: "5E: Evaluate Phase", 
+                  teaser: "Quick kinesthetic door routine where students slap a magnet under Green, Yellow, or Red faces on their way out.",
+                  whatItIs: "Before walking to recess, students slap a magnetic token under the Green Smiley, Yellow Neutral, or Red Question face on the door.", 
+                  url: "https://www.edutopia.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=kindergarten+exit+ticket+routines", 
+                  videoLabel: "Door Exit Routines" 
+                }
               ],
               coachTip: "The Mystery Box works wonders for sparking curiosity! Watch 100% of wiggles stop the moment you pull out the box."
             },
             g38: {
               tools: [
-                { name: "Discrepant Event Mystery Demos", badge: "5E: Engage Phase", whatItIs: "A physical phenomenon that violates expectations (e.g., potato floating in salt water). Hands-on physical surprise creates curiosity.", url: "https://ngss.nsta.org", videoUrl: "https://www.youtube.com/results?search_query=discrepant+events+science+teaching", videoLabel: "Discrepant Demos" },
-                { name: "Sketchnoting & Hand Schematics", badge: "5E: Explain Phase", whatItIs: "Students synthesize concepts by drawing physical diagrams, arrows, and visual metaphors in their notebooks instead of typing bullet points.", url: "https://sylviaduckworth.com/sketchnotes/", videoUrl: "https://www.youtube.com/results?search_query=sketchnoting+in+the+classroom+for+beginners", videoLabel: "Beginner Sketchnoting" },
-                { name: "Physical Index Card Exit Tickets (3-2-1)", badge: "5E: Evaluate Phase", whatItIs: "A simple 3x5 index card handed to you at the door: 3 things learned, 2 questions, 1 big idea. Unfiltered handwriting free from copy-paste.", url: "https://www.edutopia.org/article/3-2-1-strategy", videoUrl: "https://www.youtube.com/results?search_query=exit+ticket+strategies+for+teachers", videoLabel: "3-2-1 Strategy Guide" }
+                { 
+                  name: "Discrepant Event Mystery Demos", 
+                  badge: "5E: Engage Phase", 
+                  teaser: "Hands-on physical demonstration that defies student expectations to create instant cognitive curiosity.",
+                  whatItIs: "A physical phenomenon that violates expectations (e.g., potato floating in salt water). Hands-on physical surprise creates curiosity.", 
+                  url: "https://ngss.nsta.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=discrepant+events+science+teaching", 
+                  videoLabel: "Discrepant Demos" 
+                },
+                { 
+                  name: "Sketchnoting & Hand Schematics", 
+                  badge: "5E: Explain Phase", 
+                  teaser: "Visual note-taking protocol combining sketches, arrows, and keywords to cement schemas into memory.",
+                  whatItIs: "Students synthesize concepts by drawing physical diagrams, arrows, and visual metaphors in their notebooks instead of typing bullet points.", 
+                  url: "https://sylviaduckworth.com/sketchnotes/", 
+                  videoUrl: "https://www.youtube.com/results?search_query=sketchnoting+in+the+classroom+for+beginners", 
+                  videoLabel: "Beginner Sketchnoting" 
+                },
+                { 
+                  name: "Physical Index Card Exit Tickets (3-2-1)", 
+                  badge: "5E: Evaluate Phase", 
+                  teaser: "Analog 3x5 check-in collecting 3 things learned, 2 questions, and 1 big idea in authentic handwriting.",
+                  whatItIs: "A simple 3x5 index card handed to you at the door: 3 things learned, 2 questions, 1 big idea. Unfiltered handwriting free from copy-paste.", 
+                  url: "https://www.edutopia.org/article/3-2-1-strategy", 
+                  videoUrl: "https://www.youtube.com/results?search_query=exit+ticket+strategies+for+teachers", 
+                  videoLabel: "3-2-1 Strategy Guide" 
+                }
               ],
               coachTip: "Have students draw a 30-second doodle explaining the day's big concept on their exit card. You will instantly see who gets it!"
             },
             h912: {
               tools: [
-                { name: "Broken Part / Real Artifact Demo", badge: "5E: Engage Phase", whatItIs: "Place an actual failed circuit, fractured weld, or historical primary artifact on a table. Students physically touch and examine to brainstorm causes.", url: "https://ngss.nsta.org", videoUrl: "https://www.youtube.com/results?search_query=discrepant+event+phenomenon+high+school", videoLabel: "Physical Phenomena" },
-                { name: "Technical Schematic Hand-Sketches", badge: "5E: Explain Phase", whatItIs: "Students hand-draw wiring schematics, architectural views, or essay maps on grid paper to force active spatial encoding of systems.", url: "https://buildingthinkingclassrooms.com", videoUrl: "https://www.youtube.com/results?search_query=technical+sketching+cte", videoLabel: "Technical Sketching" },
-                { name: "3x5 Index Card Safety & Mastery Ticket", badge: "5E: Evaluate Phase", whatItIs: "Students write their conceptual synthesis or safety check in handwriting on a card before leaving class.", url: "https://www.edutopia.org", videoUrl: "https://www.youtube.com/results?search_query=exit+tickets+high+school", videoLabel: "Secondary Exit Routines" }
+                { 
+                  name: "Broken Part / Real Artifact Demo", 
+                  badge: "5E: Engage Phase", 
+                  teaser: "Tangible lab hook where students examine actual fractured machine parts or real historical documents.",
+                  whatItIs: "Place an actual failed circuit, fractured weld, or historical primary artifact on a table. Students physically touch and examine to brainstorm causes.", 
+                  url: "https://ngss.nsta.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=discrepant+event+phenomenon+high+school", 
+                  videoLabel: "Physical Phenomena" 
+                },
+                { 
+                  name: "Technical Schematic Hand-Sketches", 
+                  badge: "5E: Explain Phase", 
+                  teaser: "Freehand engineering sketches on grid paper forcing students to spatially encode wiring or structural paths.",
+                  whatItIs: "Students hand-draw wiring schematics, architectural views, or essay maps on grid paper to force active spatial encoding of systems.", 
+                  url: "https://buildingthinkingclassrooms.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=technical+sketching+cte", 
+                  videoLabel: "Technical Sketching" 
+                },
+                { 
+                  name: "3x5 Index Card Safety & Mastery Ticket", 
+                  badge: "5E: Evaluate Phase", 
+                  teaser: "Handwritten verification card signed by students before operating high-voltage tools or leaving the workshop.",
+                  whatItIs: "Students write their conceptual synthesis or safety check in handwriting on a card before leaving class.", 
+                  url: "https://www.edutopia.org", 
+                  videoUrl: "https://www.youtube.com/results?search_query=exit+tickets+high+school", 
+                  videoLabel: "Secondary Exit Routines" 
+                }
               ],
               coachTip: "Require secondary students to sign their name in ink next to their hand-drawn diagram—it reinforces ownership and pride of workmanship!"
             }
@@ -1530,7 +2097,7 @@
                         </div>
                       </div>
 
-                      {/* EVERGREEN & TINSEL GARLAND TUG-OF-WAR (ANIMATED) */}
+                      {/* EVERGREEN & TINSEL GARLAND TUG-OF-WAR */}
                       <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-emerald-700 shadow-sm space-y-5 relative overflow-hidden">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center space-x-2.5">
@@ -1751,48 +2318,63 @@
                                   <span className="text-slate-800">{activeTradeOff.thisPrep}</span>
                                 </div>
 
-                                <div className="pt-2 border-t border-slate-100 space-y-2">
+                                <div className="pt-2 border-t border-slate-100 space-y-2.5">
                                   <span className="text-[10px] font-black uppercase text-slate-400 block tracking-wider">
                                     Featured Tools ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'}):
                                   </span>
                                   {(currentModule.thisTech.gradeTiers[activeGrade]?.tools || []).map((tool, idx) => {
                                     const isFav = favoriteTools.includes(tool.name);
                                     return (
-                                      <div key={idx} className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
-                                        <div className="truncate">
-                                          <div className="font-black text-slate-800 truncate">{tool.name}</div>
-                                          <div className="text-[10px] text-slate-500 truncate">{tool.badge}</div>
+                                      <div key={idx} className="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col justify-between gap-2 hover:border-slate-300 transition-colors">
+                                        <div className="flex items-start justify-between gap-2">
+                                          <div>
+                                            <div className="font-black text-slate-900 text-xs flex items-center space-x-1.5">
+                                              <span>{tool.name}</span>
+                                              {tool.badge.includes('13+') && (
+                                                <span className="inline-flex items-center space-x-0.5 bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded text-[9px] font-black border border-amber-300">
+                                                  <AlertTriangle className="w-2.5 h-2.5 text-amber-700" />
+                                                  <span>13+ Req</span>
+                                                </span>
+                                              )}
+                                            </div>
+                                            <div className="text-[10px] text-emerald-700 font-bold mt-0.5">{tool.badge}</div>
+                                          </div>
+                                          <div className="flex items-center space-x-1.5 shrink-0">
+                                            <button
+                                              type="button"
+                                              onClick={() => toggleFavoriteTool(tool.name)}
+                                              className={`p-1.5 rounded-lg transition-all ${
+                                                isFav ? 'bg-amber-400 text-emerald-950' : 'bg-white hover:bg-amber-100 text-slate-400'
+                                              }`}
+                                              title="Bookmark tool"
+                                            >
+                                              <Star className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
+                                            </button>
+                                            <a 
+                                              href={tool.url}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="p-1.5 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200"
+                                              title="Open tool"
+                                            >
+                                              <ExternalLink className="w-3.5 h-3.5" />
+                                            </a>
+                                            <a 
+                                              href={tool.videoUrl}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="p-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg border border-red-200"
+                                              title="Watch video guide"
+                                            >
+                                              <Play className="w-3.5 h-3.5 fill-current" />
+                                            </a>
+                                          </div>
                                         </div>
-                                        <div className="flex items-center space-x-1.5 shrink-0">
-                                          <button
-                                            type="button"
-                                            onClick={() => toggleFavoriteTool(tool.name)}
-                                            className={`p-1.5 rounded-lg transition-all ${
-                                              isFav ? 'bg-amber-400 text-emerald-950' : 'bg-white hover:bg-amber-100 text-slate-400'
-                                            }`}
-                                            title="Bookmark tool"
-                                          >
-                                            <Star className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
-                                          </button>
-                                          <a 
-                                            href={tool.url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="p-1.5 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200"
-                                            title="Open tool"
-                                          >
-                                            <ExternalLink className="w-3.5 h-3.5" />
-                                          </a>
-                                          <a 
-                                            href={tool.videoUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="p-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg border border-red-200"
-                                            title="Watch video guide"
-                                          >
-                                            <Play className="w-3.5 h-3.5 fill-current" />
-                                          </a>
-                                        </div>
+
+                                        {/* CONCISE TEASER SENTENCE */}
+                                        <p className="text-[11px] text-slate-600 leading-snug font-medium pl-1 border-l-2 border-emerald-400">
+                                          {tool.teaser || tool.whatItIs}
+                                        </p>
                                       </div>
                                     );
                                   })}
@@ -1853,48 +2435,55 @@
                                   <span className="text-slate-800">{activeTradeOff.thatPrep}</span>
                                 </div>
 
-                                <div className="pt-2 border-t border-slate-100 space-y-2">
+                                <div className="pt-2 border-t border-slate-100 space-y-2.5">
                                   <span className="text-[10px] font-black uppercase text-slate-400 block tracking-wider">
                                     Featured Strategies ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'}):
                                   </span>
                                   {(currentModule.thatTech.gradeTiers[activeGrade]?.tools || []).map((tool, idx) => {
                                     const isFav = favoriteTools.includes(tool.name);
                                     return (
-                                      <div key={idx} className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
-                                        <div className="truncate">
-                                          <div className="font-black text-slate-800 truncate">{tool.name}</div>
-                                          <div className="text-[10px] text-slate-500 truncate">{tool.badge}</div>
+                                      <div key={idx} className="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col justify-between gap-2 hover:border-slate-300 transition-colors">
+                                        <div className="flex items-start justify-between gap-2">
+                                          <div>
+                                            <div className="font-black text-slate-900 text-xs">{tool.name}</div>
+                                            <div className="text-[10px] text-red-700 font-bold mt-0.5">{tool.badge}</div>
+                                          </div>
+                                          <div className="flex items-center space-x-1.5 shrink-0">
+                                            <button
+                                              type="button"
+                                              onClick={() => toggleFavoriteTool(tool.name)}
+                                              className={`p-1.5 rounded-lg transition-all ${
+                                                isFav ? 'bg-amber-400 text-emerald-950' : 'bg-white hover:bg-amber-100 text-slate-400'
+                                              }`}
+                                              title="Bookmark strategy"
+                                            >
+                                              <Star className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
+                                            </button>
+                                            <a 
+                                              href={tool.url}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="p-1.5 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200"
+                                              title="Open resource"
+                                            >
+                                              <ExternalLink className="w-3.5 h-3.5" />
+                                            </a>
+                                            <a 
+                                              href={tool.videoUrl}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="p-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg border border-amber-200"
+                                              title="Watch video guide"
+                                            >
+                                              <Play className="w-3.5 h-3.5 fill-current" />
+                                            </a>
+                                          </div>
                                         </div>
-                                        <div className="flex items-center space-x-1.5 shrink-0">
-                                          <button
-                                            type="button"
-                                            onClick={() => toggleFavoriteTool(tool.name)}
-                                            className={`p-1.5 rounded-lg transition-all ${
-                                              isFav ? 'bg-amber-400 text-emerald-950' : 'bg-white hover:bg-amber-100 text-slate-400'
-                                            }`}
-                                            title="Bookmark tool"
-                                          >
-                                            <Star className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
-                                          </button>
-                                          <a 
-                                            href={tool.url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="p-1.5 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200"
-                                            title="Open resource"
-                                          >
-                                            <ExternalLink className="w-3.5 h-3.5" />
-                                          </a>
-                                          <a 
-                                            href={tool.videoUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="p-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg border border-amber-200"
-                                            title="Watch video guide"
-                                          >
-                                            <Play className="w-3.5 h-3.5 fill-current" />
-                                          </a>
-                                        </div>
+
+                                        {/* CONCISE TEASER SENTENCE */}
+                                        <p className="text-[11px] text-slate-600 leading-snug font-medium pl-1 border-l-2 border-red-400">
+                                          {tool.teaser || tool.whatItIs}
+                                        </p>
                                       </div>
                                     );
                                   })}
@@ -2958,7 +3547,7 @@
                                 {favoriteTools.includes(tool.name) && <span className="text-[10px] text-amber-600">⭐ Favorited</span>}
                               </div>
                               <div className="text-[10px] text-slate-500 font-semibold">{tool.badge}</div>
-                              <p className="text-[11px] text-slate-700 mt-1 leading-snug">{tool.whatItIs}</p>
+                              <p className="text-[11px] text-slate-700 mt-1 leading-snug">{tool.teaser || tool.whatItIs}</p>
                             </div>
                           ))
                         )}
@@ -2980,7 +3569,7 @@
                                 {favoriteTools.includes(tool.name) && <span className="text-[10px] text-amber-600">⭐ Favorited</span>}
                               </div>
                               <div className="text-[10px] text-slate-500 font-semibold">{tool.badge}</div>
-                              <p className="text-[11px] text-slate-700 mt-1 leading-snug">{tool.whatItIs}</p>
+                              <p className="text-[11px] text-slate-700 mt-1 leading-snug">{tool.teaser || tool.whatItIs}</p>
                             </div>
                           ))
                         )}
