@@ -53,6 +53,93 @@
     .animate-tree-grow { display: inline-block; transform-origin: bottom center; animation: treeGrowPulse 2.6s ease-in-out infinite; }
     .animate-garland-shimmer { animation: garlandShimmer 3s ease-in-out infinite; }
 
+    /* Gift Box Tool Picker (Holiday Showdown) */
+    .gift-btn { transition: background-color 0.15s ease, box-shadow 0.15s ease; }
+    .gift {
+      position: relative;
+      display: block;
+      width: 100%;
+      max-width: 84px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+      transition: transform 0.2s ease;
+    }
+    .gift-btn:hover .gift { transform: translateY(-3px); }
+    .gift-box {
+      position: absolute;
+      left: 8%; right: 8%; top: 34%; bottom: 0;
+      border-radius: 6px;
+      box-shadow: inset 0 -6px 0 rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+    .gift-lid {
+      position: absolute;
+      left: 2%; right: 2%; top: 20%; height: 18%;
+      border-radius: 5px;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+      transform-origin: 10% 100%;
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+      z-index: 2;
+    }
+    .gift-ribbon {
+      position: absolute;
+      left: 50%; top: 0; bottom: 0;
+      width: 16%;
+      transform: translateX(-50%);
+    }
+    .gift-ribbon-h {
+      position: absolute;
+      top: 38%; left: 0; right: 0;
+      height: 14%;
+    }
+    .gift-bow {
+      position: absolute;
+      left: 50%; bottom: 70%;
+      transform: translateX(-50%);
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .gift-sparkle {
+      position: absolute;
+      left: 50%; top: 22%;
+      transform: translateX(-50%) scale(0.4);
+      opacity: 0;
+      font-size: 1.3rem;
+      transition: opacity 0.25s ease 0.1s, transform 0.3s ease 0.1s;
+      z-index: 1;
+    }
+    .gift.is-open .gift-lid { transform: translate(-6px, -16px) rotate(-18deg); }
+    .gift.is-open .gift-sparkle { opacity: 1; transform: translateX(-50%) scale(1); }
+    @keyframes tagUnwrap {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tag-unwrap { animation: tagUnwrap 0.18s ease-out; }
+
+    /* 5E ornament: a short gold string above each tag */
+    .ornament { position: relative; margin-top: 6px; }
+    .ornament::before {
+      content: '';
+      position: absolute;
+      left: 50%; top: -7px;
+      width: 2px; height: 6px;
+      background: #b45309;
+      transform: translateX(-50%);
+    }
+
+    /* Visible keyboard focus */
+    button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animate-twinkle, .animate-twinkle-alt, .animate-tree-grow, .animate-garland-shimmer, .tag-unwrap {
+        animation: none !important;
+      }
+      .gift, .gift-lid, .gift-sparkle { transition: none !important; }
+    }
+
     /* Print & Desk Reference Styling */
     @media print {
       body * { visibility: hidden; }
@@ -68,6 +155,11 @@
   <!-- Standalone React & Babel Setup -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Firebase (sign-in + cloud saving) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-red-200">
@@ -82,6 +174,44 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
     const { createRoot } = ReactDOM;
+
+    // =====================================================================
+    // FIREBASE SETUP: paste your project's config values below.
+    // (Firebase console > Project settings > Your apps > Web app > Config)
+    // Until real values are pasted in, the site saves work in the browser only.
+    // =====================================================================
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDTHorYHIqOdFP0FTjBK1Nl942uoEgThXw",
+      authDomain: "tech-the-halls.firebaseapp.com",
+      projectId: "tech-the-halls",
+      storageBucket: "tech-the-halls.firebasestorage.app",
+      messagingSenderId: "301062171709",
+      appId: "1:301062171709:web:221288d3e699c159ebce54",
+      measurementId: "G-D863ESHJK8"
+    };
+
+    const FIREBASE_READY = typeof firebase !== 'undefined' && !String(FIREBASE_CONFIG.apiKey).startsWith('PASTE');
+    let fbAuth = null;
+    let fbDb = null;
+    if (FIREBASE_READY) {
+      try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        fbAuth = firebase.auth();
+        fbDb = firebase.firestore();
+      } catch (e) {
+        console.error('Firebase failed to start:', e);
+      }
+    }
+    const EMAIL_KEY = 'remc12e_tth_emailForSignIn';
+
+    const friendlyAuthError = (err) => {
+      const code = (err && err.code) || '';
+      if (code.includes('invalid-email')) return 'That email address doesn\'t look right. Please check it and try again.';
+      if (code.includes('invalid-action-code') || code.includes('expired-action-code')) return 'That sign-in link has expired or was already used. Request a new one below.';
+      if (code.includes('unauthorized-continue-uri') || code.includes('unauthorized-domain')) return 'This website isn\'t on Firebase\'s approved list yet. Please let your facilitator know.';
+      if (code.includes('quota') || code.includes('too-many-requests')) return 'Too many sign-in emails were sent. Please wait a few minutes and try again.';
+      return 'Something went wrong signing in. Please try again, or contact your facilitator.';
+    };
 
     // --- UNIVERSAL SVG ICONS ---
     const makeIcon = (paths) => ({ className = "w-4 h-4", ...props }) => (
@@ -105,6 +235,7 @@
     const TreePine = makeIcon(<><path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.3a1 1 0 0 1-.7-1.7L9 9h-.2a1 1 0 0 1-.8-1.7L12 3l4 4.3a1 1 0 0 1-.8 1.7H15l3 3.3a1 1 0 0 1-.7 1.7H17z"/><path d="M12 22v-3"/></>);
     const ChevronRight = makeIcon(<polyline points="9 18 15 12 9 6"/>);
     const ChevronLeft = makeIcon(<polyline points="15 18 9 12 15 6"/>);
+    const ChevronDown = makeIcon(<polyline points="6 9 12 15 18 9"/>);
     const PanelLeft = makeIcon(<><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></>);
     const X = makeIcon(<><path d="M18 6 6 18"/><path d="m6 6 12 12"/></>);
     const Save = makeIcon(<><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></>);
@@ -196,7 +327,301 @@
       );
     }
 
-    // --- CURATED MODULE DATA WITH REFINED GEMINI NOTEBOOK BRANDING & TEASERS ---
+    // --- 5E PHASE ORNAMENTS ---
+    const PHASE_INFO = {
+      Engage: { cls: 'bg-yellow-300 text-yellow-950 border-yellow-600', desc: 'Spark curiosity and surface what students already think.' },
+      Explore: { cls: 'bg-sky-600 text-white border-sky-800', desc: 'Students investigate before you explain.' },
+      Explain: { cls: 'bg-violet-600 text-white border-violet-800', desc: 'Students put ideas into words, and you add the vocabulary.' },
+      Elaborate: { cls: 'bg-orange-600 text-white border-orange-800', desc: 'Students apply learning to a new situation.' },
+      Evaluate: { cls: 'bg-slate-800 text-white border-slate-950', desc: 'Students and teachers check understanding.' }
+    };
+    const PHASE_ORDER = ['Engage', 'Explore', 'Explain', 'Elaborate', 'Evaluate'];
+
+    function PhaseOrnament({ phase }) {
+      const info = PHASE_INFO[phase];
+      if (!info) return null;
+      return (
+        <span className={`ornament inline-flex items-center px-1.5 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-wide ${info.cls}`}>
+          {phase}
+        </span>
+      );
+    }
+
+    // 5E label for each recipe step (Preheat / Mix / Assemble / Enjoy keep their holiday names)
+    const recipePhases = {
+      1: { k2: ['Engage', 'Explore', 'Explain'], g38: ['Engage', 'Explore', 'Explain', 'Elaborate'], h912: ['Engage', 'Explore', 'Explain'] },
+      2: { k2: ['Engage', 'Elaborate', 'Evaluate'], g38: ['Explore', 'Explain', 'Evaluate'], h912: ['Engage', 'Explore', 'Evaluate'] },
+      3: { k2: ['Engage', 'Explore', 'Explain'], g38: ['Engage', 'Explore', 'Explain'], h912: ['Explore', 'Elaborate', 'Evaluate'] },
+      4: { k2: ['Engage', 'Explore', 'Explain'], g38: ['Engage', 'Explore', 'Explain', 'Evaluate'], h912: ['Engage', 'Explore', 'Explain', 'Evaluate'] }
+    };
+
+    // --- GIFT BOX TOOL PICKER (two matched gifts + an optional stocking stuffer) ---
+    function GiftTagTray({ side, gifts, stuffers, favoriteTools, onToggleFavorite, gradeLabel, plannedTool, onPlan, show5E }) {
+      const [openName, setOpenName] = useState(null);
+      const isThis = side === 'this';
+      const palette = isThis
+        ? {
+            heading: 'text-rose-900',
+            box: 'bg-rose-600',
+            lid: 'bg-rose-700',
+            ribbon: 'bg-amber-300',
+            need: 'text-rose-800',
+            btnOpen: 'bg-rose-50 ring-2 ring-rose-500',
+            stuffer: 'border-dashed border-rose-400 bg-white text-rose-950 hover:bg-rose-50',
+            stufferOpen: 'border-solid border-rose-700 bg-rose-700 text-white',
+            panel: 'border-rose-300 bg-rose-50',
+            badge: 'text-rose-800',
+            openBtn: 'bg-rose-700 hover:bg-rose-800 text-white',
+            videoBtn: 'bg-white hover:bg-rose-100 text-rose-900 border-2 border-rose-300'
+          }
+        : {
+            heading: 'text-emerald-900',
+            box: 'bg-emerald-700',
+            lid: 'bg-emerald-800',
+            ribbon: 'bg-red-500',
+            need: 'text-emerald-800',
+            btnOpen: 'bg-emerald-50 ring-2 ring-emerald-600',
+            stuffer: 'border-dashed border-emerald-500 bg-white text-emerald-950 hover:bg-emerald-50',
+            stufferOpen: 'border-solid border-emerald-800 bg-emerald-800 text-white',
+            panel: 'border-emerald-300 bg-emerald-50',
+            badge: 'text-emerald-800',
+            openBtn: 'bg-emerald-800 hover:bg-emerald-900 text-white',
+            videoBtn: 'bg-white hover:bg-emerald-100 text-emerald-900 border-2 border-emerald-300'
+          };
+
+      const all = [...gifts, ...stuffers];
+      if (all.length === 0) {
+        return <p className="text-xs text-slate-700">No featured {isThis ? 'tools' : 'strategies'} for this grade band yet.</p>;
+      }
+
+      const openTool = all.find(t => t.name === openName) || null;
+      const toggle = (name) => setOpenName(openName === name ? null : name);
+      const panelId = `gift-panel-${side}`;
+      const openIsFav = openTool ? favoriteTools.includes(openTool.name) : false;
+      const openIsTeen = openTool ? (openTool.badge || '').includes('13+') : false;
+      const openInPlan = openTool ? plannedTool === openTool.name : false;
+      const shortName = (name) => name.replace(/\s*\([^)]*\)\s*$/, '');
+
+      return (
+        <div>
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <span className={`text-[11px] font-black uppercase tracking-wider ${palette.heading}`}>
+              🎁 Pick a {isThis ? 'Tool' : 'Strategy'} ({gradeLabel})
+            </span>
+            <span className="text-[10px] font-bold text-slate-700">Click a gift to unwrap</span>
+          </div>
+
+          <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(gifts.length, 1)}, minmax(0, 1fr))` }}>
+            {gifts.map((tool) => {
+              const isOpen = openName === tool.name;
+              const isFav = favoriteTools.includes(tool.name);
+              const isTeen = (tool.badge || '').includes('13+');
+              const isPlanned = plannedTool === tool.name;
+              return (
+                <button
+                  key={tool.name}
+                  type="button"
+                  onClick={() => toggle(tool.name)}
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                  className={`gift-btn flex flex-col items-center text-center gap-1.5 px-1.5 pt-5 pb-2.5 rounded-2xl ${isOpen ? palette.btnOpen : 'hover:bg-slate-50'}`}
+                >
+                  <span className={`gift ${isOpen ? 'is-open' : ''}`} aria-hidden="true">
+                    <span className="gift-sparkle">✨</span>
+                    <span className={`gift-box ${palette.box}`}>
+                      <span className={`gift-ribbon ${palette.ribbon}`}></span>
+                      <span className={`gift-ribbon-h ${palette.ribbon}`}></span>
+                    </span>
+                    <span className={`gift-lid ${palette.lid}`}>
+                      <span className={`gift-ribbon ${palette.ribbon}`}></span>
+                      <span className="gift-bow">🎀</span>
+                    </span>
+                    {isFav && (
+                      <span className="absolute -top-1 -right-1 z-10 w-5 h-5 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center">
+                        <Star className="w-2.5 h-2.5 text-emerald-950 fill-current" />
+                      </span>
+                    )}
+                    {isTeen && (
+                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 text-[9px] font-black bg-white text-amber-900 px-1 rounded">13+</span>
+                    )}
+                  </span>
+                  {show5E && (tool.phases || []).length > 0 && (
+                    <span className="flex flex-wrap justify-center gap-1">
+                      {tool.phases.map(ph => <PhaseOrnament key={ph} phase={ph} />)}
+                    </span>
+                  )}
+                  <span className={`text-[11px] font-black leading-tight ${palette.need}`}>{tool.need || tool.badge}</span>
+                  <span className="text-[11px] font-bold text-slate-900 leading-tight line-clamp-2">{shortName(tool.name)}</span>
+                  {tool.prepTime && (
+                    <span className="text-[10px] font-black bg-emerald-950 text-amber-300 px-2 py-0.5 rounded-full whitespace-nowrap">⏱️ {tool.prepTime}</span>
+                  )}
+                  {isPlanned && (
+                    <span className="text-[9px] font-black uppercase tracking-wide bg-amber-400 text-emerald-950 px-1.5 py-0.5 rounded-full">In My Plan</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {stuffers.length > 0 && (
+            <div className="mt-2 flex flex-wrap justify-center gap-2">
+              {stuffers.map((tool) => {
+                const isOpen = openName === tool.name;
+                const isFav = favoriteTools.includes(tool.name);
+                return (
+                  <button
+                    key={tool.name}
+                    type="button"
+                    onClick={() => toggle(tool.name)}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 text-[11px] font-black transition-colors ${isOpen ? palette.stufferOpen : palette.stuffer}`}
+                  >
+                    <span aria-hidden="true">🧦</span>
+                    <span>Stocking stuffer: {shortName(tool.name)}</span>
+                    {isFav && <Star className={`w-3 h-3 ${isOpen ? 'text-amber-300 fill-amber-300' : 'text-amber-500 fill-amber-400'}`} />}
+                    {plannedTool === tool.name && <Check className="w-3 h-3 stroke-[3]" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {openTool && (
+            <div id={panelId} className={`tag-unwrap mt-3 rounded-2xl border-2 ${palette.panel} p-4 space-y-3`}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  {openTool.need && (
+                    <div className={`text-[11px] font-black uppercase tracking-wider ${palette.badge}`}>{openTool.need}</div>
+                  )}
+                  <div className="font-black text-slate-900 text-sm">{openTool.name}</div>
+                  <div className="text-[11px] font-bold text-slate-700 mt-0.5">{openTool.badge}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOpenName(null)}
+                  className="p-1 rounded-lg text-slate-700 hover:bg-white hover:text-slate-900"
+                  aria-label="Close tool details"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {openIsTeen && (
+                <div className="flex items-start gap-2 bg-amber-100 border border-amber-400 rounded-xl p-2.5 text-[11px] font-bold text-amber-950">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
+                  <span>Ages 13+ only. Check your district AI policy before any student use.</span>
+                </div>
+              )}
+
+              {show5E && (openTool.phases || []).length > 0 && (
+                <div className="space-y-1.5">
+                  {openTool.phases.map(ph => (
+                    <div key={ph} className="flex items-start gap-2 text-xs text-slate-900">
+                      <PhaseOrnament phase={ph} />
+                      <span className="font-medium pt-1.5"><strong>5E phase: {ph}.</strong> {PHASE_INFO[ph].desc}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <p className="text-xs text-slate-900 leading-relaxed font-medium">{openTool.whatItIs}</p>
+
+              {openTool.prepTime && (
+                <div className="bg-emerald-950 border-2 border-amber-400 rounded-xl p-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
+                    <span className="text-[11px] font-black text-amber-300">⏱️ Santa's Workshop Prep</span>
+                    <span className="text-sm font-black text-white">{openTool.prepTime}</span>
+                  </div>
+                  <p className="text-xs text-white font-medium leading-relaxed">{openTool.prepDetail}</p>
+                  {(openTool.prepLinks || []).length > 0 && (
+                    <div className="flex flex-col gap-1.5 pt-2">
+                      {openTool.prepLinks.map(link => (
+                        <a
+                          key={link.url}
+                          href={link.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-emerald-950 px-3 py-1.5 rounded-lg text-xs font-black self-start"
+                        >
+                          <FileText className="w-3.5 h-3.5 shrink-0" />
+                          <span>{link.label}</span>
+                          <ExternalLink className="w-3 h-3 shrink-0" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {openTool.inClass && (
+                <div className="bg-white border-l-4 border-amber-400 rounded-lg p-3">
+                  <div className="text-[11px] font-black text-slate-900 mb-1">🎄 In Your Classroom</div>
+                  <p className="text-xs text-slate-900 font-medium leading-relaxed">{openTool.inClass}</p>
+                </div>
+              )}
+
+              {openTool.tryIt && (
+                <div className="bg-white border-2 border-dashed border-amber-400 rounded-xl p-3">
+                  <div className="text-[11px] font-black text-amber-900 mb-1">🧪 Try It in 10 Minutes</div>
+                  <p className="text-xs text-slate-900 font-medium leading-relaxed">{openTool.tryIt}</p>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => onPlan(openTool.name)}
+                  aria-pressed={openInPlan}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black border-2 ${
+                    openInPlan
+                      ? 'bg-amber-400 border-amber-500 text-emerald-950'
+                      : 'bg-emerald-950 border-emerald-950 text-amber-300 hover:bg-emerald-900'
+                  }`}
+                >
+                  {openInPlan ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Gift className="w-3.5 h-3.5" />}
+                  <span>{openInPlan ? 'In My Plan' : 'Put in My Plan'}</span>
+                </button>
+                <a
+                  href={openTool.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black shadow-sm ${palette.openBtn}`}
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>{isThis ? 'Open Tool' : 'Open Resource'}</span>
+                </a>
+                <a
+                  href={openTool.videoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${palette.videoBtn}`}
+                >
+                  <Play className="w-3 h-3 fill-current" />
+                  <span>{openTool.videoLabel || 'Watch Video Guide'}</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => onToggleFavorite(openTool.name)}
+                  aria-pressed={openIsFav}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black border-2 transition-colors ${
+                    openIsFav
+                      ? 'bg-amber-400 border-amber-500 text-emerald-950'
+                      : 'bg-white border-amber-300 text-amber-950 hover:bg-amber-100'
+                  }`}
+                >
+                  <Star className={`w-3.5 h-3.5 ${openIsFav ? 'fill-current' : ''}`} />
+                  <span>{openIsFav ? 'Saved to Toolkit' : 'Save to Toolkit'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    
+// --- CURATED MODULE DATA WITH REFINED GEMINI NOTEBOOK BRANDING & TEASERS ---
     const modulesData = [
       {
         id: 1,
@@ -231,31 +656,25 @@
             thisSpark: "Instant audio dual-coding & expressive voice inflection that makes books come alive without decode frustration.",
             thisTree: "Striving readers, carpet hooks, English learners who need auditory modeling before independent attempts.",
             thisBlizzard: "The Screen Hypnosis trap: students slip into passive cartoon-watching if you don't pause to ask questions.",
-            thisPrep: "30 seconds to open YouTube or ReadWorks.",
             thatSpark: "Pure tactile movement and spatial arrangement that cements sequencing without eye fatigue.",
             thatTree: "Small-group literacy centers, partner sequencing talk on the rug, kinesthetic memory building.",
             thatBlizzard: "One laminated picture card will inevitably end up under the radiator or in someone's winter boot.",
-            thatPrep: "5 minutes at the paper cutter or bending craft pipe cleaners."
           },
           g38: {
             thisSpark: "Dynamic text leveling and instant 2-host audio overviews tailored to students' exact reading level.",
             thisTree: "Dense informational articles, bellringer hooks, multi-tier vocabulary support.",
             thisBlizzard: "Copy-paste skimming: students rely on the AI summary without touching the real text.",
-            thisPrep: "1 minute to drop sources into Gemini Notebook or level with Brisk.",
             thatSpark: "Zero digital distractions, physical spatial anchoring, and true face-to-face peer interdependence.",
             thatTree: "Deep analytical reading, cooperative expert jigsaws, high-focus silent annotation.",
             thatBlizzard: "Highlighter wars: students turn the entire page neon green without thinking critically.",
-            thatPrep: "3 minutes to print and hand out color highlighters."
           },
           h912: {
             thisSpark: "Natural language query of complex primary sources, college research papers, and technical trade manuals.",
             thisTree: "High school DBQs, science lab procedures, ELA research, and CTE safety specs.",
             thisBlizzard: "Hallucination trust: students fail to double-check AI citations against original physical texts.",
-            thisPrep: "1 minute to upload sources into Gemini Notebook.",
             thatSpark: "Tactile fine-motor encoding that reinforces muscle memory, close analytical reading, and spatial schematic mapping.",
             thatTree: "Close literary analysis, historical primary source marginalia, science schematics, and shop blueprints.",
             thatBlizzard: "Marking fatigue: students color half the page or lose paper handouts between class periods.",
-            thatPrep: "2 minutes to hand out highlighters, pens, or grease pencils."
           }
         },
         thisTech: { 
@@ -284,7 +703,6 @@
                   videoLabel: "ReadWorks Walkthrough" 
                 }
               ],
-              coachTip: "Play a Storyline Online read-aloud on your screen, pause halfway through, and have students predict the ending!"
             },
             g38: {
               tools: [
@@ -298,7 +716,7 @@
                   videoLabel: "Gemini Notebook in 60s" 
                 },
                 { 
-                  name: "Brisk Teaching", 
+                  name: "Brisk Teaching",
                   badge: "Free Chrome Extension", 
                   teaser: "One-click Chrome assistant that instantly levels reading passages and generates targeted vocabulary scaffolds.",
                   whatItIs: "Levels any online article or Doc in reading grade level with one click and generates targeted vocabulary scaffolds.", 
@@ -307,7 +725,7 @@
                   videoLabel: "Brisk Setup" 
                 },
                 { 
-                  name: "Edpuzzle", 
+                  name: "Edpuzzle",
                   badge: "Interactive Video", 
                   teaser: "Turns any online educational video into an interactive check-for-understanding with embedded audio questions.",
                   whatItIs: "Embed audio notes and check-in questions directly inside YouTube or teacher videos so students actively process content.", 
@@ -316,7 +734,6 @@
                   videoLabel: "Edpuzzle Tour" 
                 }
               ],
-              coachTip: "Play Gemini Notebook's teacher-generated podcast as an opening hook while students get settled!"
             },
             h912: {
               tools: [
@@ -348,7 +765,6 @@
                   videoLabel: "Perusall Reading" 
                 }
               ],
-              coachTip: "Before students write an essay or operate shop machinery, have them query source documents in Gemini Notebook for core evidence or safety specs."
             }
           },
           pros: [
@@ -383,12 +799,11 @@
                   videoLabel: "Reading Windows" 
                 }
               ],
-              coachTip: "Have students use pipe cleaners to make \"magnifying glasses\" to hunt for sight or spelling words."
             },
             g38: {
               tools: [
                 { 
-                  name: "The Aronson Jigsaw Method", 
+                  name: "The Aronson Jigsaw Method",
                   badge: "Cooperative Learning Protocol", 
                   teaser: "Classic face-to-face peer teaching protocol where students become topic experts to complete a shared learning puzzle.",
                   whatItIs: "Students break into 'expert' groups to master a physical sub-section of a text, then regroup where every peer is needed to complete the puzzle.", 
@@ -397,7 +812,7 @@
                   videoLabel: "How Jigsaw Works" 
                 },
                 { 
-                  name: "Color-Coded Highlighting Matrix", 
+                  name: "Color-Coded Highlighting Matrix",
                   badge: "Active Reading Technique", 
                   teaser: "Multi-colored physical highlighting system that requires learners to categorize claims, evidence, and questions by hand.",
                   whatItIs: "Students use 3 physical highlighter colors with intentional jobs: Yellow for Claims, Pink for Evidence, Green for Questions.", 
@@ -406,7 +821,7 @@
                   videoLabel: "Active Paper Annotation" 
                 },
                 { 
-                  name: "11x17 Butcher Paper Placemats", 
+                  name: "11x17 Butcher Paper Placemats",
                   badge: "Tactile Synthesis", 
                   teaser: "Oversized table workspace where each student synthesizes their quadrant before discussing as a team.",
                   whatItIs: "Large format paper in the middle of a table with designated quadrants for each student to write their key takeaways.", 
@@ -415,7 +830,6 @@
                   videoLabel: "Butcher Paper Placemats" 
                 }
               ],
-              coachTip: "Give each expert group a distinct color pen to make participation immediately visible!"
             },
             h912: {
               tools: [
@@ -447,7 +861,6 @@
                   videoLabel: "Visual Thinking in Secondary" 
                 }
               ],
-              coachTip: "Have students sign their initials in ink next to their verified text claims or circuit checkpoints!"
             }
           },
           pros: [
@@ -479,7 +892,8 @@
         recipeCards: {
           k2: {
             title: "The Storytime Sugar Cookie",
-            prepTime: "3 Minutes to Mix & Bake",
+            prepTime: "10–15 Minutes to Mix & Bake",
+            prepBreakdown: "Preview the Storyline Online video (5 min) and bend a class set of pipe cleaner frames (5–10 min). The frames are reusable after the first batch.",
             ingredients: "Storyline Online Read-Aloud + Craft Pipe Cleaner Frames",
             steps: [
               "1 - Preheat (Digital): Stream a 4-minute Storyline Online story on your screen with captions on. Pause halfway through to let students predict the ending.",
@@ -489,7 +903,8 @@
           },
           g38: {
             title: "The Gingerbread Jigsaw",
-            prepTime: "2 Minutes to Mix & Bake",
+            prepTime: "20–25 Minutes to Mix & Bake",
+            prepBreakdown: "Generate and review the Gemini Notebook Audio Overview (10–15 min) and run articles and matrices on the copier (10 min). Add about 20 minutes to design the jigsaw matrix from scratch, or start from the free template.",
             ingredients: "Gemini Notebook Audio Overview + Printed Article & 3 Highlighter Colors",
             steps: [
               "1 - Preheat (Digital): As the opening bellringer, play Gemini Notebook's teacher-generated 4-minute podcast summarizing the day's dense article (zero student logins required!).",
@@ -500,7 +915,8 @@
           },
           h912: {
             title: "The Secondary Snickerdoodle (General High School & CTE)",
-            prepTime: "3 Minutes to Mix & Bake",
+            prepTime: "20–30 Minutes to Mix & Bake",
+            prepBreakdown: "Upload sources and test student questions in Gemini Notebook (15–20 min), then copy the sources with wide margins (5–10 min).",
             ingredients: "Gemini Notebook Source Query + Printed Primary Sources, DBQs, or Technical Schematics",
             steps: [
               "1 - Preheat (Digital): Students (or teacher demonstration) query Gemini Notebook with a complex historical document, research paper, or trade manual to generate 3 focus questions.",
@@ -544,31 +960,25 @@
             thisSpark: "No fighting over crayons! Safe sandbox canvases where young hands can drag and voice record without overwriting.",
             thisTree: "Digital centers, sharing voice stories with distant parents, fine-motor mouse practice.",
             thisBlizzard: "Accidental deletions and closed browser tabs that trigger tears.",
-            thisPrep: "2 minutes to share a clean Padlet or Canva link.",
             thatSpark: "Spontaneous joy of communal drawing on oversized paper where kids physically learn to share elbow room.",
             thatTree: "Carpet pods, sensory motor coordination, cooperative story-world building.",
             thatBlizzard: "Torn paper, crayon marks on table edges, and arguments over the single red crayon.",
-            thatPrep: "1 minute to tape butcher paper across a pod table."
           },
           g38: {
             thisSpark: "Timestamped Version History receipts that permanently end 'He didn't do anything!' excuses.",
             thisTree: "Simultaneous multi-author writing, introverts who prefer typing, homework collaboration.",
             thisBlizzard: "The Font Rabbit Hole: kids spend 25 minutes choosing 14 fonts and neon animations before typing a word.",
-            thisPrep: "1 minute to create a shared Google Slide deck.",
             thatSpark: "Standing posture that gets blood flowing to sleepy adolescent legs and forces eye contact.",
             thatTree: "Gallery walks, affinity mapping, standing whiteboard sprints, high-energy brainstorming.",
             thatBlizzard: "Fading dry-erase markers and one student who monopolizes the marker the whole period.",
-            thatPrep: "2 minutes to unroll chart paper or prep whiteboards."
           },
           h912: {
             thisSpark: "Professional agile project management (Kanban) and live multi-user client pitch decks.",
             thisTree: "Secondary research presentations, ELA group synthesis, CTE client deliverables.",
             thisBlizzard: "Ghost teammates: students log in, appear active on the avatar circle, but contribute zero content.",
-            thisPrep: "3 minutes to set up a FigJam or Canva workspace.",
             thatSpark: "High-stakes debates at standing surfaces with zero screens acting as defensive shields.",
             thatTree: "Math problem solving, debate prep, science lab diagnostics, technical design review.",
             thatBlizzard: "Erased whiteboard diagrams before anyone took a verification photo for documentation.",
-            thatPrep: "30 seconds to hand out dry-erase markers."
           }
         },
         thisTech: { 
@@ -606,7 +1016,6 @@
                   videoLabel: "Canva Whiteboards" 
                 }
               ],
-              coachTip: "Set up a Padlet Audio Wall with a single holiday question. Kindergarteners tap to speak for 10 seconds—no passwords or typing required!"
             },
             g38: {
               tools: [
@@ -638,7 +1047,6 @@
                   videoLabel: "Canva Collaboration" 
                 }
               ],
-              coachTip: "Open Version History on your projector for 30 seconds on day one. Watch accountability skyrocket!"
             },
             h912: {
               tools: [
@@ -670,7 +1078,6 @@
                   videoLabel: "Industry Presentations" 
                 }
               ],
-              coachTip: "Require student groups to designate a project manager who updates the shared FigJam board daily."
             }
           },
           pros: [
@@ -714,7 +1121,6 @@
                   videoLabel: "Pod Drawing" 
                 }
               ],
-              coachTip: "Practicing the physical body pivot for Knee-to-Knee talk makes partner collaboration second nature!"
             },
             g38: {
               tools: [
@@ -746,7 +1152,6 @@
                   videoLabel: "Vertical Surfaces in 3 Min" 
                 }
               ],
-              coachTip: "Assign each group member one specific colored marker to create an analog version history on paper!"
             },
             h912: {
               tools: [
@@ -778,7 +1183,6 @@
                   videoLabel: "Systems Mapping" 
                 }
               ],
-              coachTip: "Enforce this rule: The person holding the marker CANNOT write their own ideas—they can only write what teammates dictate!"
             }
           },
           pros: [
@@ -795,7 +1199,8 @@
         recipeCards: {
           k2: {
             title: "The Apple Pocket Pie (Pod Paper & Voice)",
-            prepTime: "2 Minutes to Prep Crust",
+            prepTime: "15–20 Minutes to Prep the Crust",
+            prepBreakdown: "Set up the Padlet Audio Wall with post approval on (10 min) and tape butcher paper across each pod (5–10 min).",
             ingredients: "1 Sheet Butcher Paper + Padlet Audio Sandbox",
             steps: [
               "1 - Preheat (Digital): Open Padlet Audio on a classroom tablet. Young learners tap the red microphone to record a 15-second voice greeting sharing their pod's team goal.",
@@ -805,7 +1210,8 @@
           },
           g38: {
             title: "The Triple-Berry Version History Pie",
-            prepTime: "3 Minutes to Mix & Bake",
+            prepTime: "25–30 Minutes to Mix & Bake",
+            prepBreakdown: "Copy the starter deck for each group (5–10 min), then set out chart paper, hang posters, and post the Praise and Ponder stems for the gallery walk (15–20 min).",
             ingredients: "Google Slides (Version History Checked) + Chart Paper & Neon Sticky Notes",
             steps: [
               "1 - Preheat (Digital): Students collaborate on a 3-slide outline in Google Slides. The teacher displays Version History on the smartboard to verify participation receipts.",
@@ -815,7 +1221,8 @@
           },
           h912: {
             title: "The Savory Kanban Galette (Secondary & CTE)",
-            prepTime: "2 Minutes to Assemble",
+            prepTime: "30–35 Minutes to Assemble",
+            prepBreakdown: "Build team Kanban boards and seed the first cards (15–20 min), choose the whiteboard problem (10 min), and print rubric scorecards (5 min).",
             ingredients: "Canva / FigJam Kanban Board + Vertical Standing Whiteboards",
             steps: [
               "1 - Preheat (Digital): Teams review rubric constraints and digital reference docs in Canva or FigJam, assigning sprint cards.",
@@ -859,31 +1266,25 @@
             thisSpark: "Instant verbal cheering and automated game leveling that gently scaffolds phonics and counting.",
             thisTree: "Individual literacy & math center rotations, reward time, visual pattern block practice.",
             thisBlizzard: "Tapping buttons randomly until fireworks go off without reading the words.",
-            thisPrep: "Zero login needed for PBS KIDS or Toy Theater.",
             thatSpark: "Holding real dice and chunky wooden pieces; learning to wait patiently for your turn without crying.",
             thatTree: "Small carpet groups, social-emotional skill building, physical subitizing with dice.",
             thatBlizzard: "Dice rolling off tables and bouncing under someone's desk.",
-            thatPrep: "Free lending crate delivered to your school by REMC 12E."
           },
           g38: {
             thisSpark: "Electrifying arcade modes and power-ups where students gladly answer 60 vocab questions in 10 minutes.",
             thisTree: "Fast formative reviews, vocabulary repetition, high-energy Friday competitions.",
             thisBlizzard: "Speed-guessing: clicking whatever button lets them get back to the in-game power-up store.",
-            thisPrep: "30 seconds to launch a Gimkit or Blooket code.",
             thatSpark: "Deductive social reasoning where kids look each other in the eyes and debate semantic clues.",
             thatTree: "Friday community circles, critical thinking deduction, building healthy sportsmanship.",
             thatBlizzard: "Arguments over vague rules and packing 50 cards back into the box before the bell.",
-            thatPrep: "Request a free tabletop crate from REMC 12E checkout portal."
           },
           h912: {
             thisSpark: "Safe digital trial-and-error where secondary students can test hypotheses and complex physics without equipment risks.",
             thisTree: "High school STEM labs, AP exam review, CTE technical procedures.",
             thisBlizzard: "Trial-and-error clicking without calculating underlying formulas.",
-            thisPrep: "1 minute to link a PhET simulation or Quizizz set.",
             thatSpark: "High-level classification and system constraint thinking with custom curriculum terms.",
             thatTree: "Secondary academic vocabulary, trade tool classification, team-building communication.",
             thatBlizzard: "Teenager skepticism until they realize the board game is genuinely competitive.",
-            thatPrep: "Free courier drop-off from REMC 12E."
           }
         },
         thisTech: { 
@@ -921,7 +1322,6 @@
                   videoLabel: "ABCya Walkthrough" 
                 }
               ],
-              coachTip: "Use Toy Theater's digital pattern blocks on your interactive board for a 5-minute morning routine before kids touch physical blocks at their tables."
             },
             g38: {
               tools: [
@@ -953,7 +1353,6 @@
                   videoLabel: "Quizizz Team Mode" 
                 }
               ],
-              coachTip: "Switch Gimkit to 'Team Mode' or 'Floor is Lava' so students combine their energy toward a shared community goal!"
             },
             h912: {
               tools: [
@@ -985,7 +1384,6 @@
                   videoLabel: "PhET Challenges" 
                 }
               ],
-              coachTip: "Challenge secondary students to build their own Gimkit question bank as an end-of-unit review project to test peers."
             }
           },
           pros: [
@@ -1029,7 +1427,6 @@
                   videoLabel: "REMC Tabletop Project" 
                 }
               ],
-              coachTip: "Play Spot It! in pairs during small-group literacy centers. Ask students to shout the initial letter sound of the matching picture!"
             },
             g38: {
               tools: [
@@ -1061,7 +1458,6 @@
                   videoLabel: "Tabletop in School" 
                 }
               ],
-              coachTip: "Host a 15-minute 'Tabletop Warm-up' on Friday mornings using your borrowed REMC crate. Watch genuine community flourish!"
             },
             h912: {
               tools: [
@@ -1093,7 +1489,6 @@
                   videoLabel: "Why Tabletop Belongs" 
                 }
               ],
-              coachTip: "Have secondary students design their own custom card pack for Things in Rings testing unit concepts or tool classification!"
             }
           },
           pros: [
@@ -1110,7 +1505,8 @@
         recipeCards: {
           k2: {
             title: "The Glazed Cinnamon Roll Twist",
-            prepTime: "2 Minutes to Twist",
+            prepTime: "10 Minutes to Twist",
+            prepBreakdown: "Build the model shape in Toy Theater (5 min) and set out foam dice and counting bears (5 min).",
             ingredients: "Chunky Foam Dice + Toy Theater Digital Blocks",
             steps: [
               "1 - Preheat (Digital): Open Toy Theater pattern blocks on tablets to assemble digital pastry figures with geometric symmetry.",
@@ -1120,7 +1516,8 @@
           },
           g38: {
             title: "The Braided Arcade Pastry",
-            prepTime: "3 Minutes to Roll & Bake",
+            prepTime: "25–30 Minutes to Roll & Bake, plus REMC 12E lead time",
+            prepBreakdown: "Build and test the Gimkit set (10–15 min) and learn Things in Rings (15 min). Request the game from REMC 12E a few days ahead so courier delivery arrives in time.",
             ingredients: "Gimkit (Floor is Lava Mode) + Things in Rings (REMC Lending Library)",
             steps: [
               "1 - Preheat (Digital): 12 minutes in Gimkit. Students answer 50+ curriculum questions to earn shields and survive the game arena.",
@@ -1130,7 +1527,8 @@
           },
           h912: {
             title: "The Spiced Danish Logic Wheel (Secondary & CTE)",
-            prepTime: "4 Minutes to Prep",
+            prepTime: "15–20 Minutes to Prep",
+            prepBreakdown: "Preview the PhET sim and test it on a student Chromebook (15–20 min), then grab index cards (2 min).",
             ingredients: "PhET Simulation / Formative Diagnostic + Physical Index Cards",
             steps: [
               "1 - Preheat (Digital): Students troubleshoot virtual circuits or chemical formulas in a PhET simulation without equipment risks.",
@@ -1174,31 +1572,25 @@
             thisSpark: "Magnifying microscopic details 500x onto the classroom smartboard so every child can gasp together.",
             thisTree: "5E Explore phase, hydroponics seed inspection, examining textile weaves.",
             thisBlizzard: "Knocking over water trays while rushing to touch the smartboard screen.",
-            thisPrep: "1 minute to plug in a USB digital microscope.",
             thatSpark: "Unadulterated mystery: slipping small hands inside a dark cardboard box touches pure childhood wonder.",
             thatTree: "5E Engage phase, sensory descriptive vocabulary, tactile guessing games.",
             thatBlizzard: "Playdough getting stuck in the carpet and drying out overnight.",
-            thatPrep: "3 minutes to put a pinecone inside a shoebox."
           },
           g38: {
-            thisSpark: "Dynamic sliders where equations change before students' eyes; testing hazardous science without flames.",
-            thisTree: "5E Explore & Elaborate phases, mathematical modeling in Desmos, balancing equations in PhET.",
-            thisBlizzard: "Mindlessly sliding dials back and forth without noting what mathematically changed.",
-            thisPrep: "30 seconds to share a Desmos activity code.",
+            thisSpark: "Change one variable and see the result instantly, from sinking blocks to fraction bars, and test science safely with no flames or spills.",
+            thisTree: "5E Explore phase, sink-or-float and density investigations in PhET, and building math models in Polypad.",
+            thisBlizzard: "Mindlessly sliding dials or dragging tiles around without noting what changed.",
             thatSpark: "Discrepant physical phenomena that break expectations right on the teacher's demo table.",
             thatTree: "5E Engage phase (hands-on hook), 5E Explain (sketchnoting diagrams), 3-2-1 exit cards.",
             thatBlizzard: "A messy science demo that leaves water on the front lab counter.",
-            thatPrep: "5 minutes to prep salt water and a raw potato."
           },
           h912: {
             thisSpark: "Live heatmaps that instantly spotlight which concept or technical safety procedure 60% of students missed.",
             thisTree: "5E Evaluate phase, real-time diagnostic checks before laboratory or machinery work.",
             thisBlizzard: "Tech glitches or dying Chromebook batteries right when you need exit data.",
-            thisPrep: "2 minutes to launch a Formative or Quizizz live check.",
             thatSpark: "Holding real broken artifacts or smelling a burnt spark plug—physical reality cannot be simulated.",
             thatTree: "5E Engage phase, technical hand-sketches on grid paper, signature safety and proof sign-offs.",
             thatBlizzard: "Smudged pencil diagrams or lost paper worksheets.",
-            thatPrep: "Keep broken lab parts or historical artifacts in a labeled bin for quick retrieval."
           }
         },
         thisTech: { 
@@ -1236,39 +1628,37 @@
                   videoLabel: "Voice Exit Tickets" 
                 }
               ],
-              coachTip: "Use the camera zoom on an iPad to inspect classroom hydroponic seeds germinating—project it live to start your morning carpet time!"
             },
             g38: {
               tools: [
                 { 
-                  name: "Desmos Classroom Activities", 
-                  badge: "5E: Explore & Math Inquiry", 
-                  teaser: "Interactive mathematical playground with sliders and challenges where students discover equations dynamically.",
-                  whatItIs: "Interactive activities where students manipulate sliders and see mathematical patterns emerge dynamically.", 
-                  url: "https://teacher.desmos.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=desmos+classroom+activities+tutorial", 
-                  videoLabel: "Desmos Classroom Tour" 
+                  name: "Polypad (Virtual Manipulatives)", 
+                  badge: "100% Free • No Login", 
+                  teaser: "Free virtual manipulatives, from pattern blocks and fraction bars to algebra tiles, where students build and explain math models.",
+                  whatItIs: "A free canvas of virtual manipulatives that spans the whole 3–8 range: pattern blocks, fraction bars, and number lines for grades 3–5, plus algebra tiles and coordinate grids for middle school. It runs in any browser with no student login, and you can share a pre-built canvas with a link.", 
+                  url: "https://polypad.amplify.com", 
+                  videoUrl: "https://www.youtube.com/results?search_query=polypad+virtual+manipulatives+tutorial", 
+                  videoLabel: "Polypad Tour" 
                 },
                 { 
-                  name: "CommonLit & Diffit", 
-                  badge: "5E: Explain / ELA Reading", 
-                  teaser: "Free platform providing high-interest leveled articles with embedded guided reading checks and vocabulary scaffolds.",
-                  whatItIs: "Provides high-interest texts with built-in guided reading questions, audio read-alouds, and leveled comprehension checks.", 
-                  url: "https://www.commonlit.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=commonlit+for+teachers+tutorial", 
-                  videoLabel: "CommonLit Guide" 
+                  name: "Diffit", 
+                  badge: "Free Basic Plan • Teacher-Facing", 
+                  teaser: "Turns any topic, article, PDF, or YouTube video into a leveled reading with vocabulary and questions.",
+                  whatItIs: "Give Diffit a topic, link, YouTube video, pasted text, or PDF and choose a reading level. It returns an adapted passage, a vocabulary list, and comprehension questions you can edit, print, or share. Students never log in. The free Basic plan has limits, and one-click export to Google Docs or Slides is a paid feature.", 
+                  url: "https://web.diffit.me", 
+                  videoUrl: "https://www.youtube.com/results?search_query=diffit+tutorial+for+teachers", 
+                  videoLabel: "Diffit in Action" 
                 },
                 { 
                   name: "PhET Interactive Simulations", 
                   badge: "5E: Explore & Science Labs", 
-                  teaser: "University of Colorado digital sandboxes allowing students to safely test circuits, light waves, and molecules.",
-                  whatItIs: "Safe interactive digital sandboxes. Students balance chemical reactions, test electric circuits, and bend light safely.", 
+                  teaser: "University of Colorado simulations, filterable by grade, where students safely test sinking and floating, area, circuits, and more.",
+                  whatItIs: "Free, research-based simulations from the University of Colorado. Use the Elementary School or Middle School filter on the PhET site to match your grade: Buoyancy: Basics and Area Builder work for upper elementary, while Density and Build an Atom fit middle school.", 
                   url: "https://phet.colorado.edu", 
                   videoUrl: "https://www.youtube.com/results?search_query=phet+simulations+in+the+classroom", 
                   videoLabel: "PhET Inquiry Science" 
                 }
               ],
-              coachTip: "In the 5E Explore phase, give students 10 minutes of free play in Desmos or PhET before giving any direct instructions!"
             },
             h912: {
               tools: [
@@ -1282,13 +1672,13 @@
                   videoLabel: "Desmos STEM Modeling" 
                 },
                 { 
-                  name: "CommonLit 360 / Diffit for Secondary", 
-                  badge: "5E: Explain & Text Synthesis", 
-                  teaser: "Comprehensive curriculum scaffold providing secondary articles paired with evidence-based writing prompts.",
-                  whatItIs: "Scaffold secondary academic and technical articles with tiered vocabulary, paired text sets, and writing prompts.", 
-                  url: "https://www.commonlit.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=diffit+for+teachers+tutorial", 
-                  videoLabel: "Diffit Text Scaffolding" 
+                  name: "Diffit (Secondary & CTE)", 
+                  badge: "Free Basic Plan • Teacher-Facing", 
+                  teaser: "Adapts dense technical, historical, or scientific texts into scaffolded readings with vocabulary and questions.",
+                  whatItIs: "Paste a lab procedure, trade article, primary source, or YouTube link and choose a reading level, all the way up to college. Diffit returns an adapted passage, key vocabulary, and comprehension questions. Students never log in. The free Basic plan has limits, and one-click Google export is a paid feature.", 
+                  url: "https://web.diffit.me", 
+                  videoUrl: "https://www.youtube.com/results?search_query=diffit+high+school+teachers", 
+                  videoLabel: "Diffit for Secondary" 
                 },
                 { 
                   name: "Formative / Quizizz Live Dashboards", 
@@ -1300,7 +1690,6 @@
                   videoLabel: "Instant Data Dashboards" 
                 }
               ],
-              coachTip: "Use Formative's live dashboard at the midway mark of a secondary block period to spot misconceptions instantly."
             }
           },
           pros: [
@@ -1344,7 +1733,6 @@
                   videoLabel: "Door Exit Routines" 
                 }
               ],
-              coachTip: "The Mystery Box works wonders for sparking curiosity! Watch 100% of wiggles stop the moment you pull out the box."
             },
             g38: {
               tools: [
@@ -1363,8 +1751,8 @@
                   teaser: "Visual note-taking protocol combining sketches, arrows, and keywords to cement schemas into memory.",
                   whatItIs: "Students synthesize concepts by drawing physical diagrams, arrows, and visual metaphors in their notebooks instead of typing bullet points.", 
                   url: "https://sylviaduckworth.com/sketchnotes/", 
-                  videoUrl: "https://www.youtube.com/results?search_query=sketchnoting+in+the+classroom+for+beginners", 
-                  videoLabel: "Beginner Sketchnoting" 
+                  videoUrl: "https://www.eduvision.tv/l?mmgeAtDS", 
+                  videoLabel: "Sketchnoting Video (EduVision)" 
                 },
                 { 
                   name: "Physical Index Card Exit Tickets (3-2-1)", 
@@ -1376,7 +1764,6 @@
                   videoLabel: "3-2-1 Strategy Guide" 
                 }
               ],
-              coachTip: "Have students draw a 30-second doodle explaining the day's big concept on their exit card. You will instantly see who gets it!"
             },
             h912: {
               tools: [
@@ -1408,7 +1795,6 @@
                   videoLabel: "Secondary Exit Routines" 
                 }
               ],
-              coachTip: "Require secondary students to sign their name in ink next to their hand-drawn diagram—it reinforces ownership and pride of workmanship!"
             }
           },
           pros: [
@@ -1425,7 +1811,8 @@
         recipeCards: {
           k2: {
             title: "The Marshmallow Cocoa Mug",
-            prepTime: "3 Minutes to Stir",
+            prepTime: "20–25 Minutes to Stir",
+            prepBreakdown: "Focus the microscope on samples (10 min), load the mystery box (5 min), and portion playdough (5–10 min). Building the box the first time adds about 10 minutes.",
             ingredients: "Cardboard Box with Sock Hole + USB Handheld Microscope",
             steps: [
               "1 - Preheat (Digital): Plug in a handheld USB microscope to zoom in 500x on the big screen, revealing hidden crystalline patterns.",
@@ -1435,22 +1822,26 @@
           },
           g38: {
             title: "The Peppermint Cocoa Density Stack",
-            prepTime: "4 Minutes to Layer",
-            ingredients: "Potato in Salt Water (Demo) + Desmos Math / PhET Science",
+            prepTime: "20–25 Minutes to Layer",
+            prepBreakdown: "Test the potato demo once before class (10 min), preview the PhET sim for your grade level (10–15 min), and grab index cards (2 min).",
+            ingredients: "Potato in Salt Water (Demo) + PhET Buoyancy or Density Sim + Index Cards",
             steps: [
-              "1 - Preheat (Digital): Open a PhET simulation or Desmos activity to test variable sliders and discover the underlying mathematical density principle.",
-              "2 - Mix (Tactile): Drop a potato in fresh water (it sinks); drop it in salted water (it floats). Students write 1 'How is that possible?' question on an index card.",
-              "3 - Assemble: Hand back their original index cards to write the scientific solution on the back before leaving."
+              "1 - Preheat (Tactile): Drop a potato in fresh water (it sinks), then in salted water (it floats). Students write one 'How is that possible?' question on an index card.",
+              "2 - Mix (Digital): Students test their ideas in PhET, using Buoyancy: Basics for grades 3–5 or Density for grades 6–8, and change one variable at a time to find the pattern.",
+              "3 - Assemble: Return the index cards. Students write the scientific explanation on the back, using the vocabulary you introduce now.",
+              "4 - Enjoy! (Exit Check): Collect the cards at the door as a 3-2-1 exit ticket to see who can explain density in their own words."
             ]
           },
           h912: {
             title: "The Dark Mocha Diagnostic Blend (Secondary & CTE)",
-            prepTime: "3 Minutes to Brew",
-            ingredients: "Real Physical Artifact or Broken Part + Formative Live Exit Check",
+            prepTime: "45–60 Minutes to Brew",
+            prepBreakdown: "Pull and safety-check the artifact (10 min), build the Desmos model with real data (20–30 min), set up the Formative check (10–15 min), and set out grid paper (5 min). The Desmos model is the big lift, and you can reuse it every year.",
+            ingredients: "Real Physical Artifact or Broken Part + Desmos Modeling + Formative Live Check",
             steps: [
-              "1 - Preheat (Digital): Launch a 3-question Formative live heatmap to instantly verify baseline understanding and safety protocols.",
-              "2 - Mix (Tactile): Place a real fractured mechanical component or historical document on tables. Groups physically inspect to brainstorm causes and sketch diagrams.",
-              "3 - Assemble: Synthesize findings on hand-drawn schematics, signing their initials in ink to verify mastery before lab work."
+              "1 - Preheat (Tactile): Place a real fractured component or historical document on each table. Groups inspect it by hand and brainstorm what happened.",
+              "2 - Mix (Digital): Groups test their theories with real data, modeling loads, temperatures, or timelines in Desmos.",
+              "3 - Assemble (Tactile): Groups synthesize their findings on a hand-drawn schematic and sign their initials in ink.",
+              "4 - Enjoy! (Digital Check): Launch a 3-question Formative live check to verify understanding and safety protocols before lab work."
             ]
           }
         },
@@ -1458,13 +1849,189 @@
       }
     ];
 
+    // --- GIFT PLAN: which tools are gifts (matched by need across columns) and which is the stocking stuffer ---
+    // slot 1 on THIS pairs with slot 1 on THAT (same need); slot 2 pairs with slot 2.
+    const giftPlan = {
+      1: {
+        k2: {
+          this: [
+            { name: "Storyline Online", slot: 1, phases: ["Engage"], need: "Build story comprehension", inClass: "Play a read-aloud on your screen, pause halfway through, and have students predict the ending.", tryIt: "Pick one Storyline Online book and mark the exact minute you'll pause for predictions.", prepTime: "5 min", prepDetail: "Preview the video, check its length, and choose the moment you'll pause for predictions." },
+            { name: "ReadWorks Audio", slot: 2, phases: ["Explore"], need: "Spotlight words & sounds", tryIt: "Find one K–2 ReadWorks passage for your current theme and listen to it with sentence tracking on.", prepTime: "10–15 min", prepDetail: "Find a passage that fits your theme and test the audio on your classroom screen. Add about 10 minutes the first time to create your free account." }
+          ],
+          that: [
+            { name: "The Picture Sequence Jigsaw", slot: 1, phases: ["Explain"], need: "Build story comprehension", tryIt: "Print 4 key pictures from a familiar story and check that the order is clear without any words.", prepTime: "15–20 min", prepDetail: "Print, cut, and bag one picture set per group. Laminating adds 10 minutes once, but the cards last all year." },
+            { name: "Pipe Cleaners & Reading Windows", slot: 2, phases: ["Explore"], need: "Spotlight words & sounds", inClass: "Have students bend pipe cleaners into 'magnifying glasses' to hunt for sight or spelling words.", tryIt: "Bend one pipe cleaner window and test it on a big book page to be sure it frames a single word.", prepTime: "5–10 min", prepDetail: "Bend or cut a class set of frames. After the first time, they're reusable." }
+          ]
+        },
+        g38: {
+          this: [
+            { name: "Gemini Notebook (Teacher Scaffolding)", slot: 1, phases: ["Engage"], need: "Make a dense text approachable", inClass: "Play your teacher-generated Audio Overview as an opening hook while students get settled.", tryIt: "Upload one article you already teach, generate an Audio Overview, and listen to the first 3 minutes. Would it work as tomorrow's bellringer?", prepTime: "10–15 min", prepDetail: "Select your passages, upload the source PDFs, then generate and listen to the Audio Overview before you play it for students." },
+            { name: "Brisk Teaching", slot: 2, phases: ["Explain"], need: "Support close reading", tryIt: "Open an article in Chrome, use Brisk to level it two grades lower, and read both versions side by side. What meaning got lost?", prepTime: "5–10 min", prepDetail: "Level the article, then skim the new version for accuracy before you share or print it. Add 5 minutes the first time to install the extension." },
+            { name: "Edpuzzle", slot: "stuffer", phases: ["Evaluate"], need: "Check understanding", prepTime: "15–20 min", prepDetail: "Find the video, trim it, add 2–4 questions, and assign it to your class." }
+          ],
+          that: [
+            { name: "The Aronson Jigsaw Method", slot: 1, phases: ["Explore", "Explain"], need: "Make a dense text approachable", inClass: "Give each expert group a distinct pen color so participation is visible at a glance.", tryIt: "Split your next article into 4 chunks and jot which students would be the expert on each one.", prepTime: "10 min (+20 from scratch)", prepDetail: "A 10-minute copier run for articles and matrices. Add about 20 minutes to design the matrix and directions if you're building them yourself, or start from a free template.", prepLinks: [{"label": "Free Fillable Jigsaw Template (AdLit / Reading Rockets)", "url": "https://www.adlit.org/in-the-classroom/strategies/jigsaw"}, {"label": "Jigsaw Step-by-Step (Cult of Pedagogy)", "url": "https://www.cultofpedagogy.com/jigsaw-method/"}] },
+            { name: "Color-Coded Highlighting Matrix", slot: 2, phases: ["Explore"], need: "Support close reading", tryIt: "Annotate one page yourself with the 3-color key. If it takes you more than 5 minutes, trim the text before students try it.", prepTime: "10 min", prepDetail: "Copy the article with the 3-color key printed at the top and check that every group has all 3 highlighter colors." },
+            { name: "11x17 Butcher Paper Placemats", slot: "stuffer", phases: ["Elaborate"], need: "Synthesize as a team", prepTime: "10 min", prepDetail: "Cut or fold one sheet per table and write the shared question in the center box." }
+          ]
+        },
+        h912: {
+          this: [
+            { name: "Gemini Notebook (Secondary & CTE)", slot: 1, phases: ["Explore"], need: "Find evidence in complex sources", inClass: "Before an essay or shop work, have students query the source documents for core evidence or safety specs.", tryIt: "Upload one primary source or manual you teach and ask for 3 claims with citations. Check each citation against the page.", prepTime: "15–20 min", prepDetail: "Upload your sources, test the questions students will ask, and spot-check citations. Confirm your district AI policy before the first student use." },
+            { name: "Perusall", slot: 2, phases: ["Explore", "Explain"], need: "Read & discuss as a team", tryIt: "Upload one short article to Perusall and leave two seed comments that model the questions you want students to ask.", prepTime: "20–30 min", prepDetail: "Upload the reading, set the due date, and add 2 seed comments. Creating the course the first time adds about 15 minutes." },
+            { name: "Brisk Teaching (Secondary)", slot: "stuffer", phases: ["Explain"], need: "Level a technical text", prepTime: "5–10 min", prepDetail: "Level the text and check that technical terms and safety language survived the rewrite." }
+          ],
+          that: [
+            { name: "Margin Marginalia & Highlighting", slot: 1, phases: ["Explore"], need: "Find evidence in complex sources", inClass: "Have students initial in ink next to each claim they've verified against the text.", tryIt: "Mark up one page with only 10 highlighted words and three 3-word margin notes. Notice what you had to leave out.", prepTime: "5–10 min", prepDetail: "Copy the source with wide margins and post the 10-word highlighting rule where everyone can see it." },
+            { name: "Secondary Source & Blueprint Jigsaw", slot: 2, phases: ["Explain"], need: "Read & discuss as a team", tryIt: "Divide one DBQ, study, or schematic into 4 parts and write one guiding question for each expert group.", prepTime: "20–30 min", prepDetail: "Divide the source into 4 sections, write one guiding question per expert group, and copy each set.", prepLinks: [{"label": "Free Fillable Jigsaw Template (AdLit / Reading Rockets)", "url": "https://www.adlit.org/in-the-classroom/strategies/jigsaw"}] },
+            { name: "Graphic Synthesis Placemats", slot: "stuffer", phases: ["Elaborate"], need: "Map an argument or system", prepTime: "5–10 min", prepDetail: "Set out oversized paper and markers, and write the argument or system prompt each team must map." }
+          ]
+        }
+      },
+      2: {
+        k2: {
+          this: [
+            { name: "Padlet Audio Wall", slot: 1, phases: ["Engage"], need: "Share ideas out loud", inClass: "Post a single holiday question. Kids tap to speak for 10 seconds, with no passwords or typing.", tryIt: "Make a Padlet with one question and record your own 10-second answer as the model kids hear first.", prepTime: "10 min", prepDetail: "Create the board, turn on post approval, record your model answer, and post the link or QR code where kids can reach it." },
+            { name: "Padlet Sandbox", slot: 2, phases: ["Elaborate"], need: "Create something together", tryIt: "Build a 4-shape sorting board in the Sandbox and test it yourself on a tablet before kids try it.", prepTime: "15 min", prepDetail: "Build the board kids will sort or stamp on and test it on a student tablet." },
+            { name: "Canva Kids Whiteboard", slot: "stuffer", phases: ["Elaborate"], need: "Sort & stamp together", prepTime: "15 min", prepDetail: "Pick or build the whiteboard and share it with your class. Setting up your Canva for Education class the first time adds about 10 minutes." }
+          ],
+          that: [
+            { name: "Knee-to-Knee Turn & Talk", slot: 1, phases: ["Explain"], need: "Share ideas out loud", inClass: "Practice the body pivot until it's automatic, and partner talk becomes second nature.", tryIt: "Write one turn-and-talk prompt for tomorrow and plan the exact words you'll use to cue the pivot.", prepTime: "2 min", prepDetail: "Write tomorrow's prompt. Plan a few extra minutes in the first week to practice the pivot as a routine." },
+            { name: "Butcher Paper Tablecloth Pods", slot: 2, phases: ["Elaborate"], need: "Create something together", tryIt: "Tape one sheet across a desk pod and draw 4 corners plus a center circle for the shared idea.", prepTime: "5–10 min", prepDetail: "Tape a sheet across each desk pod and draw the corners and center circle." },
+            { name: "Double Thumbs-Up Museum Walk", slot: "stuffer", phases: ["Evaluate"], need: "Celebrate peer work", prepTime: "5 min", prepDetail: "Clear a walking path and set out star stickers." }
+          ]
+        },
+        g38: {
+          this: [
+            { name: "Google Slides 'Version History'", slot: 1, phases: ["Evaluate"], need: "See who contributed", inClass: "Show Version History on your projector for 30 seconds on day one and watch accountability rise.", tryIt: "Open any shared Slides deck, go to File > Version history, and practice finding who added one specific slide.", prepTime: "5–10 min", prepDetail: "Make one copy of the starter deck per group and share it with edit access." },
+            { name: "Canva for Education", slot: 2, phases: ["Elaborate"], need: "Give peer feedback", tryIt: "Make a 3-slide Canva template for your next group project and leave one comment that models the feedback you want.", prepTime: "15–20 min", prepDetail: "Choose or build a template and assign it to each group through your Canva class." },
+            { name: "FigJam for Education", slot: "stuffer", phases: ["Engage", "Explore"], need: "Brainstorm fast", prepTime: "15 min", prepDetail: "Set up the board with labeled sections and a timer, then share the link. Check first whether students need accounts." }
+          ],
+          that: [
+            { name: "Affinity Mapping Butcher Paper", slot: 1, phases: ["Explore"], need: "See who contributed", inClass: "Give each group member their own sticky note color. It's an analog version history.", tryIt: "Jot 10 ideas from your next unit on sticky notes and cluster them yourself to see how long it takes.", prepTime: "5 min", prepDetail: "Hang butcher paper and hand each group sticky notes, one color per student." },
+            { name: "The Silent Gallery Walk", slot: 2, phases: ["Evaluate"], need: "Give peer feedback", tryIt: "Write the two sticky-note sentence stems (one Praise, one Ponder) students will use on the walk.", prepTime: "15–20 min", prepDetail: "Hang the posters, set out sticky pads, post the Praise and Ponder stems, and queue up quiet music." },
+            { name: "Vertical Non-Permanent Surfaces (VNPS)", slot: "stuffer", phases: ["Explore"], need: "Think on your feet", prepTime: "5 min", prepDetail: "Choose a problem and set out one marker per group. If you don't have wall whiteboards yet, plan a one-time setup." }
+          ]
+        },
+        h912: {
+          this: [
+            { name: "FigJam Kanban Sprint Boards", slot: 1, phases: ["Elaborate"], need: "Manage a team project", inClass: "Have each group name a project manager who updates the shared board daily.", tryIt: "Build a To Do / Doing / Done board for your next project and add the first 5 task cards.", prepTime: "15–20 min", prepDetail: "Copy a To Do / Doing / Done board for each team and seed the first task cards." },
+            { name: "Google Revision History Audits", slot: 2, phases: ["Evaluate"], need: "Hold every teammate accountable", tryIt: "Open a past group doc, read its revision history, and write 2 coaching questions you'd ask that team.", prepTime: "10 min", prepDetail: "Pick one sample doc to model with and write the audit questions you'll ask teams." },
+            { name: "Canva for Teams & Portfolios", slot: "stuffer", phases: ["Elaborate"], need: "Build a pitch deck", prepTime: "15–20 min", prepDetail: "Set up a team template and share it with each group." }
+          ],
+          that: [
+            { name: "Systems Affinity Mapping", slot: 1, phases: ["Explore"], need: "Manage a team project", tryIt: "Map one complex problem from your course with 3 sticky note colors: causes, effects, and fixes.", prepTime: "5–10 min", prepDetail: "Clear wall or board space, set out 3 sticky note colors, and post the problem." },
+            { name: "Vertical Whiteboard Sprints", slot: 2, phases: ["Explore"], need: "Hold every teammate accountable", inClass: "The marker holder can't write their own ideas. They only write what teammates dictate.", tryIt: "Pick one problem with more than one solution path and solve it yourself standing at a whiteboard.", prepTime: "10 min", prepDetail: "Choose a problem with more than one solution path and set out one marker per team." },
+            { name: "Peer Review Gallery Stations", slot: "stuffer", phases: ["Evaluate"], need: "Critique drafts", prepTime: "15–20 min", prepDetail: "Print rubric cards and arrange drafts or prototypes at stations around the room." }
+          ]
+        }
+      },
+      3: {
+        k2: {
+          this: [
+            { name: "PBS KIDS Games", slot: 1, phases: ["Elaborate"], need: "Practice early literacy", tryIt: "Play one PBS KIDS game tied to this week's phonics skill for 5 minutes and note where a child might get stuck.", prepTime: "5–10 min", prepDetail: "Choose the game and test it on a student device to check sound and loading." },
+            { name: "Toy Theater Learning", slot: 2, phases: ["Explore"], need: "Build number & shape sense", inClass: "Use digital pattern blocks on your board for a 5-minute morning routine before kids touch real blocks.", tryIt: "Open Toy Theater's pattern blocks and build the exact shape you'll ask students to copy with real blocks.", prepTime: "5 min", prepDetail: "Open the manipulative on your board and build the model shape ahead of time." },
+            { name: "ABCya (Browser Edition)", slot: "stuffer", phases: ["Elaborate"], need: "Extra skill practice", prepTime: "5 min", prepDetail: "Choose the game and test it on a student device." }
+          ],
+          that: [
+            { name: "Spot It! (REMC 12E)", slot: 1, phases: ["Engage"], need: "Practice early literacy", inClass: "Play in pairs at literacy centers and have students say the first letter sound of each match.", tryIt: "Pull 10 Spot It! cards and play a round against yourself, saying each match's first letter sound.", prepTime: "5 min", prepDetail: "Pull the card sets for your center. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
+            { name: "Buildzi (REMC 12E)", slot: 2, phases: ["Explore"], need: "Build number & shape sense", tryIt: "Request Buildzi from the REMC 12E portal and pick the 3 easiest build cards for your first round.", prepTime: "10 min", prepDetail: "Learn the rules and sort out the easiest build cards. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
+            { name: "REMC Game Cards", slot: "stuffer", phases: ["Elaborate"], need: "Ready-made game lessons", prepTime: "10–15 min", prepDetail: "Download the card and read its lesson guide and timing." }
+          ]
+        },
+        g38: {
+          this: [
+            { name: "Mission.IO / Gimkit", slot: 1, phases: ["Evaluate"], need: "Review vocabulary", inClass: "Switch to Team Mode or Floor is Lava so students pool their energy toward a shared goal.", tryIt: "Build or import a 10-question vocab set, then play a solo practice round to feel the pace.", prepTime: "10–15 min", prepDetail: "Build or import a question set, choose the game mode, and run a quick test round." },
+            { name: "Quizizz Team Mode", slot: 2, phases: ["Evaluate"], need: "Reason as a team", tryIt: "Turn one existing quiz into Team Mode and decide how you'll group students before you launch.", prepTime: "10 min", prepDetail: "Choose or edit a quiz and plan your teams before launching." },
+            { name: "Blooket", slot: "stuffer", phases: ["Evaluate"], need: "Quick review fun", prepTime: "10 min", prepDetail: "Build or find a question set and choose the game mode." }
+          ],
+          that: [
+            { name: "Codenames (REMC 12E)", slot: 1, phases: ["Elaborate"], need: "Review vocabulary", tryIt: "Swap in 25 vocab words from your current unit and find one clue that connects 2 of them.", prepTime: "15–20 min", prepDetail: "Make custom word cards from your unit vocabulary, or use the standard deck for a 5-minute setup. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
+            { name: "Things in Rings (REMC 12E)", slot: 2, phases: ["Explore"], need: "Reason as a team", inClass: "Host a 15-minute Tabletop Warm-up on Friday mornings with your borrowed REMC crate.", tryIt: "Request it from REMC 12E, then write 3 secret rules that use your own content words.", prepTime: "15 min", prepDetail: "Learn the rules and pick the item cards you'll use. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
+            { name: "REMC Checkout Portal", slot: "stuffer", phases: [], need: "Borrow a game crate", prepTime: "10 min", prepDetail: "Browse and submit your request, then plan around courier delivery." }
+          ]
+        },
+        h912: {
+          this: [
+            { name: "Gimkit (Secondary)", slot: 1, phases: ["Evaluate"], need: "Review key terms", inClass: "Have students build their own question bank as an end-of-unit review that tests their peers.", tryIt: "Write 5 tricky questions from your unit and play them yourself in Classic mode to check the difficulty.", prepTime: "10–15 min", prepDetail: "Build or import your term set, choose the mode, and run a test round." },
+            { name: "PhET Interactive Challenges", slot: 2, phases: ["Explore", "Elaborate"], need: "Reason through systems", tryIt: "Pick one PhET sim for your next unit and write one 'make it happen' challenge, like lighting 2 bulbs with 1 battery.", prepTime: "15–20 min", prepDetail: "Preview the sim, write the challenge, and test it on a student Chromebook." },
+            { name: "Quizizz Mastery Arenas", slot: "stuffer", phases: ["Evaluate"], need: "Diagnose misconceptions", prepTime: "15 min", prepDetail: "Build or adapt the question set and turn on the reports you want to see." }
+          ],
+          that: [
+            { name: "Codenames: Curriculum Edition", slot: 1, phases: ["Elaborate"], need: "Review key terms", tryIt: "Make a 5x5 grid of course terms and find one clue that links 3 of them without hitting the others.", prepTime: "20–30 min", prepDetail: "Make the first set of course-term cards. After that, they're reusable every year. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
+            { name: "Things in Rings (Systems Logic)", slot: 2, phases: ["Explore"], need: "Reason through systems", inClass: "Have students design a custom card pack that tests unit concepts or tool classification.", tryIt: "Write 12 cards of course terms and 2 secret rules, then sort them yourself to test the rules.", prepTime: "20–30 min", prepDetail: "Write your custom cards and secret rules. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
+            { name: "REMC Checkout Portal", slot: "stuffer", phases: [], need: "Borrow a game crate", prepTime: "10 min", prepDetail: "Browse and submit your request, then plan around courier delivery." }
+          ]
+        }
+      },
+      4: {
+        k2: {
+          this: [
+            { name: "Digital Handheld Microscope", slot: 1, phases: ["Explore"], need: "Spark curiosity", inClass: "Zoom in on germinating seeds and project them live to start morning carpet time.", tryIt: "Zoom in on a leaf, a coin, and a sweater sleeve, and pick the one image that will make kids gasp.", prepTime: "10 min", prepDetail: "Connect the microscope and focus on your samples before students arrive." },
+            { name: "PBS KIDS ScratchJr Coding", slot: 2, phases: ["Explain"], need: "Explain their thinking", tryIt: "Make a 3-block ScratchJr animation of one life-cycle stage so students see a finished example.", prepTime: "15–20 min", prepDetail: "Make sure the app is installed on student tablets and build your example. The first-time install may take longer." },
+            { name: "Seesaw Audio Voice Check", slot: "stuffer", phases: ["Evaluate"], need: "Quick voice check", prepTime: "10 min", prepDetail: "Create the activity with your prompt and assign it to the class." }
+          ],
+          that: [
+            { name: "The Mystery Sensory Box", slot: 1, phases: ["Engage"], need: "Spark curiosity", inClass: "Pull out the box when you need attention. The wiggles stop the moment it appears.", tryIt: "Cut a sock hole in a shoebox and choose 3 objects tied to your next science topic.", prepTime: "5 min", prepDetail: "Swap in new objects. Building the box the first time takes about 10 minutes." },
+            { name: "Playdough & Clay Schema Sculpting", slot: 2, phases: ["Explain"], need: "Explain their thinking", tryIt: "Sculpt the model you'll ask for (an insect, a root system) so you know what 'done' looks like.", prepTime: "5–10 min", prepDetail: "Portion out the dough and cover the tables." },
+            { name: "Smiley-Face Magnet Door Check", slot: "stuffer", phases: ["Evaluate"], need: "Quick exit check", prepTime: "0 min", prepDetail: "About 15 minutes once to make the faces and magnets, then it's ready every day." }
+          ]
+        },
+        g38: {
+          this: [
+            { name: "PhET Interactive Simulations", slot: 1, phases: ["Explore"], need: "Explore a phenomenon", inClass: "In the Explore phase, give 10 minutes of free play before any direct instructions.", tryIt: "Filter PhET by your grade level, open one sim for your next unit, and play for 10 minutes with no directions. List the questions you naturally asked.", prepTime: "10–15 min", prepDetail: "Preview the sim and write the one question students should explore." },
+            { name: "Polypad (Virtual Manipulatives)", slot: 2, phases: ["Explore","Explain"], need: "Make thinking visible", tryIt: "Build one model from your next math lesson in Polypad (fraction bars or algebra tiles) and copy the share link so students start from your canvas.", prepTime: "5–10 min", prepDetail: "Build the starter canvas and copy its share link. Students don't need accounts." },
+            { name: "Diffit", slot: "stuffer", phases: ["Explain"], need: "Level any reading", tryIt: "Paste a link to tomorrow's article, generate a 4th-grade and an 8th-grade version, and compare the questions each one asks.", prepTime: "10 min", prepDetail: "Paste the source or link, choose the reading level, and read the output for accuracy before printing. Add about 5 minutes the first time to create your free account." }
+          ],
+          that: [
+            { name: "Discrepant Event Mystery Demos", slot: 1, phases: ["Engage"], need: "Explore a phenomenon", tryIt: "Try the potato in fresh water vs. salt water at home and time how long setup takes.", prepTime: "10 min", prepDetail: "Gather your materials and run the demo once before class so it works the first time." },
+            { name: "Sketchnoting & Hand Schematics", slot: 2, phases: ["Explain"], need: "Make thinking visible", inClass: "Ask for a 30-second doodle that explains the day's big concept. You'll instantly see who gets it.", tryIt: "Sketchnote one paragraph from your next lesson using only 3 drawings, 3 arrows, and 3 words.", prepTime: "5 min", prepDetail: "Pick the content chunk and sketch a quick model for students." },
+            { name: "Physical Index Card Exit Tickets (3-2-1)", slot: "stuffer", phases: ["Evaluate"], need: "Quick exit check", prepTime: "2 min", prepDetail: "Grab a stack of index cards and post the 3-2-1 prompts." }
+          ]
+        },
+        h912: {
+          this: [
+            { name: "Desmos STEM & Physics Modeling", slot: 1, phases: ["Explore", "Elaborate"], need: "Investigate a real problem", tryIt: "Graph one real data set from your field (prices, loads, temperatures) and add a slider students can change.", prepTime: "20–30 min", prepDetail: "Enter real data from your field and build the sliders students will change." },
+            { name: "Formative / Quizizz Live Dashboards", slot: 2, phases: ["Evaluate"], need: "Check readiness for lab or shop", inClass: "Check the live dashboard at the midpoint of a block period to catch misconceptions early.", tryIt: "Build a 3-question safety or concept check in Formative and take it yourself on your phone.", prepTime: "10–15 min", prepDetail: "Build the check and test it on a phone before class." },
+            { name: "Diffit (Secondary & CTE)", slot: "stuffer", phases: ["Explain"], need: "Scaffold technical reading", tryIt: "Paste one lab procedure or primary source, generate a 9th-grade version, and check that every safety step and key term survived.", prepTime: "10–15 min", prepDetail: "Paste the source, choose the level, and check that technical terms and safety steps are still accurate. Add about 5 minutes the first time to create your free account." }
+          ],
+          that: [
+            { name: "Broken Part / Real Artifact Demo", slot: 1, phases: ["Engage"], need: "Investigate a real problem", tryIt: "Pull one failed part or primary artifact and write the 3 'what happened here?' questions you'll ask.", prepTime: "10 min", prepDetail: "Pull the part or artifact, check that it's safe to handle, and write your questions." },
+            { name: "3x5 Index Card Safety & Mastery Ticket", slot: 2, phases: ["Evaluate"], need: "Check readiness for lab or shop", tryIt: "Write the 2 questions every student must answer in their own handwriting before touching equipment.", prepTime: "5 min", prepDetail: "Write the 2 required questions and set out cards at the door." },
+            { name: "Technical Schematic Hand-Sketches", slot: "stuffer", phases: ["Explain"], need: "Draw the system", inClass: "Have students sign their name in ink next to their hand-drawn diagram to build pride of workmanship.", prepTime: "5 min", prepDetail: "Set out grid paper and post the sketch requirements." }
+          ]
+        }
+      }
+    };
+
+    function getGiftTools(mod, side, grade) {
+      const tier = (side === 'this' ? mod.thisTech : mod.thatTech).gradeTiers[grade];
+      const tools = (tier && tier.tools) || [];
+      const plan = (giftPlan[mod.id] && giftPlan[mod.id][grade] && giftPlan[mod.id][grade][side]) || [];
+      const merged = tools.map((tool, i) => {
+        const p = plan.find(x => x.name === tool.name) || {};
+        return { ...tool, ...p, slot: p.slot || (i < 2 ? i + 1 : 'stuffer') };
+      });
+      return {
+        gifts: merged.filter(t => t.slot !== 'stuffer').sort((a, b) => a.slot - b.slot),
+        stuffers: merged.filter(t => t.slot === 'stuffer')
+      };
+    }
+
     function App() {
-      const [currentView, setCurrentView] = useState('1'); 
+      const [currentView, setCurrentView] = useState('welcome'); 
       const [moduleStep, setModuleStep] = useState(0); 
       const [activeGrade, setActiveGrade] = useState('g38'); 
       const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
       
       const [favoriteTools, setFavoriteTools] = useState([]);
+      const [show5E, setShow5E] = useState(true);
+      const [authUser, setAuthUser] = useState(null);
+      const [cloudLoaded, setCloudLoaded] = useState(false);
+      const [syncStatus, setSyncStatus] = useState('idle');
+      const [signInEmail, setSignInEmail] = useState('');
+      const [signInState, setSignInState] = useState('idle');
+      const [signInError, setSignInError] = useState('');
 
       const [tinselVotes, setTinselVotes] = useState({
         1: { thisCount: 28, thatCount: 22, userVote: null },
@@ -1545,12 +2112,131 @@
           if (savedSubs) setSubmissionsList(JSON.parse(savedSubs));
           const savedFavs = localStorage.getItem('remc12e_tth_favorites');
           if (savedFavs) setFavoriteTools(JSON.parse(savedFavs));
+          const saved5E = localStorage.getItem('remc12e_tth_show5e');
+          if (saved5E !== null) setShow5E(saved5E === 'true');
           const savedVotes = localStorage.getItem('remc12e_tth_tinsel_votes');
           if (savedVotes) setTinselVotes(JSON.parse(savedVotes));
         } catch (e) {
           console.log("Local storage initialized");
         }
       }, []);
+
+      // --- SIGN-IN (email link) ---
+      const completeEmailLink = async (email) => {
+        if (!fbAuth) return;
+        setSignInState('sending');
+        try {
+          await fbAuth.signInWithEmailLink(email.trim().toLowerCase(), window.location.href);
+          try { localStorage.removeItem(EMAIL_KEY); } catch (e) {}
+          window.history.replaceState(null, '', window.location.pathname);
+          setSignInState('idle');
+          setSignInError('');
+          triggerToast('🎄 You\'re signed in! Your work now saves to your account.');
+        } catch (err) {
+          setSignInState('error');
+          setSignInError(friendlyAuthError(err));
+        }
+      };
+
+      const sendSignInLink = async () => {
+        const email = signInEmail.trim().toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          setSignInState('error');
+          setSignInError('Please enter a valid email address.');
+          return;
+        }
+        setSignInState('sending');
+        try {
+          await fbAuth.sendSignInLinkToEmail(email, {
+            url: window.location.origin + window.location.pathname,
+            handleCodeInApp: true
+          });
+          try { localStorage.setItem(EMAIL_KEY, email); } catch (e) {}
+          setSignInState('sent');
+          setSignInError('');
+        } catch (err) {
+          setSignInState('error');
+          setSignInError(friendlyAuthError(err));
+        }
+      };
+
+      const handleSignOut = async () => {
+        if (!fbAuth) return;
+        await fbAuth.signOut();
+        // Clear this device so the next person on a shared computer starts fresh
+        setNotes(initialReflections);
+        setFavoriteTools([]);
+        setParticipantInfo({ name: '', email: '', district: '', picNumber: '' });
+        try {
+          ['remc12e_tth_notes', 'remc12e_tth_info', 'remc12e_tth_favorites'].forEach(k => localStorage.removeItem(k));
+        } catch (e) {}
+        setSyncStatus('idle');
+        triggerToast('Signed out. Your work is safe in your account.');
+      };
+
+      // Finish sign-in when a teacher arrives from the emailed link, and watch sign-in state
+      useEffect(() => {
+        if (!fbAuth) return;
+        if (fbAuth.isSignInWithEmailLink(window.location.href)) {
+          let stored = null;
+          try { stored = localStorage.getItem(EMAIL_KEY); } catch (e) {}
+          if (stored) {
+            completeEmailLink(stored);
+          } else {
+            setCurrentView('welcome');
+            setSignInState('needEmail');
+          }
+        }
+        const unsubscribe = fbAuth.onAuthStateChanged(user => {
+          setAuthUser(user);
+          if (!user) setCloudLoaded(false);
+        });
+        return unsubscribe;
+      }, []);
+
+      // Load this teacher's saved work from the cloud (or move existing browser work into the cloud)
+      useEffect(() => {
+        if (!fbDb || !authUser) return;
+        let cancelled = false;
+        const ref = fbDb.collection('users').doc(authUser.uid);
+        ref.get().then(snap => {
+          if (cancelled) return;
+          if (snap.exists) {
+            const d = snap.data() || {};
+            if (d.notes) setNotes({ ...initialReflections, ...d.notes });
+            if (Array.isArray(d.favorites)) setFavoriteTools(d.favorites);
+            if (d.participantInfo) setParticipantInfo(prev => ({ ...prev, ...d.participantInfo }));
+            if (typeof d.show5E === 'boolean') setShow5E(d.show5E);
+            if (d.grade) setActiveGrade(d.grade);
+          }
+          setParticipantInfo(prev => (prev.email ? prev : { ...prev, email: authUser.email || '' }));
+          setCloudLoaded(true);
+        }).catch(err => {
+          console.error(err);
+          setSyncStatus('error');
+        });
+        return () => { cancelled = true; };
+      }, [authUser]);
+
+      // Save to the cloud a moment after anything changes
+      useEffect(() => {
+        if (!fbDb || !authUser || !cloudLoaded) return;
+        setSyncStatus('saving');
+        const t = setTimeout(() => {
+          fbDb.collection('users').doc(authUser.uid).set({
+            email: authUser.email || '',
+            notes,
+            favorites: favoriteTools,
+            participantInfo,
+            show5E,
+            grade: activeGrade,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true })
+            .then(() => setSyncStatus('saved'))
+            .catch(err => { console.error(err); setSyncStatus('error'); });
+        }, 900);
+        return () => clearTimeout(t);
+      }, [notes, favoriteTools, participantInfo, show5E, activeGrade, authUser, cloudLoaded]);
 
       const isReflectionComplete = (modId) => {
         const r = notes[modId];
@@ -1619,6 +2305,14 @@
             localStorage.setItem('remc12e_tth_favorites', JSON.stringify(next));
           } catch(e) {}
           triggerToast(isFav ? `Removed ${toolName} from toolkit` : `⭐ Saved ${toolName} to your toolkit!`);
+          return next;
+        });
+      };
+
+      const toggle5E = () => {
+        setShow5E(prev => {
+          const next = !prev;
+          try { localStorage.setItem('remc12e_tth_show5e', String(next)); } catch(e) {}
           return next;
         });
       };
@@ -1748,6 +2442,51 @@
       const activeTradeOff = currentModule?.tradeOffs?.[activeGrade] || currentModule?.tradeOffs?.g38 || {};
       const activeRecipe = currentModule?.recipeCards?.[activeGrade] || currentModule?.recipeCards?.g38;
 
+      const thisGiftSet = getGiftTools(currentModule, 'this', activeGrade);
+      const thatGiftSet = getGiftTools(currentModule, 'that', activeGrade);
+
+      // Grade band labels used across the Holiday Showdown
+      const gradeShort = activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE';
+      const gradeLong = activeGrade === 'k2' ? 'K–2 Primary' : activeGrade === 'g38' ? '3–8 Intermediate' : '9–12 / Secondary & CTE';
+
+      // Head-to-head rows for the side-by-side Holiday Showdown board
+      const showdownRows = [
+        {
+          key: 'spark',
+          thisLabel: '✨ Magic Sparkle',
+          thatLabel: '🌟 Brightest Light',
+          thisText: activeTradeOff.thisSpark,
+          thatText: activeTradeOff.thatSpark,
+          thisBox: 'bg-rose-50 border-rose-200',
+          thatBox: 'bg-emerald-50 border-emerald-200',
+          thisLabelColor: 'text-red-900',
+          thatLabelColor: 'text-emerald-900'
+        },
+        {
+          key: 'shine',
+          thisLabel: '🎯 When it Shines',
+          thatLabel: '🎯 The Sweet Spot',
+          thisText: activeTradeOff.thisTree,
+          thatText: activeTradeOff.thatTree,
+          thisBox: 'bg-slate-50 border-slate-300',
+          thatBox: 'bg-slate-50 border-slate-300',
+          thisLabelColor: 'text-slate-900',
+          thatLabelColor: 'text-slate-900'
+        },
+        {
+          key: 'storm',
+          thisLabel: '❄️ The Blizzard',
+          thatLabel: '🪵 Coals',
+          thisText: activeTradeOff.thisBlizzard,
+          thatText: activeTradeOff.thatBlizzard,
+          thisBox: 'bg-amber-50 border-amber-300',
+          thatBox: 'bg-amber-50 border-amber-300',
+          thisLabelColor: 'text-amber-900',
+          thatLabelColor: 'text-amber-900'
+        }
+      ];
+
+
       return (
         <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
           
@@ -1786,7 +2525,7 @@
 
                 <div 
                   className="flex items-center space-x-3 cursor-pointer group" 
-                  onClick={() => handleSelectModule('1')}
+                  onClick={() => setCurrentView('welcome')}
                 >
                   <EventLogo className="w-12 h-12 md:w-14 md:h-14 group-hover:scale-105 transition-transform" />
                   <div>
@@ -1818,6 +2557,32 @@
                     ></div>
                   </div>
                 </div>
+
+                {FIREBASE_READY && (
+                  authUser ? (
+                    <div className="flex items-center gap-2 bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-1.5 rounded-xl">
+                      <span className="text-[11px] font-black text-emerald-100 whitespace-nowrap" aria-live="polite">
+                        {syncStatus === 'saving' ? '☁️ Saving…' : syncStatus === 'error' ? '⚠️ Not saved' : '☁️ Saved'}
+                      </span>
+                      <span className="hidden lg:inline text-[11px] text-emerald-200 max-w-[10rem] truncate">{authUser.email}</span>
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="text-[11px] font-black text-amber-300 hover:text-amber-200 underline"
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentView('welcome')}
+                      className="px-3 py-1.5 rounded-xl text-xs font-black bg-amber-400 text-emerald-950 hover:bg-amber-300 border border-amber-300"
+                    >
+                      Sign in
+                    </button>
+                  )
+                )}
 
                 <button
                   onClick={() => setCurrentView('facilitator')}
@@ -1878,6 +2643,26 @@
                       <span className="text-[11px]">✨</span>
                     </div>
                   </div>
+
+                  {/* START HERE */}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('welcome')}
+                    className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all text-left ${
+                      currentView === 'welcome'
+                        ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-emerald-950 shadow-xl ring-2 ring-white font-black'
+                        : 'bg-emerald-900/40 hover:bg-emerald-900/90 text-emerald-100 border border-amber-400/50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <span className="text-xl" aria-hidden="true">🎄</span>
+                      <div>
+                        <div className="text-xs font-black">Start Here</div>
+                        <div className={`text-[10px] font-semibold ${currentView === 'welcome' ? 'text-emerald-900' : 'text-emerald-200'}`}>Welcome & Directions</div>
+                      </div>
+                    </div>
+                    {currentView === 'welcome' && <ChevronRight className="w-4 h-4" />}
+                  </button>
 
                   {/* Course Modules Switcher */}
                   <div>
@@ -1979,8 +2764,279 @@
             {/* WORKSPACE */}
             <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto md:h-[calc(100vh-4.75rem)] bg-slate-100">
               
+              {/* VIEW: WELCOME / START HERE */}
+              {currentView === 'welcome' && (
+                <div className="max-w-4xl mx-auto space-y-6 pb-12">
+
+                  {/* Hero */}
+                  <section className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-amber-400">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                      <EventLogo className="w-24 h-24 md:w-28 md:h-28" />
+                      <div className="text-center sm:text-left">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-amber-300">Start Here • REMC 12E Professional Learning</span>
+                        <h2 className="text-2xl md:text-3xl font-black mt-1">Welcome to Tech the Halls: This or That!</h2>
+                        <p className="text-emerald-50 text-sm md:text-base leading-relaxed mt-2 font-medium">
+                          Each week puts a high-tech tool (<strong className="text-amber-300">THIS</strong>) next to a hands-on, low-tech strategy (<strong className="text-amber-300">THAT</strong>). We're not crowning a winner. The goal is to choose the right tool for the job, and often to blend both.
+                        </p>
+                        <p className="mt-3 inline-block bg-white/10 border border-amber-400/60 rounded-xl px-3 py-2 text-sm font-bold text-amber-200 italic">
+                          “A pencil is technology, too!”
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* SIGN-IN CARD */}
+                  {FIREBASE_READY ? (
+                    <section className={`rounded-3xl p-6 md:p-7 border-2 shadow-sm ${authUser ? 'bg-emerald-50 border-emerald-400' : 'bg-white border-amber-400'}`}>
+                      {authUser ? (
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="w-6 h-6 text-emerald-700 shrink-0" />
+                          <div>
+                            <h3 className="text-lg font-black text-slate-900">You're signed in</h3>
+                            <p className="text-sm text-slate-900 font-medium mt-0.5">
+                              Signed in as <strong>{authUser.email}</strong>. Your reflections, saved tools, and plans save automatically, so you can pick up on any device.
+                            </p>
+                          </div>
+                        </div>
+                      ) : signInState === 'sent' ? (
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl" aria-hidden="true">📬</span>
+                          <div>
+                            <h3 className="text-lg font-black text-slate-900">Check your email</h3>
+                            <p className="text-sm text-slate-900 font-medium mt-0.5">
+                              We sent a sign-in link to <strong>{signInEmail.trim().toLowerCase()}</strong>. Open it on this device to finish signing in. If it hasn't arrived in a few minutes, check your spam or junk folder.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setSignInState('idle')}
+                              className="mt-2 text-xs font-black text-emerald-800 underline"
+                            >
+                              Use a different email
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <h3 className="text-lg font-black text-slate-900">
+                            {signInState === 'needEmail' ? 'Confirm your email to finish signing in' : 'Sign in to save your progress'}
+                          </h3>
+                          <p className="text-sm text-slate-900 font-medium mt-0.5 mb-3">
+                            {signInState === 'needEmail'
+                              ? 'It looks like you opened the link on a different device. Enter the same email you used to request it.'
+                              : "No password needed. Enter your school email and we'll send you a one-click sign-in link. Your work will save to your account and count toward your SCECHs."}
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <label htmlFor="signin-email" className="sr-only">School email</label>
+                            <input
+                              id="signin-email"
+                              type="email"
+                              autoComplete="email"
+                              value={signInEmail}
+                              onChange={(e) => setSignInEmail(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  signInState === 'needEmail' ? completeEmailLink(signInEmail) : sendSignInLink();
+                                }
+                              }}
+                              placeholder="you@yourschool.org"
+                              className="flex-1 p-3 rounded-xl border-2 border-slate-300 text-sm focus:border-emerald-600 focus:outline-none"
+                            />
+                            <button
+                              type="button"
+                              disabled={signInState === 'sending'}
+                              onClick={() => (signInState === 'needEmail' ? completeEmailLink(signInEmail) : sendSignInLink())}
+                              className="px-5 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-black disabled:opacity-60"
+                            >
+                              {signInState === 'sending' ? 'Working…' : signInState === 'needEmail' ? 'Finish signing in' : 'Email me a sign-in link'}
+                            </button>
+                          </div>
+                          {signInState === 'error' && signInError && (
+                            <p className="mt-2 text-sm font-bold text-red-800" role="alert">{signInError}</p>
+                          )}
+                        </div>
+                      )}
+                    </section>
+                  ) : (
+                    <section className="rounded-2xl p-4 border-2 border-dashed border-amber-400 bg-amber-50">
+                      <p className="text-xs font-bold text-amber-950">
+                        Setup note: sign-in isn't connected yet, so work saves in this browser only. Paste your Firebase config into the FIREBASE_CONFIG block in index.html to turn on accounts.
+                      </p>
+                    </section>
+                  )}
+
+                  {/* Step 1: grade band */}
+                  <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-7 h-7 rounded-full bg-red-600 text-white text-sm font-black flex items-center justify-center">1</span>
+                      <h3 className="text-lg font-black text-slate-900">Choose your grade band</h3>
+                    </div>
+                    <p className="text-xs text-slate-800 font-medium mb-4">Tools, prep times, and recipes change to fit your students. You can switch anytime from the bar at the top of each module.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {[
+                        { id: 'k2', label: 'K–2 Primary', icon: Baby },
+                        { id: 'g38', label: '3–8 Intermediate', icon: Backpack },
+                        { id: 'h912', label: '9–12 & CTE', icon: School }
+                      ].map(band => {
+                        const BandIcon = band.icon;
+                        const sel = activeGrade === band.id;
+                        return (
+                          <button
+                            key={band.id}
+                            type="button"
+                            onClick={() => setActiveGrade(band.id)}
+                            aria-pressed={sel}
+                            className={`p-4 rounded-2xl border-2 flex items-center gap-3 text-left transition-colors ${
+                              sel ? 'bg-emerald-800 border-emerald-900 text-white shadow-md' : 'bg-slate-50 border-slate-200 text-slate-900 hover:border-emerald-600'
+                            }`}
+                          >
+                            <BandIcon className="w-5 h-5 shrink-0" />
+                            <span className="text-sm font-black">{band.label}</span>
+                            {sel && <Check className="w-4 h-4 ml-auto stroke-[3]" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  {/* Step 2: how a module works */}
+                  <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-7 h-7 rounded-full bg-red-600 text-white text-sm font-black flex items-center justify-center">2</span>
+                      <h3 className="text-lg font-black text-slate-900">Work through each module in 3 steps</h3>
+                    </div>
+                    <p className="text-xs text-slate-800 font-medium mb-4">Use the step tabs at the top of each module, or the buttons at the bottom of each step.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="rounded-2xl border-2 border-red-200 bg-rose-50 p-4">
+                        <div className="flex items-center gap-2 text-red-900 font-black text-sm mb-1.5"><Gift className="w-4 h-4" /><span>Holiday Showdown</span></div>
+                        <p className="text-xs text-slate-900 leading-relaxed font-medium">Read the Big Question, vote in the Garland Tug-of-War, and compare the trade-offs row by row. Then unwrap a gift or two to explore the tools.</p>
+                      </div>
+                      <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
+                        <div className="flex items-center gap-2 text-amber-900 font-black text-sm mb-1.5"><BookOpen className="w-4 h-4" /><span>Research & Recipes</span></div>
+                        <p className="text-xs text-slate-900 leading-relaxed font-medium">See the research in 60 seconds, then follow a holiday recipe that blends pixels and paper into one ready-to-teach lesson.</p>
+                      </div>
+                      <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4">
+                        <div className="flex items-center gap-2 text-emerald-900 font-black text-sm mb-1.5"><CheckCircle2 className="w-4 h-4" /><span>Your Reflection</span></div>
+                        <p className="text-xs text-slate-900 leading-relaxed font-medium">Your SCECH checkpoint. Pick one THIS and one THAT you'll try, and write a few sentences about why the blend fits your students.</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Step 3: unwrapping gifts */}
+                  <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-7 h-7 rounded-full bg-red-600 text-white text-sm font-black flex items-center justify-center">3</span>
+                      <h3 className="text-lg font-black text-slate-900">Unwrap a gift, then go experiment</h3>
+                    </div>
+                    <p className="text-xs text-slate-800 font-medium mb-4">
+                      Each side of the Showdown has two gifts. Gifts in the same spot solve the same need, so pick the one that fits your classroom. Here's what you'll find inside:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {[
+                        { icon: '🎁', title: 'Gifts', text: 'Two tools per side, each labeled with the need it solves.' },
+                        { icon: '🧦', title: 'Stocking stuffer', text: 'A bonus tool for teachers who want one more option.' },
+                        { icon: '⏱️', title: "Santa's Workshop Prep", text: 'A realistic prep time, including any one-time setup.' },
+                        { icon: '🧪', title: 'Try It in 10 Minutes', text: 'A small experiment to test the tool before students see it.' },
+                        { icon: '🎄', title: 'In Your Classroom', text: 'A practical move for using the tool with students.' },
+                        { icon: '⭐', title: 'Save & Plan', text: 'Save tools to your toolkit, or put one in your plan to pre-fill your reflection.' }
+                      ].map(item => (
+                        <div key={item.title} className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                          <span className="text-xl leading-none" aria-hidden="true">{item.icon}</span>
+                          <div>
+                            <div className="text-xs font-black text-slate-900">{item.title}</div>
+                            <div className="text-xs text-slate-800 font-medium leading-snug">{item.text}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Step 4: 5E ornaments */}
+                  <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-200 shadow-sm">
+                    <div className="flex items-center justify-between gap-3 flex-wrap mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-7 h-7 rounded-full bg-red-600 text-white text-sm font-black flex items-center justify-center">4</span>
+                        <h3 className="text-lg font-black text-slate-900">Notice the ornaments (optional)</h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={toggle5E}
+                        aria-pressed={show5E}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black border-2 flex items-center gap-1.5 ${
+                          show5E ? 'bg-emerald-950 border-emerald-950 text-amber-300' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span aria-hidden="true">🔔</span>
+                        <span>5E Tags: {show5E ? 'On' : 'Off'}</span>
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-800 font-medium leading-relaxed mb-3">
+                      Gifts and recipe steps carry a small ornament showing where they fit in the 5E Instructional Model. Module 4 explores the model in depth. Not a 5E school? Turn the ornaments off here or at the top of any module.
+                    </p>
+                    {show5E && (
+                      <div className="flex flex-wrap gap-2">
+                        {PHASE_ORDER.map(ph => <PhaseOrnament key={ph} phase={ph} />)}
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Step 5: SCECH path */}
+                  <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-7 h-7 rounded-full bg-red-600 text-white text-sm font-black flex items-center justify-center">5</span>
+                      <h3 className="text-lg font-black text-slate-900">Earn your SCECHs</h3>
+                    </div>
+                    <p className="text-xs text-slate-800 font-medium leading-relaxed mb-4">
+                      Complete the reflection in all 4 modules, then submit the capstone: one artifact that shows how you'll blend a THIS and a THAT in your own classroom. Your progress appears in the top bar.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+                      {modulesData.map(mod => (
+                        <button
+                          key={mod.id}
+                          type="button"
+                          onClick={() => handleSelectModule(String(mod.id))}
+                          className="flex items-center gap-3 rounded-xl border-2 border-slate-200 bg-slate-50 hover:border-emerald-600 p-3 text-left"
+                        >
+                          <span className="text-2xl" aria-hidden="true">{mod.theme.bakeryIcon}</span>
+                          <div className="flex-1">
+                            <div className="text-xs font-black text-slate-900">Module {mod.navTitle}</div>
+                            <div className="text-[11px] text-slate-800 font-medium leading-snug">{mod.tagline}</div>
+                          </div>
+                          {isReflectionComplete(mod.id) && <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setCurrentView('capstone')}
+                        className="sm:col-span-2 flex items-center gap-3 rounded-xl border-2 border-amber-400 bg-amber-50 hover:bg-amber-100 p-3 text-left"
+                      >
+                        <Award className="w-6 h-6 text-amber-700 shrink-0" />
+                        <div>
+                          <div className="text-xs font-black text-slate-900">SCECH Capstone</div>
+                          <div className="text-[11px] text-slate-800 font-medium">Turn in your notes and integration artifact.</div>
+                        </div>
+                      </button>
+                    </div>
+                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-300 rounded-xl p-3 text-xs text-amber-950 font-semibold">
+                      <Save className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
+                      <span>{authUser ? 'Your work saves to your account automatically, so you can switch devices anytime. You can still print your notes as a personal copy.' : 'Until you sign in, your work is stored in this browser on this device only. Sign in above to save it to your account and use it on any device.'}</span>
+                    </div>
+                  </section>
+
+                  <div className="flex justify-center pt-2">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectModule('1')}
+                      className="px-7 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 text-white rounded-2xl text-sm font-black shadow-lg flex items-center gap-2 ring-2 ring-amber-300"
+                    >
+                      <span>Start Module 1: Engagement & Text</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* VIEW: MODULES 1 - 4 */}
-              {currentModule && currentView !== 'capstone' && currentView !== 'facilitator' && (
+              {currentModule && currentView !== 'capstone' && currentView !== 'facilitator' && currentView !== 'welcome' && (
                 <div className="max-w-4xl mx-auto space-y-6 pb-12">
                   
                   {/* Module Header */}
@@ -2012,7 +3068,7 @@
                     </p>
 
                     {/* GRADE LEVEL TOGGLE */}
-                    <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border">
+                    <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border">
                       <div className="flex items-center space-x-2 text-slate-700 text-xs font-bold">
                         <GraduationCap className="w-4 h-4 text-emerald-700" />
                         <span>Viewing strategies & tools tailored for:</span>
@@ -2042,6 +3098,19 @@
                           );
                         })}
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={toggle5E}
+                        aria-pressed={show5E}
+                        title="Show or hide the 5E phase ornaments on every gift and recipe step"
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black border-2 flex items-center gap-1.5 transition-colors ${
+                          show5E ? 'bg-emerald-950 border-emerald-950 text-amber-300' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span aria-hidden="true">🔔</span>
+                        <span>5E Tags: {show5E ? 'On' : 'Off'}</span>
+                      </button>
                     </div>
                   </section>
 
@@ -2096,6 +3165,31 @@
                           <span className="text-red-600 uppercase font-black tracking-wider text-[11px]">Unwrap Your Choice Below ↓</span>
                         </div>
                       </div>
+
+                      {/* MODULE 4: THE MODEL BEHIND THE ORNAMENTS */}
+                      {currentModule.id === 4 && (
+                        <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-purple-600 shadow-sm space-y-4">
+                          <div>
+                            <div className="text-[11px] font-black uppercase tracking-widest text-purple-800">The 5E Lens</div>
+                            <h3 className="text-lg font-black text-slate-900">The Model Behind the Ornaments</h3>
+                            <p className="text-xs text-slate-800 font-medium mt-1 leading-relaxed">
+                              Every gift in this course has carried a 5E ornament. This week we zoom out: each phase asks a different job of your tools, and both pixels and paper can do every job.
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                            {PHASE_ORDER.map((ph, i) => (
+                              <div key={ph} className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-3 flex flex-col items-start gap-1.5">
+                                <span className="text-[10px] font-black text-slate-700">{i + 1}</span>
+                                <PhaseOrnament phase={ph} />
+                                <p className="text-[11px] text-slate-900 font-medium leading-snug">{PHASE_INFO[ph].desc}</p>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-[11px] text-slate-800 font-semibold bg-amber-50 border border-amber-300 rounded-xl p-2.5">
+                            Not a 5E school? The pixels-or-paper choices work in any lesson design. Turn the ornaments off anytime with the 5E Tags switch at the top of the page.
+                          </p>
+                        </section>
+                      )}
 
                       {/* EVERGREEN & TINSEL GARLAND TUG-OF-WAR */}
                       <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-emerald-700 shadow-sm space-y-5 relative overflow-hidden">
@@ -2234,17 +3328,17 @@
                         </div>
                       </section>
 
-                      {/* UNWRAPPING THE TRADE-OFFS */}
+                      {/* UNWRAPPING THE TRADE-OFFS: HEAD-TO-HEAD BOARD */}
                       <div className="space-y-4">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div>
                             <h3 className="text-xl font-black text-slate-900 flex items-center space-x-2">
                               <span>Unwrapping the Trade-Offs</span>
                               <span className="text-xs bg-amber-100 text-amber-900 font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300">
-                                {activeGrade === 'k2' ? 'K–2 Primary' : activeGrade === 'g38' ? '3–8 Intermediate' : '9–12 / Secondary & CTE'}
+                                {gradeLong}
                               </span>
                             </h3>
-                            <p className="text-xs text-slate-500">Every instructional tool has its season. Here is the honest breakdown for your classroom.</p>
+                            <p className="text-xs text-slate-700 font-medium">Every instructional tool has its season. Read each row across to compare THIS and THAT, then unwrap a gift to see its real prep time.</p>
                           </div>
 
                           <div className="flex items-center space-x-2">
@@ -2267,235 +3361,99 @@
                           </div>
                         </div>
 
-                        {/* Trade-Off Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          
-                          {/* THIS: PIXELS */}
-                          <div className={`bg-white rounded-3xl border-2 ${activeTheme.thisCardBorder} shadow-md overflow-hidden flex flex-col justify-between`}>
-                            <div>
-                              <div className={`${activeTheme.showdownBg} p-5 text-white flex items-center justify-between`}>
-                                <div>
-                                  <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
-                                    {currentModule.thisTech.badge}
-                                  </span>
-                                  <h4 className="text-lg font-black text-white mt-1">{currentModule.thisTech.title}</h4>
-                                </div>
-                                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center font-bold text-xl">
-                                  🎁
-                                </div>
+                        <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-md overflow-hidden">
+
+                          {/* Column Headers */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2">
+                            <div className={`${activeTheme.showdownBg} p-5 text-white flex items-center justify-between gap-3`}>
+                              <div>
+                                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
+                                  {currentModule.thisTech.badge}
+                                </span>
+                                <h4 className="text-base md:text-lg font-black text-white mt-1 leading-snug">{currentModule.thisTech.title}</h4>
                               </div>
-
-                              <div className="p-5 md:p-6 space-y-4 text-xs">
-                                <div className="bg-rose-50/70 p-3.5 rounded-2xl border border-rose-200">
-                                  <div className="font-black text-red-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>✨ Magic Sparkle</span>
-                                  </div>
-                                  <p className="text-slate-700 leading-relaxed font-medium">
-                                    {activeTradeOff.thisSpark}
-                                  </p>
-                                </div>
-
-                                <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
-                                  <div className="font-black text-slate-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>🎯 When it Shines</span>
-                                  </div>
-                                  <p className="text-slate-600 leading-relaxed">
-                                    {activeTradeOff.thisTree}
-                                  </p>
-                                </div>
-
-                                <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200">
-                                  <div className="font-black text-amber-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>❄️ The Blizzard</span>
-                                  </div>
-                                  <p className="text-slate-700 leading-relaxed">
-                                    {activeTradeOff.thisBlizzard}
-                                  </p>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500 font-bold border-t border-slate-100">
-                                  <span>⏱️ Santa's Workshop Prep:</span>
-                                  <span className="text-slate-800">{activeTradeOff.thisPrep}</span>
-                                </div>
-
-                                <div className="pt-2 border-t border-slate-100 space-y-2.5">
-                                  <span className="text-[10px] font-black uppercase text-slate-400 block tracking-wider">
-                                    Featured Tools ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'}):
-                                  </span>
-                                  {(currentModule.thisTech.gradeTiers[activeGrade]?.tools || []).map((tool, idx) => {
-                                    const isFav = favoriteTools.includes(tool.name);
-                                    return (
-                                      <div key={idx} className="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col justify-between gap-2 hover:border-slate-300 transition-colors">
-                                        <div className="flex items-start justify-between gap-2">
-                                          <div>
-                                            <div className="font-black text-slate-900 text-xs flex items-center space-x-1.5">
-                                              <span>{tool.name}</span>
-                                              {tool.badge.includes('13+') && (
-                                                <span className="inline-flex items-center space-x-0.5 bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded text-[9px] font-black border border-amber-300">
-                                                  <AlertTriangle className="w-2.5 h-2.5 text-amber-700" />
-                                                  <span>13+ Req</span>
-                                                </span>
-                                              )}
-                                            </div>
-                                            <div className="text-[10px] text-emerald-700 font-bold mt-0.5">{tool.badge}</div>
-                                          </div>
-                                          <div className="flex items-center space-x-1.5 shrink-0">
-                                            <button
-                                              type="button"
-                                              onClick={() => toggleFavoriteTool(tool.name)}
-                                              className={`p-1.5 rounded-lg transition-all ${
-                                                isFav ? 'bg-amber-400 text-emerald-950' : 'bg-white hover:bg-amber-100 text-slate-400'
-                                              }`}
-                                              title="Bookmark tool"
-                                            >
-                                              <Star className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
-                                            </button>
-                                            <a 
-                                              href={tool.url}
-                                              target="_blank"
-                                              rel="noreferrer"
-                                              className="p-1.5 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200"
-                                              title="Open tool"
-                                            >
-                                              <ExternalLink className="w-3.5 h-3.5" />
-                                            </a>
-                                            <a 
-                                              href={tool.videoUrl}
-                                              target="_blank"
-                                              rel="noreferrer"
-                                              className="p-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg border border-red-200"
-                                              title="Watch video guide"
-                                            >
-                                              <Play className="w-3.5 h-3.5 fill-current" />
-                                            </a>
-                                          </div>
-                                        </div>
-
-                                        {/* CONCISE TEASER SENTENCE */}
-                                        <p className="text-[11px] text-slate-600 leading-snug font-medium pl-1 border-l-2 border-emerald-400">
-                                          {tool.teaser || tool.whatItIs}
-                                        </p>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
+                              <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center text-xl shrink-0" aria-hidden="true">🎁</div>
                             </div>
-
-                            <div className="p-4 bg-rose-50/50 border-t border-rose-100 text-xs text-rose-950">
-                              <strong>Anna's Pro Tip: </strong>{currentModule.thisTech.gradeTiers[activeGrade]?.coachTip}
+                            <div className={`${activeTheme.thatShowdownBg} p-5 text-white flex items-center justify-between gap-3`}>
+                              <div>
+                                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
+                                  {currentModule.thatTech.badge}
+                                </span>
+                                <h4 className="text-base md:text-lg font-black text-white mt-1 leading-snug">{currentModule.thatTech.title}</h4>
+                              </div>
+                              <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center text-xl shrink-0" aria-hidden="true">
+                                <span className="animate-tree-grow text-lg">🎄</span>
+                              </div>
                             </div>
                           </div>
 
-                          {/* THAT: ANALOG */}
-                          <div className={`bg-white rounded-3xl border-2 ${activeTheme.thatCardBorder} shadow-md overflow-hidden flex flex-col justify-between`}>
-                            <div>
-                              <div className={`${activeTheme.thatShowdownBg} p-5 text-white flex items-center justify-between`}>
-                                <div>
-                                  <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
-                                    {currentModule.thatTech.badge}
-                                  </span>
-                                  <h4 className="text-lg font-black text-white mt-1">{currentModule.thatTech.title}</h4>
+                          <div className="p-4 md:p-5 space-y-3">
+
+                            {/* Head-to-Head Rows */}
+                            {showdownRows.map(row => (
+                              <div key={row.key} className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-2 sm:gap-3 items-stretch">
+                                <div className={`rounded-2xl border-2 p-3.5 ${row.thisBox}`}>
+                                  <div className={`font-black uppercase tracking-wider text-[11px] mb-1 flex items-center gap-1.5 ${row.thisLabelColor}`}>
+                                    <span className="sm:hidden bg-rose-700 text-white px-1.5 py-0.5 rounded text-[9px]">THIS</span>
+                                    <span>{row.thisLabel}</span>
+                                  </div>
+                                  <p className="text-slate-900 text-xs leading-relaxed font-medium">{row.thisText}</p>
                                 </div>
-                                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center font-bold text-xl">
-                                  <span className="animate-tree-grow text-lg">🎄</span>
+                                <div className="hidden sm:flex items-center justify-center" aria-hidden="true">
+                                  <span className="w-8 h-8 rounded-full bg-emerald-950 text-amber-300 text-[10px] font-black flex items-center justify-center ring-2 ring-amber-300">VS</span>
+                                </div>
+                                <div className={`rounded-2xl border-2 p-3.5 ${row.thatBox}`}>
+                                  <div className={`font-black uppercase tracking-wider text-[11px] mb-1 flex items-center gap-1.5 ${row.thatLabelColor}`}>
+                                    <span className="sm:hidden bg-emerald-800 text-white px-1.5 py-0.5 rounded text-[9px]">THAT</span>
+                                    <span>{row.thatLabel}</span>
+                                  </div>
+                                  <p className="text-slate-900 text-xs leading-relaxed font-medium">{row.thatText}</p>
                                 </div>
                               </div>
+                            ))}
 
-                              <div className="p-5 md:p-6 space-y-4 text-xs">
-                                <div className="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200">
-                                  <div className="font-black text-emerald-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>🌟 Brightest Light</span>
-                                  </div>
-                                  <p className="text-slate-700 leading-relaxed font-medium">
-                                    {activeTradeOff.thatSpark}
-                                  </p>
-                                </div>
-
-                                <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
-                                  <div className="font-black text-slate-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>🎯 The Sweet Spot</span>
-                                  </div>
-                                  <p className="text-slate-600 leading-relaxed">
-                                    {activeTradeOff.thatTree}
-                                  </p>
-                                </div>
-
-                                <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200">
-                                  <div className="font-black text-amber-900 uppercase tracking-wider text-[11px] flex items-center space-x-1.5 mb-1">
-                                    <span>🪵 Coals</span>
-                                  </div>
-                                  <p className="text-slate-700 leading-relaxed">
-                                    {activeTradeOff.thatBlizzard}
-                                  </p>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500 font-bold border-t border-slate-100">
-                                  <span>⏱️ Santa's Workshop Prep:</span>
-                                  <span className="text-slate-800">{activeTradeOff.thatPrep}</span>
-                                </div>
-
-                                <div className="pt-2 border-t border-slate-100 space-y-2.5">
-                                  <span className="text-[10px] font-black uppercase text-slate-400 block tracking-wider">
-                                    Featured Strategies ({activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE'}):
-                                  </span>
-                                  {(currentModule.thatTech.gradeTiers[activeGrade]?.tools || []).map((tool, idx) => {
-                                    const isFav = favoriteTools.includes(tool.name);
-                                    return (
-                                      <div key={idx} className="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col justify-between gap-2 hover:border-slate-300 transition-colors">
-                                        <div className="flex items-start justify-between gap-2">
-                                          <div>
-                                            <div className="font-black text-slate-900 text-xs">{tool.name}</div>
-                                            <div className="text-[10px] text-red-700 font-bold mt-0.5">{tool.badge}</div>
-                                          </div>
-                                          <div className="flex items-center space-x-1.5 shrink-0">
-                                            <button
-                                              type="button"
-                                              onClick={() => toggleFavoriteTool(tool.name)}
-                                              className={`p-1.5 rounded-lg transition-all ${
-                                                isFav ? 'bg-amber-400 text-emerald-950' : 'bg-white hover:bg-amber-100 text-slate-400'
-                                              }`}
-                                              title="Bookmark strategy"
-                                            >
-                                              <Star className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
-                                            </button>
-                                            <a 
-                                              href={tool.url}
-                                              target="_blank"
-                                              rel="noreferrer"
-                                              className="p-1.5 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200"
-                                              title="Open resource"
-                                            >
-                                              <ExternalLink className="w-3.5 h-3.5" />
-                                            </a>
-                                            <a 
-                                              href={tool.videoUrl}
-                                              target="_blank"
-                                              rel="noreferrer"
-                                              className="p-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg border border-amber-200"
-                                              title="Watch video guide"
-                                            >
-                                              <Play className="w-3.5 h-3.5 fill-current" />
-                                            </a>
-                                          </div>
-                                        </div>
-
-                                        {/* CONCISE TEASER SENTENCE */}
-                                        <p className="text-[11px] text-slate-600 leading-snug font-medium pl-1 border-l-2 border-red-400">
-                                          {tool.teaser || tool.whatItIs}
-                                        </p>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
+                            {/* GIFT BOX PICKER: matched by need across columns */}
+                            <p className="text-center text-xs font-bold text-slate-900 pt-1">
+                              🎁 Gifts in the same spot solve the same need. Pick pixels, paper, or one of each.
+                            </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="rounded-2xl border-2 border-rose-200 bg-white p-3.5">
+                                <GiftTagTray
+                                  key={`this-${currentModule.id}-${activeGrade}`}
+                                  side="this"
+                                  gifts={thisGiftSet.gifts}
+                                  stuffers={thisGiftSet.stuffers}
+                                  favoriteTools={favoriteTools}
+                                  onToggleFavorite={toggleFavoriteTool}
+                                  gradeLabel={gradeShort}
+                                  show5E={show5E}
+                                  plannedTool={notes[currentModule.id]?.digital}
+                                  onPlan={(name) => {
+                                    updateReflectionField(currentModule.id, 'digital', name);
+                                    triggerToast(`🎁 ${name} added to your Module ${currentModule.id} plan (Step 3)`);
+                                  }}
+                                />
+                              </div>
+                              <div className="rounded-2xl border-2 border-emerald-200 bg-white p-3.5">
+                                <GiftTagTray
+                                  key={`that-${currentModule.id}-${activeGrade}`}
+                                  side="that"
+                                  gifts={thatGiftSet.gifts}
+                                  stuffers={thatGiftSet.stuffers}
+                                  favoriteTools={favoriteTools}
+                                  onToggleFavorite={toggleFavoriteTool}
+                                  gradeLabel={gradeShort}
+                                  show5E={show5E}
+                                  plannedTool={notes[currentModule.id]?.analog}
+                                  onPlan={(name) => {
+                                    updateReflectionField(currentModule.id, 'analog', name);
+                                    triggerToast(`🎁 ${name} added to your Module ${currentModule.id} plan (Step 3)`);
+                                  }}
+                                />
                               </div>
                             </div>
 
-                            <div className="p-4 bg-emerald-50/50 border-t border-emerald-100 text-xs text-emerald-950">
-                              <strong>Anna's Pro Tip: </strong>{currentModule.thatTech.gradeTiers[activeGrade]?.coachTip}
-                            </div>
                           </div>
-
                         </div>
                       </div>
 
@@ -2626,7 +3584,10 @@
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 text-xs bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200">
                           <div>
                             <span className="font-black text-amber-900 uppercase text-[10px] block">⏱️ Prep & Bake Time:</span>
-                            <span className="text-slate-800 font-bold">{activeRecipe?.prepTime || '3 Minutes to Assemble'}</span>
+                            <span className="text-slate-900 font-black text-sm">{activeRecipe?.prepTime || 'Prep time varies'}</span>
+                            {activeRecipe?.prepBreakdown && (
+                              <p className="text-slate-800 font-medium leading-snug mt-1">{activeRecipe.prepBreakdown}</p>
+                            )}
                           </div>
                           <div>
                             <span className="font-black text-amber-900 uppercase text-[10px] block">🥣 Ingredients:</span>
@@ -2643,7 +3604,12 @@
                               <span className="w-6 h-6 rounded-full bg-emerald-800 text-white flex items-center justify-center font-black shrink-0 text-[11px]">
                                 {idx + 1}
                               </span>
-                              <p className="text-slate-700 leading-relaxed font-medium">{step}</p>
+                              <div className="flex-1">
+                                {show5E && recipePhases[currentModule.id]?.[activeGrade]?.[idx] && (
+                                  <div className="mb-1"><PhaseOrnament phase={recipePhases[currentModule.id][activeGrade][idx]} /></div>
+                                )}
+                                <p className="text-slate-800 leading-relaxed font-medium">{step}</p>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -3460,7 +4426,7 @@
                         onChange={(e) => setPrintIncludeTips(e.target.checked)}
                         className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
                       />
-                      <span>Include Anna's Pro Tips & Science Takeaways</span>
+                      <span>Include classroom moves & 10-minute experiments</span>
                     </label>
                   </div>
                 </div>
@@ -3511,8 +4477,10 @@
 
             {(printScope === 'current' ? [currentModule] : modulesData).map((mod) => {
               if (!mod) return null;
-              const allThis = mod.thisTech.gradeTiers[activeGrade]?.tools || [];
-              const allThat = mod.thatTech.gradeTiers[activeGrade]?.tools || [];
+              const thisSet = getGiftTools(mod, 'this', activeGrade);
+              const thatSet = getGiftTools(mod, 'that', activeGrade);
+              const allThis = [...thisSet.gifts, ...thisSet.stuffers];
+              const allThat = [...thatSet.gifts, ...thatSet.stuffers];
 
               const filteredThis = printFilter === 'favorites' 
                 ? allThis.filter(t => favoriteTools.includes(t.name))
@@ -3546,8 +4514,11 @@
                                 <span>{tool.name}</span>
                                 {favoriteTools.includes(tool.name) && <span className="text-[10px] text-amber-600">⭐ Favorited</span>}
                               </div>
-                              <div className="text-[10px] text-slate-500 font-semibold">{tool.badge}</div>
+                              <div className="text-[10px] text-slate-600 font-semibold">{tool.need ? `${tool.need} • ` : ''}{tool.slot === 'stuffer' ? 'Stocking stuffer • ' : ''}{tool.badge}{show5E && (tool.phases || []).length > 0 ? ` • 5E: ${tool.phases.join(' & ')}` : ''}</div>
                               <p className="text-[11px] text-slate-700 mt-1 leading-snug">{tool.teaser || tool.whatItIs}</p>
+                              {tool.prepTime && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>Prep ({tool.prepTime}):</strong> {tool.prepDetail}</p>}
+                              {printIncludeTips && tool.inClass && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>In class:</strong> {tool.inClass}</p>}
+                              {printIncludeTips && tool.tryIt && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>Try it:</strong> {tool.tryIt}</p>}
                             </div>
                           ))
                         )}
@@ -3568,8 +4539,11 @@
                                 <span>{tool.name}</span>
                                 {favoriteTools.includes(tool.name) && <span className="text-[10px] text-amber-600">⭐ Favorited</span>}
                               </div>
-                              <div className="text-[10px] text-slate-500 font-semibold">{tool.badge}</div>
+                              <div className="text-[10px] text-slate-600 font-semibold">{tool.need ? `${tool.need} • ` : ''}{tool.slot === 'stuffer' ? 'Stocking stuffer • ' : ''}{tool.badge}{show5E && (tool.phases || []).length > 0 ? ` • 5E: ${tool.phases.join(' & ')}` : ''}</div>
                               <p className="text-[11px] text-slate-700 mt-1 leading-snug">{tool.teaser || tool.whatItIs}</p>
+                              {tool.prepTime && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>Prep ({tool.prepTime}):</strong> {tool.prepDetail}</p>}
+                              {printIncludeTips && tool.inClass && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>In class:</strong> {tool.inClass}</p>}
+                              {printIncludeTips && tool.tryIt && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>Try it:</strong> {tool.tryIt}</p>}
                             </div>
                           ))
                         )}
@@ -3577,11 +4551,6 @@
                     </div>
                   </div>
 
-                  {printIncludeTips && (
-                    <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-xs mb-3 space-y-1">
-                      <div><strong>Anna's Pro Tip: </strong>{mod.thisTech.gradeTiers[activeGrade]?.coachTip}</div>
-                    </div>
-                  )}
 
                   {printIncludeReflections && r && (
                     <div className="border-t border-dashed border-slate-300 pt-2 text-xs">
