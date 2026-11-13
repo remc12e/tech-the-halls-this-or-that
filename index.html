@@ -334,6 +334,256 @@
       );
     }
 
+    // =====================================================================
+    // COURSE & SCECH SETTINGS (match the state-approved time log)
+    // To test before Dec 7, temporarily set startDate to an earlier date.
+    // =====================================================================
+    const COURSE_CONFIG = {
+      title: 'Tech the Halls: This or That!',
+      instructor: 'Anna Mccrumb',
+      datesLabel: 'Dec 7 – Jan 8',
+      startDate: '2026-12-07',
+      endDate: '2027-01-08',
+      hoursPerItem: 1,
+      maxScech: 5
+    };
+
+    const SCECH_ITEMS = [
+      { key: 'm1', modId: 1, short: 'Module 1', label: 'Module 1 - Engagement & Learning', activity: 'Module 1 reflection' },
+      { key: 'm2', modId: 2, short: 'Module 2', label: 'Module 2 - Collaborative Tech & Group Work', activity: 'Module 2 reflection' },
+      { key: 'm3', modId: 3, short: 'Module 3', label: 'Module 3 - Games: Online or on the Table?', activity: 'Module 3 reflection' },
+      { key: 'm4', modId: 4, short: 'Module 4', label: 'Module 4 - Reflection on Classroom Tech', activity: 'Module 4 reflection' },
+      { key: 'final', modId: null, short: 'Final Reflection', label: 'Final Reflection (Capstone)', activity: 'integration artifact' }
+    ];
+    const EMPTY_LOGS = { m1: [], m2: [], m3: [], m4: [], final: [] };
+
+    const TIME_OPTIONS = (() => {
+      const out = [];
+      for (let m = 5 * 60; m <= 23 * 60 + 30; m += 30) {
+        out.push(`${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+      }
+      return out;
+    })();
+    const toMin = (t) => { const [h, m] = String(t).split(':').map(Number); return h * 60 + m; };
+    const fmtTime = (t) => { let [h, m] = String(t).split(':').map(Number); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${String(m).padStart(2, '0')} ${ap}`; };
+    const fmtDate = (d) => { if (!d) return ''; const [y, mo, da] = d.split('-').map(Number); return new Date(y, mo - 1, da).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
+    const entryHours = (e) => Math.max(0, (toMin(e.end) - toMin(e.start)) / 60);
+    const totalHours = (entries) => (entries || []).reduce((sum, e) => sum + entryHours(e), 0);
+    const fmtHours = (h) => (Number.isInteger(h) ? String(h) : h.toFixed(1));
+    const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+    const courseClosed = () => todayISO() > COURSE_CONFIG.endDate;
+
+    function TimeLogCard({ item, entries, allLogs, onChange, activityDone }) {
+      const [date, setDate] = useState('');
+      const [start, setStart] = useState('');
+      const [end, setEnd] = useState('');
+      const [err, setErr] = useState('');
+      const list = entries || [];
+      const hours = totalHours(list);
+      const pct = Math.min(100, Math.round((hours / COURSE_CONFIG.hoursPerItem) * 100));
+      const today = todayISO();
+      const maxDate = today < COURSE_CONFIG.endDate ? today : COURSE_CONFIG.endDate;
+
+      const add = () => {
+        if (!date) { setErr('Choose the date you worked.'); return; }
+        if (date < COURSE_CONFIG.startDate || date > COURSE_CONFIG.endDate) { setErr(`Please choose a date during the course (${fmtDate(COURSE_CONFIG.startDate)} to ${fmtDate(COURSE_CONFIG.endDate)}).`); return; }
+        if (date > today) { setErr("You can't log time for a future date."); return; }
+        if (!start || !end) { setErr('Choose a start time and an end time.'); return; }
+        if (toMin(end) <= toMin(start)) { setErr('The end time needs to be after the start time.'); return; }
+        for (const it of SCECH_ITEMS) {
+          for (const e of (allLogs[it.key] || [])) {
+            if (e.date === date && toMin(start) < toMin(e.end) && toMin(e.start) < toMin(end)) {
+              setErr(`That time overlaps with time you already logged for ${it.short}.`);
+              return;
+            }
+          }
+        }
+        const next = [...list, { id: Date.now().toString(36), date, start, end }]
+          .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
+        onChange(next);
+        setStart('');
+        setEnd('');
+        setErr('');
+      };
+
+      return (
+        <section className="bg-white rounded-2xl p-5 border-2 border-emerald-700 shadow-sm space-y-4">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <h3 className="text-base font-black text-slate-900">⏱️ {item.short} Time Log</h3>
+              <p className="text-xs text-slate-800 font-medium mt-0.5 max-w-xl">
+                Log the dates and times you spent on this part of the course, including reading, activities, and trying ideas with students. Use half-hour increments. {COURSE_CONFIG.hoursPerItem} hour counts toward your SCECH.
+              </p>
+            </div>
+            <div className="text-right min-w-[8rem]">
+              <div className="text-sm font-black text-slate-900">{fmtHours(hours)} of {COURSE_CONFIG.hoursPerItem} hr</div>
+              <div className="w-32 h-2.5 bg-slate-200 rounded-full overflow-hidden mt-1 ml-auto" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${item.short} hours logged`}>
+                <div className="h-full bg-emerald-700 rounded-full transition-all" style={{ width: `${pct}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          {list.length > 0 && (
+            <ul className="divide-y divide-slate-200 border border-slate-200 rounded-xl">
+              {list.map(e => (
+                <li key={e.id} className="flex items-center justify-between gap-3 px-3 py-2 text-xs text-slate-900">
+                  <span><strong>{fmtDate(e.date)}</strong> • {fmtTime(e.start)}–{fmtTime(e.end)}</span>
+                  <span className="flex items-center gap-3">
+                    <span className="font-black">{fmtHours(entryHours(e))} hr</span>
+                    <button
+                      type="button"
+                      onClick={() => onChange(list.filter(x => x.id !== e.id))}
+                      className="text-red-800 hover:text-red-950 font-black underline"
+                      aria-label={`Remove ${fmtDate(e.date)} entry`}
+                    >
+                      Remove
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+            <div>
+              <label htmlFor={`log-date-${item.key}`} className="block text-[11px] font-black text-slate-900 mb-1">Date</label>
+              <input id={`log-date-${item.key}`} type="date" min={COURSE_CONFIG.startDate} max={maxDate} value={date} onChange={(e) => setDate(e.target.value)}
+                className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs focus:border-emerald-600 focus:outline-none" />
+            </div>
+            <div>
+              <label htmlFor={`log-start-${item.key}`} className="block text-[11px] font-black text-slate-900 mb-1">Start</label>
+              <select id={`log-start-${item.key}`} value={start} onChange={(e) => setStart(e.target.value)}
+                className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs bg-white focus:border-emerald-600 focus:outline-none">
+                <option value="">Start time</option>
+                {TIME_OPTIONS.map(t => <option key={t} value={t}>{fmtTime(t)}</option>)}
+              </select>
+            </div>
+            <div>
+              <label htmlFor={`log-end-${item.key}`} className="block text-[11px] font-black text-slate-900 mb-1">End</label>
+              <select id={`log-end-${item.key}`} value={end} onChange={(e) => setEnd(e.target.value)}
+                className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs bg-white focus:border-emerald-600 focus:outline-none">
+                <option value="">End time</option>
+                {TIME_OPTIONS.map(t => <option key={t} value={t}>{fmtTime(t)}</option>)}
+              </select>
+            </div>
+            <button type="button" onClick={add} className="p-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black">
+              Add time
+            </button>
+          </div>
+          {err && <p className="text-xs font-bold text-red-800" role="alert">{err}</p>}
+
+          <div className={`rounded-xl p-3 text-xs font-bold ${hours >= COURSE_CONFIG.hoursPerItem && activityDone ? 'bg-emerald-50 border border-emerald-400 text-emerald-950' : 'bg-slate-50 border border-slate-300 text-slate-900'}`} role="status">
+            {hours >= COURSE_CONFIG.hoursPerItem && activityDone
+              ? `✅ SCECH earned for ${item.short}!`
+              : hours >= COURSE_CONFIG.hoursPerItem
+                ? `Your hour is logged. Finish your ${item.activity} to earn this SCECH.`
+                : `${fmtHours(COURSE_CONFIG.hoursPerItem - hours)} more hour${COURSE_CONFIG.hoursPerItem - hours === 1 ? '' : 's'} to go${activityDone ? '. Your activity is already done!' : ` (plus your ${item.activity}).`}`}
+          </div>
+          {hours > COURSE_CONFIG.hoursPerItem && (
+            <p className="text-xs font-bold text-amber-950 bg-amber-50 border border-amber-300 rounded-xl p-3">
+              🎉 Great work! You've logged {fmtHours(hours)} hours here. Please note that {COURSE_CONFIG.hoursPerItem} hour per module counts toward SCECHs, with a {COURSE_CONFIG.maxScech} SCECH maximum for this course.
+            </p>
+          )}
+        </section>
+      );
+    }
+
+    // Printable copy of the state time log, one page per teacher (facilitator use)
+    function TimeLogSheets({ subs }) {
+      return (
+        <div>
+          {subs.map((sub, i) => {
+            const logs = sub.timeLog || {};
+            const creditedTotal = SCECH_ITEMS.reduce((sum, it) => sum + (sub.scech && sub.scech[it.key] ? COURSE_CONFIG.hoursPerItem : 0), 0);
+            return (
+              <div key={sub.uid || i} style={{ pageBreakAfter: i < subs.length - 1 ? 'always' : 'auto' }} className="text-slate-900 mb-8">
+                <h1 className="text-xl font-black">{COURSE_CONFIG.title}</h1>
+                <div className="text-xs font-bold">Agenda/Time Log • Instructor: {COURSE_CONFIG.instructor} • {COURSE_CONFIG.datesLabel}</div>
+                <p className="text-[11px] mt-2 leading-snug">
+                  This log sheet documents the dates and hours spent working on course material, including readings, participation in collaborative events, time spent completing course activities, and the application of the course content. Time spent must be equal to or greater than the minimum time for each module to receive the SCECH for that module.
+                </p>
+                <table className="w-full text-xs mt-3 border-collapse">
+                  <tbody>
+                    <tr>
+                      <td className="border border-slate-500 p-1.5"><strong>Name:</strong> {sub.participantName}</td>
+                      <td className="border border-slate-500 p-1.5"><strong>Course Start Date:</strong> {fmtDate(sub.courseStartDate) || '—'}</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-slate-500 p-1.5"><strong>PIC Number:</strong> {sub.picNumber}</td>
+                      <td className="border border-slate-500 p-1.5"><strong>Completion Date:</strong> {fmtDate(sub.completionDate) || '—'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table className="w-full text-[11px] mt-3 border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100">
+                      <th className="border border-slate-500 p-1.5 text-left">Module</th>
+                      <th className="border border-slate-500 p-1.5 text-left">Allowed Time</th>
+                      <th className="border border-slate-500 p-1.5 text-left">Date &amp; Times Worked</th>
+                      <th className="border border-slate-500 p-1.5 text-left">Total Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SCECH_ITEMS.map(it => {
+                      const entries = logs[it.key] || [];
+                      const logged = totalHours(entries);
+                      const credited = sub.scech && sub.scech[it.key] ? COURSE_CONFIG.hoursPerItem : 0;
+                      return (
+                        <tr key={it.key}>
+                          <td className="border border-slate-500 p-1.5 font-bold">{it.label}</td>
+                          <td className="border border-slate-500 p-1.5">{COURSE_CONFIG.hoursPerItem} hr</td>
+                          <td className="border border-slate-500 p-1.5">
+                            {entries.length === 0 ? '—' : entries.map((e, k) => (
+                              <div key={k}>{fmtDate(e.date)}: {fmtTime(e.start)}–{fmtTime(e.end)}</div>
+                            ))}
+                          </td>
+                          <td className="border border-slate-500 p-1.5">
+                            {fmtHours(credited)} hr credited
+                            {logged !== credited && <div className="text-[10px]">({fmtHours(logged)} hr logged)</div>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    <tr className="bg-slate-100 font-black">
+                      <td className="border border-slate-500 p-1.5" colSpan={3}>Totals (1–{COURSE_CONFIG.maxScech} hrs)</td>
+                      <td className="border border-slate-500 p-1.5">{fmtHours(creditedTotal)} hr = {creditedTotal} SCECH{creditedTotal === 1 ? '' : 's'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="text-[11px] mt-3 leading-snug">
+                  By adding my name below and submitting this form electronically through the course site, I certify that all the information documented on this form is accurate.
+                </p>
+                <p className="text-xs mt-1">
+                  <strong>Electronically signed:</strong> {(sub.certification && sub.certification.signedName) || '—'} • {formatWhen(sub.submittedAt, sub.dateString)}
+                </p>
+                <p className="text-[10px] mt-1">Verification code {sub.verificationCode} • Facilitator status: {sub.status === 'Submitted' ? 'Awaiting Review' : sub.status}</p>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // --- SUBMISSION HELPERS ---
+    const formatWhen = (ts, fallback) => {
+      try {
+        if (ts && typeof ts.toDate === 'function') {
+          return ts.toDate().toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        }
+      } catch (e) {}
+      return fallback || 'Just now';
+    };
+
+    function StatusPill({ status }) {
+      const map = {
+        'Submitted': 'bg-amber-100 text-amber-950 border-amber-400',
+        'Needs Revision': 'bg-red-100 text-red-900 border-red-400',
+        'Verified': 'bg-emerald-100 text-emerald-900 border-emerald-500'
+      };
+      const label = status === 'Submitted' ? 'Awaiting Review' : (status || 'Unknown');
+      return <span className={`inline-block px-2.5 py-1 rounded-full border text-[11px] font-black ${map[status] || 'bg-slate-100 text-slate-800 border-slate-300'}`}>{label}</span>;
+    }
+
     // --- 5E PHASE ORNAMENTS ---
     const PHASE_INFO = {
       Engage: { cls: 'bg-yellow-300 text-yellow-950 border-yellow-600', desc: 'Spark curiosity and surface what students already think.' },
@@ -2032,6 +2282,12 @@
       const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
       
       const [favoriteTools, setFavoriteTools] = useState([]);
+      const [timeLogs, setTimeLogs] = useState(EMPTY_LOGS);
+      const [confirmOpen, setConfirmOpen] = useState(false);
+      const [certAgreed, setCertAgreed] = useState(false);
+      const [certName, setCertName] = useState('');
+      const [printMode, setPrintMode] = useState('desk');
+      const [printSubs, setPrintSubs] = useState([]);
       const [show5E, setShow5E] = useState(true);
       const [authUser, setAuthUser] = useState(null);
       const [cloudLoaded, setCloudLoaded] = useState(false);
@@ -2083,17 +2339,18 @@
         lessonHighTech: '',
         lessonLowTech: '',
         lessonIntegrationPlan: '',
-        fileAttachmentName: '',
-        notesForReviewer: ''
+                notesForReviewer: ''
       });
 
       const [isSubmitting, setIsSubmitting] = useState(false);
-      const [submitSuccess, setSubmitSuccess] = useState(false);
-      const [submissionId, setSubmissionId] = useState('');
       const [toastMessage, setToastMessage] = useState('');
       const [submissionsList, setSubmissionsList] = useState([]);
       const [facilitatorFilter, setFacilitatorFilter] = useState('');
       const [selectedSubmission, setSelectedSubmission] = useState(null);
+      const [isFacilitator, setIsFacilitator] = useState(false);
+      const [mySubmission, setMySubmission] = useState(null);
+      const [statusFilter, setStatusFilter] = useState('all');
+      const [reviewNoteDraft, setReviewNoteDraft] = useState('');
 
       const stepTitles = [
         { title: "Holiday Showdown", desc: "This or That?", icon: Gift },
@@ -2121,10 +2378,10 @@
           }
           const savedInfo = localStorage.getItem('remc12e_tth_info');
           if (savedInfo) setParticipantInfo(JSON.parse(savedInfo));
-          const savedSubs = localStorage.getItem('remc12e_tth_submissions');
-          if (savedSubs) setSubmissionsList(JSON.parse(savedSubs));
           const savedFavs = localStorage.getItem('remc12e_tth_favorites');
           if (savedFavs) setFavoriteTools(JSON.parse(savedFavs));
+          const savedLogs = localStorage.getItem('remc12e_tth_timelogs');
+          if (savedLogs) setTimeLogs({ ...EMPTY_LOGS, ...JSON.parse(savedLogs) });
           const saved5E = localStorage.getItem('remc12e_tth_show5e');
           if (saved5E !== null) setShow5E(saved5E === 'true');
           const savedVotes = localStorage.getItem('remc12e_tth_tinsel_votes');
@@ -2263,9 +2520,12 @@
         // Clear this device so the next person on a shared computer starts fresh
         setNotes(initialReflections);
         setFavoriteTools([]);
+        setTimeLogs(EMPTY_LOGS);
+        setCertAgreed(false);
+        setCertName('');
         setParticipantInfo({ name: '', email: '', district: '', picNumber: '' });
         try {
-          ['remc12e_tth_notes', 'remc12e_tth_info', 'remc12e_tth_favorites'].forEach(k => localStorage.removeItem(k));
+          ['remc12e_tth_notes', 'remc12e_tth_info', 'remc12e_tth_favorites', 'remc12e_tth_timelogs'].forEach(k => localStorage.removeItem(k));
         } catch (e) {}
         setSignInEmail('');
         resetAuthForm();
@@ -2320,6 +2580,8 @@
             if (d.participantInfo) setParticipantInfo(prev => ({ ...prev, ...d.participantInfo }));
             if (typeof d.show5E === 'boolean') setShow5E(d.show5E);
             if (d.grade) setActiveGrade(d.grade);
+            if (d.capstoneDraft) setCapstoneData(prev => ({ ...prev, ...d.capstoneDraft }));
+            if (d.timeLogs) setTimeLogs({ ...EMPTY_LOGS, ...d.timeLogs });
           }
           setParticipantInfo(prev => (prev.email ? prev : { ...prev, email: authUser.email || '' }));
           setCloudLoaded(true);
@@ -2342,13 +2604,66 @@
             participantInfo,
             show5E,
             grade: activeGrade,
+            timeLogs,
+            capstoneDraft: {
+              submissionType: capstoneData.submissionType === 'lessonPlan' ? 'lessonPlan' : 'link',
+              artifactUrl: capstoneData.artifactUrl || '',
+              lessonTitle: capstoneData.lessonTitle || '',
+              lessonGrade: capstoneData.lessonGrade || '',
+              lessonHighTech: capstoneData.lessonHighTech || '',
+              lessonLowTech: capstoneData.lessonLowTech || '',
+              lessonIntegrationPlan: capstoneData.lessonIntegrationPlan || ''
+            },
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true })
             .then(() => setSyncStatus('saved'))
             .catch(err => { console.error(err); setSyncStatus('error'); });
         }, 900);
         return () => clearTimeout(t);
-      }, [notes, favoriteTools, participantInfo, show5E, activeGrade, authUser, cloudLoaded]);
+      }, [notes, favoriteTools, participantInfo, show5E, activeGrade, capstoneData, timeLogs, authUser, cloudLoaded]);
+
+      // Return to the desk-reference print layout after printing time logs
+      useEffect(() => {
+        const reset = () => setPrintMode('desk');
+        window.addEventListener('afterprint', reset);
+        return () => window.removeEventListener('afterprint', reset);
+      }, []);
+
+      // Is this person an approved facilitator?
+      useEffect(() => {
+        if (!fbDb || !authUser || !emailVerified || !authUser.email) { setIsFacilitator(false); return; }
+        fbDb.collection('facilitators').doc(authUser.email.toLowerCase()).get()
+          .then(snap => setIsFacilitator(snap.exists))
+          .catch(() => setIsFacilitator(false));
+      }, [authUser, emailVerified]);
+
+      // This teacher's own submission (live, so status changes appear right away)
+      useEffect(() => {
+        if (!fbDb || !authUser || !emailVerified) { setMySubmission(null); return; }
+        const unsub = fbDb.collection('submissions').doc(authUser.uid).onSnapshot(
+          snap => setMySubmission(snap.exists ? snap.data() : null),
+          () => setMySubmission(null)
+        );
+        return unsub;
+      }, [authUser, emailVerified]);
+
+      // All submissions, for facilitators only
+      useEffect(() => {
+        if (!fbDb || !isFacilitator) { setSubmissionsList([]); return; }
+        const unsub = fbDb.collection('submissions').onSnapshot(
+          qs => {
+            const list = qs.docs.map(d => ({ ...d.data(), uid: d.id }));
+            list.sort((a, b) => {
+              const ta = a.submittedAt && a.submittedAt.toMillis ? a.submittedAt.toMillis() : 0;
+              const tb = b.submittedAt && b.submittedAt.toMillis ? b.submittedAt.toMillis() : 0;
+              return tb - ta;
+            });
+            setSubmissionsList(list);
+          },
+          err => console.error(err)
+        );
+        return unsub;
+      }, [isFacilitator]);
 
       const isReflectionComplete = (modId) => {
         const r = notes[modId];
@@ -2453,90 +2768,186 @@
         saveNotesLocally(modId, updatedRef);
       };
 
-      const getProgress = () => {
-        let count = 0;
-        if (isReflectionComplete(1)) count++;
-        if (isReflectionComplete(2)) count++;
-        if (isReflectionComplete(3)) count++;
-        if (isReflectionComplete(4)) count++;
-        if (capstoneData.artifactUrl?.trim() || capstoneData.lessonTitle?.trim() || capstoneData.fileAttachmentName) count++;
-        return { count, total: 5, percentage: Math.round((count / 5) * 100) };
+      const updateTimeLog = (key, entries) => {
+        setTimeLogs(prev => {
+          const next = { ...prev, [key]: entries };
+          try { localStorage.setItem('remc12e_tth_timelogs', JSON.stringify(next)); } catch (e) {}
+          return next;
+        });
       };
 
-      const handleSubmitPortfolio = (e) => {
-        e.preventDefault();
+      const capstoneDone = () => (capstoneData.submissionType === 'lessonPlan'
+        ? Boolean((capstoneData.lessonTitle || '').trim() && (capstoneData.lessonIntegrationPlan || '').trim())
+        : /^https?:\/\/\S+$/i.test((capstoneData.artifactUrl || '').trim()));
 
-        if (!participantInfo.name || !participantInfo.email || !participantInfo.picNumber) {
-          triggerToast("Please provide your Full Name, Email, and Michigan PIC Number.");
+      const scechStatus = SCECH_ITEMS.map(it => {
+        const hours = totalHours(timeLogs[it.key]);
+        const done = it.modId ? isReflectionComplete(it.modId) : capstoneDone();
+        return { ...it, hours, done, earned: done && hours >= COURSE_CONFIG.hoursPerItem };
+      });
+      const scechTotal = Math.min(COURSE_CONFIG.maxScech, scechStatus.filter(x => x.earned).length);
+      const hoursLoggedTotal = scechStatus.reduce((sum, x) => sum + x.hours, 0);
+
+      const getProgress = () => ({
+        count: scechTotal,
+        total: COURSE_CONFIG.maxScech,
+        percentage: Math.round((scechTotal / COURSE_CONFIG.maxScech) * 100)
+      });
+
+      const handleSubmitPortfolio = (e) => {
+        if (e) e.preventDefault();
+        if (!fbDb) {
+          triggerToast('Submissions need sign-in to be set up. Please contact your facilitator.');
           return;
         }
+        if (!authUser || !emailVerified) {
+          triggerToast('Please sign in first so your submission is linked to your account.');
+          setCurrentView('welcome');
+          return;
+        }
+        if (courseClosed()) {
+          triggerToast(`Submissions closed on ${fmtDate(COURSE_CONFIG.endDate)}. Please contact your facilitator.`);
+          return;
+        }
+        if (!participantInfo.name.trim() || !participantInfo.email.trim() || !participantInfo.picNumber.trim()) {
+          triggerToast('Please provide your Full Name, Email, and Michigan PIC Number.');
+          return;
+        }
+        if (scechTotal < 1) {
+          triggerToast('Earn at least one SCECH first: finish one module reflection and log 1 hour of time.');
+          return;
+        }
+        if (!certAgreed || !certName.trim()) {
+          triggerToast('Please check the certification box and type your name to sign your time log.');
+          return;
+        }
+        if (scechStatus.some(x => !x.earned)) {
+          setConfirmOpen(true);
+          return;
+        }
+        doSubmit();
+      };
 
+      const doSubmit = async () => {
+        setConfirmOpen(false);
         setIsSubmitting(true);
-
-        const newId = 'SCECH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        const submissionPayload = {
-          id: newId,
-          participantName: participantInfo.name,
-          participantEmail: participantInfo.email,
-          district: participantInfo.district || 'Branch / Calhoun ISD',
-          picNumber: participantInfo.picNumber,
-          submittedAt: Date.now(),
-          dateString: new Date().toLocaleDateString('en-US', { 
-            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-          }),
+        const allDates = SCECH_ITEMS.flatMap(it => (timeLogs[it.key] || []).map(x => x.date)).sort();
+        const scechMap = {};
+        const hoursMap = {};
+        const timeLogClean = {};
+        scechStatus.forEach(x => { scechMap[x.key] = x.earned; hoursMap[x.key] = x.hours; });
+        SCECH_ITEMS.forEach(it => {
+          timeLogClean[it.key] = (timeLogs[it.key] || []).map(x => ({ date: x.date, start: x.start, end: x.end }));
+        });
+        const code = (mySubmission && mySubmission.verificationCode) || ('SCECH-' + Math.random().toString(36).substring(2, 8).toUpperCase());
+        const payload = {
+          uid: authUser.uid,
+          verificationCode: code,
+          accountEmail: authUser.email || '',
+          participantName: participantInfo.name.trim(),
+          participantEmail: participantInfo.email.trim(),
+          district: participantInfo.district.trim() || 'Branch / Calhoun ISD',
+          picNumber: participantInfo.picNumber.trim(),
+          submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          dateString: new Date().toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
           moduleReflections: {
             module1: formatReflectionSummary(notes[1]),
             module2: formatReflectionSummary(notes[2]),
             module3: formatReflectionSummary(notes[3]),
             module4: formatReflectionSummary(notes[4])
           },
-          capstone: { ...capstoneData },
-          status: 'Submitted for SCECH Verification'
+          capstone: {
+            submissionType: capstoneData.submissionType === 'lessonPlan' ? 'lessonPlan' : 'link',
+            artifactUrl: (capstoneData.artifactUrl || '').trim(),
+            lessonTitle: capstoneData.lessonTitle || '',
+            lessonGrade: capstoneData.lessonGrade || '',
+            lessonHighTech: capstoneData.lessonHighTech || '',
+            lessonLowTech: capstoneData.lessonLowTech || '',
+            lessonIntegrationPlan: capstoneData.lessonIntegrationPlan || ''
+          },
+          timeLog: timeLogClean,
+          hoursLogged: hoursMap,
+          scech: scechMap,
+          scechTotal,
+          courseStartDate: allDates[0] || '',
+          completionDate: allDates[allDates.length - 1] || todayISO(),
+          certification: { signedName: certName.trim(), agreed: true },
+          status: 'Submitted',
+          reviewNote: ''
         };
-
-        const updatedSubs = [submissionPayload, ...submissionsList];
-        setSubmissionsList(updatedSubs);
         try {
-          localStorage.setItem('remc12e_tth_submissions', JSON.stringify(updatedSubs));
-          localStorage.setItem('remc12e_tth_info', JSON.stringify(participantInfo));
-        } catch(err) {}
-
-        setTimeout(() => {
+          await fbDb.collection('submissions').doc(authUser.uid).set(payload);
+          triggerToast(`🎁 Submitted for ${scechTotal} SCECH${scechTotal === 1 ? '' : 's'}! Your facilitator will review it soon.`);
+          const main = document.querySelector('main');
+          if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (err) {
+          console.error(err);
+          triggerToast('Your submission did not send. Check your connection and try again.');
+        } finally {
           setIsSubmitting(false);
-          setSubmissionId(newId);
-          setSubmitSuccess(true);
-          triggerToast("Portfolio transmitted to REMC 12E facilitator!");
-        }, 500);
+        }
+      };
+
+      const printTimeLogs = (subs) => {
+        if (!subs || subs.length === 0) {
+          triggerToast('There are no time logs to print in this view.');
+          return;
+        }
+        setPrintSubs(subs);
+        setPrintMode('timelogs');
+        setTimeout(() => window.print(), 250);
+      };
+
+      const setReviewStatus = async (sub, status) => {
+        if (!fbDb || !isFacilitator) return;
+        if (status === 'Needs Revision' && !reviewNoteDraft.trim()) {
+          triggerToast('Please add a short note so the teacher knows what to revise.');
+          return;
+        }
+        try {
+          await fbDb.collection('submissions').doc(sub.uid).update({
+            status,
+            reviewNote: reviewNoteDraft.trim(),
+            reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            reviewedBy: authUser.email || ''
+          });
+          triggerToast(status === 'Verified' ? `✅ ${sub.participantName} marked Verified` : status === 'Needs Revision' ? `Revision requested from ${sub.participantName}` : 'Moved back to Awaiting Review');
+          setSelectedSubmission(null);
+        } catch (err) {
+          console.error(err);
+          triggerToast('That update did not save. Please try again.');
+        }
       };
 
       const exportToCSV = () => {
         if (submissionsList.length === 0) {
-          triggerToast("No submissions recorded yet to export.");
+          triggerToast('No submissions recorded yet to export.');
           return;
         }
-
-        const headers = ["PIC Number", "Name", "Email", "District", "Submission Date", "Artifact URL / Lesson", "Module 1", "Module 2", "Module 3", "Module 4"];
-        const rows = submissionsList.map(s => [
-          `"${s.picNumber || ''}"`,
-          `"${s.participantName || ''}"`,
-          `"${s.participantEmail || ''}"`,
-          `"${s.district || ''}"`,
-          `"${s.dateString || ''}"`,
-          `"${s.capstone?.artifactUrl || s.capstone?.lessonTitle || ''}"`,
-          `"${(s.moduleReflections?.module1 || '').replace(/"/g, '""')}"`,
-          `"${(s.moduleReflections?.module2 || '').replace(/"/g, '""')}"`,
-          `"${(s.moduleReflections?.module3 || '').replace(/"/g, '""')}"`,
-          `"${(s.moduleReflections?.module4 || '').replace(/"/g, '""')}"`
-        ]);
-
-        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `REMC12E_SCECH_TechTheHalls_${new Date().toISOString().split('T')[0]}.csv`);
+        const q = (v) => `"${String(v === undefined || v === null ? '' : v).replace(/"/g, '""')}"`;
+        const headers = ['Name', 'Email', 'PIC Number', 'District', 'Course Start Date', 'Completion Date'];
+        SCECH_ITEMS.forEach(it => { headers.push(`${it.short} Hours Logged`, `${it.short} Hours Credited`); });
+        headers.push('Total SCECHs', 'Status', 'Signed Name', 'Submitted', 'Verification Code');
+        const rows = submissionsList.map(sub => {
+          const row = [sub.participantName, sub.participantEmail, sub.picNumber, sub.district, fmtDate(sub.courseStartDate), fmtDate(sub.completionDate)];
+          SCECH_ITEMS.forEach(it => {
+            const logged = sub.hoursLogged && typeof sub.hoursLogged[it.key] === 'number' ? sub.hoursLogged[it.key] : totalHours((sub.timeLog || {})[it.key]);
+            row.push(fmtHours(logged), sub.scech && sub.scech[it.key] ? COURSE_CONFIG.hoursPerItem : 0);
+          });
+          row.push(sub.scechTotal || 0, sub.status === 'Submitted' ? 'Awaiting Review' : sub.status,
+            (sub.certification && sub.certification.signedName) || '', formatWhen(sub.submittedAt, sub.dateString), sub.verificationCode);
+          return row.map(q).join(',');
+        });
+        const csv = [headers.map(q).join(','), ...rows].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `REMC12E_TechTheHalls_SCECH_Roster_${todayISO()}.csv`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
       };
 
       const progress = getProgress();
@@ -2660,7 +3071,7 @@
                 <div className="hidden sm:flex bg-emerald-950/80 border border-emerald-700/80 px-3.5 py-1.5 rounded-2xl items-center space-x-3 shadow-inner">
                   <div className="text-right">
                     <div className="text-[10px] uppercase font-black text-amber-300 tracking-wider">SCECH Progress</div>
-                    <div className="text-xs font-black text-white">{progress.count} of 5 Completed</div>
+                    <div className="text-xs font-black text-white">{progress.count} of {progress.total} SCECHs Earned</div>
                   </div>
                   <div className="w-14 bg-emerald-900 rounded-full h-2.5 overflow-hidden ring-1 ring-emerald-500">
                     <div 
@@ -2714,22 +3125,24 @@
                   )
                 )}
 
-                <button
-                  onClick={() => setCurrentView('facilitator')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center space-x-1.5 border ${
-                    currentView === 'facilitator' 
-                      ? 'bg-amber-400 text-emerald-950 border-amber-300 shadow-md' 
-                      : 'bg-emerald-800/80 text-emerald-100 border-emerald-700 hover:bg-emerald-700'
-                  }`}
-                >
-                  <ShieldCheck className="w-4 h-4 text-amber-400" />
-                  <span className="hidden sm:inline">Facilitator</span>
-                  {submissionsList.length > 0 && (
-                    <span className="ml-1 bg-red-600 text-white px-1.5 py-0.2 rounded-full text-[10px] font-bold">
-                      {submissionsList.length}
-                    </span>
-                  )}
-                </button>
+                {isFacilitator && (
+                  <button
+                    onClick={() => setCurrentView('facilitator')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center space-x-1.5 border ${
+                      currentView === 'facilitator'
+                        ? 'bg-amber-400 text-emerald-950 border-amber-300 shadow-md'
+                        : 'bg-emerald-800/80 text-emerald-100 border-emerald-700 hover:bg-emerald-700'
+                    }`}
+                  >
+                    <ShieldCheck className="w-4 h-4 text-amber-400" />
+                    <span className="hidden sm:inline">Facilitator</span>
+                    {submissionsList.filter(x => x.status === 'Submitted').length > 0 && (
+                      <span className="ml-1 bg-red-600 text-white px-1.5 py-0.5 rounded-full text-[10px] font-bold" title="Awaiting review">
+                        {submissionsList.filter(x => x.status === 'Submitted').length}
+                      </span>
+                    )}
+                  </button>
+                )}
               </div>
 
             </div>
@@ -3160,7 +3573,7 @@
                       </div>
                       <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4">
                         <div className="flex items-center gap-2 text-emerald-900 font-black text-sm mb-1.5"><CheckCircle2 className="w-4 h-4" /><span>Your Reflection</span></div>
-                        <p className="text-xs text-slate-900 leading-relaxed font-medium">Your SCECH checkpoint. Pick one THIS and one THAT you'll try, and write a few sentences about why the blend fits your students.</p>
+                        <p className="text-xs text-slate-900 leading-relaxed font-medium">Your SCECH checkpoint. Pick one THIS and one THAT you'll try, write a few sentences about why the blend fits your students, and log your time.</p>
                       </div>
                     </div>
                   </section>
@@ -3230,7 +3643,7 @@
                       <h3 className="text-lg font-black text-slate-900">Earn your SCECHs</h3>
                     </div>
                     <p className="text-xs text-slate-800 font-medium leading-relaxed mb-4">
-                      Complete the reflection in all 4 modules, then submit the capstone: one artifact that shows how you'll blend a THIS and a THAT in your own classroom. Your progress appears in the top bar.
+                      Earn up to 5 SCECHs: 1 for each module and 1 for the Final Reflection. For each one, finish the activity and log at least 1 hour in its time log. Work in any order, submit whenever you're ready, and resubmit to add more before Jan 8, 2027. Your SCECH count appears in the top bar.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
                       {modulesData.map(mod => (
@@ -3997,6 +4410,17 @@
 
                         </div>
 
+                        <div className="mt-5">
+                          <TimeLogCard
+                            key={`log-${currentModule.id}`}
+                            item={SCECH_ITEMS[currentModule.id - 1]}
+                            entries={timeLogs[`m${currentModule.id}`]}
+                            allLogs={timeLogs}
+                            onChange={(entries) => updateTimeLog(`m${currentModule.id}`, entries)}
+                            activityDone={isReflectionComplete(currentModule.id)}
+                          />
+                        </div>
+
                         <div className="flex items-center justify-between flex-wrap gap-3 mt-5">
                           <button
                             type="button"
@@ -4079,38 +4503,60 @@
                     </p>
                   </section>
 
-                  {submitSuccess && (
-                    <section className="bg-emerald-50 border-4 border-emerald-500 rounded-3xl p-6 md:p-8 shadow-xl text-emerald-950">
-                      <div className="flex items-start space-x-4">
-                        <div className="bg-emerald-600 text-white p-3 rounded-2xl shadow-md shrink-0">
-                          <Check className="w-8 h-8 stroke-[3]" />
+                  {FIREBASE_READY && !(authUser && emailVerified) && (
+                    <section className="bg-amber-50 border-2 border-amber-400 rounded-3xl p-5 flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="text-sm font-black text-slate-900">Sign in to submit your portfolio</h3>
+                        <p className="text-xs text-slate-900 font-medium mt-0.5">Your submission is linked to your account so your facilitator can verify it and you can check its status.</p>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentView('welcome')}
+                          className="mt-2 px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black"
+                        >
+                          Go to sign in
+                        </button>
+                      </div>
+                    </section>
+                  )}
+
+                  {mySubmission && (
+                    <section className={`rounded-3xl p-6 md:p-7 shadow-sm border-4 ${
+                      mySubmission.status === 'Verified' ? 'bg-emerald-50 border-emerald-500'
+                        : mySubmission.status === 'Needs Revision' ? 'bg-red-50 border-red-400'
+                        : 'bg-amber-50 border-amber-400'
+                    }`}>
+                      <div className="flex items-start gap-4">
+                        <div className={`p-3 rounded-2xl shrink-0 text-white ${mySubmission.status === 'Verified' ? 'bg-emerald-700' : mySubmission.status === 'Needs Revision' ? 'bg-red-700' : 'bg-amber-600'}`}>
+                          {mySubmission.status === 'Verified' ? <Award className="w-7 h-7" /> : mySubmission.status === 'Needs Revision' ? <AlertTriangle className="w-7 h-7" /> : <Check className="w-7 h-7 stroke-[3]" />}
                         </div>
-                        <div>
-                          <h3 className="text-2xl font-black text-emerald-900">Portfolio Successfully Transmitted!</h3>
-                          <p className="text-sm text-emerald-800 mt-1 leading-relaxed">
-                            Fantastic job, <strong>{participantInfo.name}</strong>! Your compiled reflections and integration artifact are logged in the REMC 12E system for SCECH review.
+                        <div className="flex-1">
+                          <h3 className="text-xl font-black text-slate-900">
+                            {mySubmission.status === 'Verified' ? 'Verified! Your SCECHs are on their way.'
+                              : mySubmission.status === 'Needs Revision' ? 'Your facilitator asked for a revision'
+                              : 'Submitted! Your portfolio is awaiting review.'}
+                          </h3>
+                          <p className="text-sm text-slate-900 font-medium mt-1">
+                            Submitted for <strong>{mySubmission.scechTotal || 0} SCECH{mySubmission.scechTotal === 1 ? '' : 's'}</strong> on {formatWhen(mySubmission.submittedAt, mySubmission.dateString)} • Verification code <strong className="font-mono">{mySubmission.verificationCode}</strong>
                           </p>
-                          <div className="mt-3 bg-white p-3.5 rounded-xl border border-emerald-200 text-xs font-mono text-slate-700">
-                            <strong>Verification Code:</strong> {submissionId}
-                          </div>
-                          <div className="mt-4 flex flex-wrap gap-3">
-                            <button
-                              onClick={() => {
-                                setPrintScope('all-modules');
-                                setIsPrintModalOpen(true);
-                              }}
-                              className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shadow"
-                            >
-                              <Printer className="w-4 h-4" />
-                              <span>Print / Save Complete Portfolio PDF</span>
-                            </button>
-                            <button
-                              onClick={() => setSubmitSuccess(false)}
-                              className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-all"
-                            >
-                              Edit Responses
-                            </button>
-                          </div>
+                          {mySubmission.reviewNote && (
+                            <p className="mt-2 bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-900">
+                              <strong>Note from your facilitator:</strong> {mySubmission.reviewNote}
+                            </p>
+                          )}
+                          <p className="text-xs text-slate-800 font-medium mt-2">
+                            {mySubmission.status === 'Verified'
+                              ? `Your facilitator has verified your work. Earned more SCECHs? Resubmit before ${fmtDate(COURSE_CONFIG.endDate)} to add them.`
+                              : `Earned more SCECHs since you submitted? Update your work below and resubmit before ${fmtDate(COURSE_CONFIG.endDate)}.`}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => { setPrintScope('all-modules'); setIsPrintModalOpen(true); }}
+                            className="mt-3 px-4 py-2 bg-white border-2 border-emerald-800 text-emerald-900 hover:bg-emerald-50 rounded-xl text-xs font-black inline-flex items-center gap-1.5"
+                          >
+                            <Printer className="w-4 h-4" />
+                            <span>Print a personal copy</span>
+                          </button>
                         </div>
                       </div>
                     </section>
@@ -4177,13 +4623,69 @@
                       </div>
                     </div>
 
+                    {/* SCECH Summary */}
+                    <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-emerald-700">
+                      <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
+                        <div>
+                          <h3 className="text-lg font-black text-slate-900 flex items-center">
+                            <Award className="w-5 h-5 mr-2 text-emerald-700" />
+                            2. Your SCECH Summary
+                          </h3>
+                          <p className="text-xs text-slate-800 font-medium mt-0.5 max-w-xl">
+                            Earn 1 SCECH for each module and for the Final Reflection: finish the activity and log at least 1 hour. Work in any order, and submit whenever you're ready.
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-3xl font-black text-emerald-800">{scechTotal}</div>
+                          <div className="text-[11px] font-black text-slate-900">of {COURSE_CONFIG.maxScech} SCECHs earned</div>
+                        </div>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs text-left">
+                          <thead className="text-[10px] uppercase tracking-wider text-slate-700 border-b border-slate-200">
+                            <tr>
+                              <th className="py-2 pr-3">Part</th>
+                              <th className="py-2 pr-3">Activity</th>
+                              <th className="py-2 pr-3">Time Logged</th>
+                              <th className="py-2">SCECH</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 text-slate-900">
+                            {scechStatus.map(it => (
+                              <tr key={it.key}>
+                                <td className="py-2.5 pr-3 font-bold">
+                                  {it.modId ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => { handleSelectModule(String(it.modId)); setModuleStep(2); }}
+                                      className="underline text-emerald-900 hover:text-emerald-700 text-left"
+                                    >
+                                      {it.label}
+                                    </button>
+                                  ) : it.label}
+                                </td>
+                                <td className="py-2.5 pr-3">{it.done ? '✓ Done' : 'Not yet'}</td>
+                                <td className="py-2.5 pr-3">{fmtHours(it.hours)} of {COURSE_CONFIG.hoursPerItem} hr</td>
+                                <td className="py-2.5 font-black">{it.earned ? <span className="text-emerald-800">✅ Earned</span> : <span className="text-slate-700">Not yet</span>}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      {scechStatus.some(x => x.hours > COURSE_CONFIG.hoursPerItem) && (
+                        <p className="mt-4 text-xs font-bold text-amber-950 bg-amber-50 border border-amber-300 rounded-xl p-3">
+                          🎉 Great work! You've logged {fmtHours(hoursLoggedTotal)} hours in all. Please note that {COURSE_CONFIG.hoursPerItem} hour per module counts toward SCECHs, with a {COURSE_CONFIG.maxScech} SCECH maximum for this course.
+                        </p>
+                      )}
+                    </div>
+
                     {/* Compiled Notes */}
                     <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200">
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <h3 className="text-lg font-black text-slate-900 flex items-center">
                             <FileText className="w-5 h-5 mr-2 text-emerald-600" />
-                            2. Compiled 3-Part Micro-Reflections
+                            3. Compiled 3-Part Micro-Reflections
                           </h3>
                           <p className="text-xs text-slate-500">Your structured selections and rationales from each module are assembled here.</p>
                         </div>
@@ -4248,21 +4750,20 @@
                       <div className="mb-4">
                         <h3 className="text-lg font-black text-slate-900 flex items-center">
                           <Sparkles className="w-5 h-5 mr-2 text-amber-500" />
-                          3. Final Integration Artifact
+                          4. Final Reflection: Integration Artifact
                         </h3>
                         <p className="text-xs text-slate-500 mt-0.5">
                           Choose how you would like to showcase your synthesis of high-tech and low-tech strategies.
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                         {[
-                          { id: 'link', label: 'Video / Drive URL', icon: Video, sub: 'Loom, YouTube, Drive' },
-                          { id: 'lessonPlan', label: 'Lesson Plan Template', icon: FileText, sub: 'Built-in Form' },
-                          { id: 'file', label: 'File Attachment', icon: UploadCloud, sub: 'PDF, Doc, Image' }
+                          { id: 'link', label: 'Share a Link', icon: Video, sub: 'Video, Google Drive, OneDrive, Canva' },
+                          { id: 'lessonPlan', label: 'Lesson Plan Template', icon: FileText, sub: 'Fill in the built-in form' }
                         ].map(tab => {
                           const Icon = tab.icon;
-                          const isSelected = capstoneData.submissionType === tab.id;
+                          const isSelected = (capstoneData.submissionType === 'lessonPlan' ? 'lessonPlan' : 'link') === tab.id;
                           return (
                             <button
                               type="button"
@@ -4282,10 +4783,14 @@
                         })}
                       </div>
 
-                      {capstoneData.submissionType === 'link' && (
+                      {capstoneData.submissionType !== 'lessonPlan' && (
                         <div className="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                          <label className="block text-xs font-bold text-slate-700">Video or Shared Document Link (Google Drive, Loom, YouTube)</label>
+                          <label htmlFor="artifact-url" className="block text-xs font-bold text-slate-900">Link to your artifact (video, document, slides, or Canva design)</label>
+                          <p className="text-xs text-slate-800 font-medium">
+                            Have a PDF or Word file? Upload it to Google Drive or OneDrive, set sharing to <strong>Anyone with the link can view</strong>, and paste the link here.
+                          </p>
                           <input
+                            id="artifact-url"
                             type="url"
                             value={capstoneData.artifactUrl}
                             onChange={(e) => setCapstoneData({ ...capstoneData, artifactUrl: e.target.value })}
@@ -4358,32 +4863,43 @@
                           </div>
                         </div>
                       )}
+                    </div>
 
-                      {capstoneData.submissionType === 'file' && (
-                        <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-300 text-center">
-                          <UploadCloud className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
-                          <div className="text-xs font-bold text-slate-800 mb-1">Attach Your Lesson Plan Document</div>
-                          <p className="text-[11px] text-slate-500 mb-4">Supported: PDF, DOCX, PNG, JPG (Max 5MB)</p>
-                          <input 
-                            type="file" 
-                            id="fileInput" 
-                            className="hidden" 
-                            onChange={(e) => {
-                              const f = e.target.files[0];
-                              if (f) setCapstoneData(prev => ({ ...prev, fileAttachmentName: f.name }));
-                            }}
-                          />
-                          <label 
-                            htmlFor="fileInput"
-                            className="cursor-pointer inline-flex items-center px-4 py-2 bg-emerald-800 text-white rounded-xl text-xs font-bold"
-                          >
-                            Browse Files
-                          </label>
-                          {capstoneData.fileAttachmentName && (
-                            <div className="mt-3 text-xs text-emerald-800 font-bold">Attached: {capstoneData.fileAttachmentName}</div>
-                          )}
-                        </div>
-                      )}
+                    {/* Final Reflection time log */}
+                    <div>
+                      <h3 className="text-lg font-black text-slate-900 mb-3 px-1">5. Final Reflection Time Log</h3>
+                      <TimeLogCard
+                        item={SCECH_ITEMS[4]}
+                        entries={timeLogs.final}
+                        allLogs={timeLogs}
+                        onChange={(entries) => updateTimeLog('final', entries)}
+                        activityDone={capstoneDone()}
+                      />
+                    </div>
+
+                    {/* Certification */}
+                    <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200 space-y-3">
+                      <h3 className="text-lg font-black text-slate-900">6. Certify Your Time Log</h3>
+                      <label className="flex items-start gap-3 text-sm text-slate-900 font-medium cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={certAgreed}
+                          onChange={(e) => setCertAgreed(e.target.checked)}
+                          className="mt-1 w-4 h-4 shrink-0"
+                        />
+                        <span>By adding my name below and submitting this form electronically through the course site, I certify that all the information documented on this form is accurate.</span>
+                      </label>
+                      <div>
+                        <label htmlFor="cert-name" className="block text-xs font-black text-slate-900 mb-1">Type your full name to sign</label>
+                        <input
+                          id="cert-name"
+                          type="text"
+                          value={certName}
+                          onChange={(e) => setCertName(e.target.value)}
+                          placeholder={participantInfo.name || 'Your full name'}
+                          className="w-full max-w-sm p-3 rounded-xl border-2 border-slate-300 text-sm focus:border-emerald-600 focus:outline-none"
+                        />
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between p-6 bg-emerald-950 text-white rounded-3xl shadow-xl flex-wrap gap-4 border-2 border-amber-400">
@@ -4393,34 +4909,90 @@
                           <span>Ready to Complete Your SCECHs?</span>
                         </h4>
                         <p className="text-xs text-emerald-200">
-                          Submit your portfolio for review and entry into the MOECS state system.
+                          {courseClosed()
+                            ? `Submissions closed on ${fmtDate(COURSE_CONFIG.endDate)}.`
+                            : `You've earned ${scechTotal} of ${COURSE_CONFIG.maxScech} SCECHs. You can resubmit to add more before ${fmtDate(COURSE_CONFIG.endDate)}.`}
                         </p>
                       </div>
 
                       <button
                         type="submit"
-                        disabled={isSubmitting}
-                        className="px-6 py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 text-white rounded-2xl font-black text-sm transition-all shadow-xl flex items-center space-x-2 ring-2 ring-amber-300"
+                        disabled={isSubmitting || courseClosed()}
+                        className="disabled:opacity-60 px-6 py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 text-white rounded-2xl font-black text-sm transition-all shadow-xl flex items-center space-x-2 ring-2 ring-amber-300"
                       >
                         {isSubmitting ? (
                           <>
                             <Clock className="w-4 h-4 animate-spin" />
-                            <span>Transmitting...</span>
+                            <span>Sending…</span>
                           </>
                         ) : (
                           <>
                             <Award className="w-4 h-4 text-amber-300" />
-                            <span>Submit Portfolio for SCECH Credit</span>
+                            <span>{courseClosed() ? 'Course closed' : `${mySubmission ? 'Resubmit' : 'Submit'} for ${scechTotal} SCECH${scechTotal === 1 ? '' : 's'}`}</span>
                           </>
                         )}
                       </button>
                     </div>
                   </form>
+
+                  {confirmOpen && (
+                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+                      <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl space-y-4">
+                        <h3 id="confirm-title" className="text-xl font-black text-slate-900">A few things aren't finished yet</h3>
+                        <p className="text-sm text-slate-900 font-medium">
+                          You can submit now for <strong>{scechTotal} SCECH{scechTotal === 1 ? '' : 's'}</strong> and come back to add more before {fmtDate(COURSE_CONFIG.endDate)}. Here's what's still open:
+                        </p>
+                        <ul className="space-y-2">
+                          {scechStatus.filter(x => !x.earned).map(x => (
+                            <li key={x.key} className="text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                              <strong>{x.short}:</strong>{' '}
+                              {[
+                                !x.done && (x.modId ? 'reflection not finished' : 'integration artifact not added'),
+                                x.hours < COURSE_CONFIG.hoursPerItem && `${fmtHours(x.hours)} of ${COURSE_CONFIG.hoursPerItem} hour logged`
+                              ].filter(Boolean).join(' • ')}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="flex flex-wrap gap-2 justify-end pt-2">
+                          <button
+                            type="button"
+                            onClick={() => setConfirmOpen(false)}
+                            className="px-4 py-2.5 rounded-xl bg-white border-2 border-emerald-800 text-emerald-900 hover:bg-emerald-50 text-sm font-black"
+                          >
+                            Go back and finish
+                          </button>
+                          <button
+                            type="button"
+                            onClick={doSubmit}
+                            className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-black"
+                          >
+                            Submit Anyway ({scechTotal} SCECH{scechTotal === 1 ? '' : 's'})
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* VIEW: FACILITATOR DASHBOARD */}
               {currentView === 'facilitator' && (
+                !isFacilitator ? (
+                  <div className="max-w-xl mx-auto bg-white rounded-3xl p-8 text-center border-2 border-slate-200 shadow-sm">
+                    <ShieldCheck className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                    <h2 className="text-xl font-black text-slate-900">Facilitator access only</h2>
+                    <p className="text-sm text-slate-800 font-medium mt-2">
+                      This dashboard is available to approved REMC 12E facilitators. If you're a facilitator, sign in with the email address on the approved list.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentView('welcome')}
+                      className="mt-5 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-black"
+                    >
+                      Go to Start Here
+                    </button>
+                  </div>
+                ) : (
                 <div className="max-w-5xl mx-auto space-y-6 pb-12">
                   <section className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200 flex items-center justify-between flex-wrap gap-4">
                     <div>
@@ -4429,93 +5001,112 @@
                         <span>Facilitator Dashboard</span>
                       </div>
                       <h2 className="text-2xl font-black text-slate-900">REMC 12E SCECH Submissions</h2>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Live compiled portfolio submissions from educators across Branch and Calhoun ISDs.
+                      <p className="text-xs text-slate-800 font-medium mt-0.5">
+                        Live capstone submissions from educators across Branch and Calhoun ISDs. New submissions appear automatically.
                       </p>
                     </div>
 
-                    <button
-                      onClick={exportToCSV}
-                      className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-black shadow flex items-center space-x-1.5"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Export to CSV for MOECS</span>
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={exportToCSV}
+                        className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-black shadow flex items-center space-x-1.5"
+                      >
+                        <Download className="w-4 h-4" />
+                        <span>SCECH Roster (CSV)</span>
+                      </button>
+                      <button
+                        onClick={() => printTimeLogs(submissionsList.filter(sub => statusFilter === 'all' || sub.status === statusFilter))}
+                        className="px-4 py-2.5 bg-white border-2 border-emerald-800 text-emerald-900 hover:bg-emerald-50 rounded-xl text-xs font-black flex items-center space-x-1.5"
+                      >
+                        <Printer className="w-4 h-4" />
+                        <span>Print Time Logs</span>
+                      </button>
+                    </div>
                   </section>
 
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                      <input
-                        type="text"
-                        value={facilitatorFilter}
-                        onChange={(e) => setFacilitatorFilter(e.target.value)}
-                        placeholder="Search by teacher name, district, or PIC..."
-                        className="w-full pl-9 pr-3 py-2 bg-white rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                    </div>
-                    <div className="text-xs font-bold text-slate-600 bg-white px-3.5 py-2 rounded-xl border border-slate-200">
-                      Total Submissions: <span className="text-emerald-700 font-black">{submissionsList.length}</span>
-                    </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { label: 'All', value: 'all', count: submissionsList.length, cls: 'border-slate-300' },
+                      { label: 'Awaiting Review', value: 'Submitted', count: submissionsList.filter(x => x.status === 'Submitted').length, cls: 'border-amber-400' },
+                      { label: 'Needs Revision', value: 'Needs Revision', count: submissionsList.filter(x => x.status === 'Needs Revision').length, cls: 'border-red-400' },
+                      { label: 'Verified', value: 'Verified', count: submissionsList.filter(x => x.status === 'Verified').length, cls: 'border-emerald-500' }
+                    ].map(card => (
+                      <button
+                        key={card.value}
+                        type="button"
+                        onClick={() => setStatusFilter(card.value)}
+                        aria-pressed={statusFilter === card.value}
+                        className={`bg-white rounded-2xl p-3.5 border-2 text-left ${card.cls} ${statusFilter === card.value ? 'ring-2 ring-emerald-700' : ''}`}
+                      >
+                        <div className="text-2xl font-black text-slate-900">{card.count}</div>
+                        <div className="text-xs font-black text-slate-800">{card.label}</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="relative max-w-sm">
+                    <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+                    <input
+                      type="text"
+                      value={facilitatorFilter}
+                      onChange={(e) => setFacilitatorFilter(e.target.value)}
+                      placeholder="Search by name, district, email, or PIC..."
+                      aria-label="Search submissions"
+                      className="w-full pl-9 pr-3 py-2 bg-white rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    />
                   </div>
 
                   {submissionsList.length === 0 ? (
                     <div className="bg-white rounded-3xl p-12 text-center border-2 border-slate-200">
                       <TreePine className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                      <h3 className="text-base font-bold text-slate-700">No Submissions Recorded Yet</h3>
-                      <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
-                        As teachers complete their reflections and capstone, submissions will populate here with instant CSV export for MOECS.
+                      <h3 className="text-base font-bold text-slate-800">No submissions yet</h3>
+                      <p className="text-xs text-slate-700 max-w-md mx-auto mt-1">
+                        When teachers submit their capstone, it appears here right away, ready to review and export for MOECS.
                       </p>
                     </div>
                   ) : (
                     <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
-                          <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-black uppercase tracking-wider text-[10px]">
+                          <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-black uppercase tracking-wider text-[10px]">
                             <tr>
                               <th className="p-4">Educator & District</th>
                               <th className="p-4">Michigan PIC</th>
-                              <th className="p-4">Submitted At</th>
-                              <th className="p-4">Artifact Summary</th>
+                              <th className="p-4">Submitted</th>
+                              <th className="p-4">SCECHs</th>
+                              <th className="p-4">Status</th>
                               <th className="p-4 text-right">Actions</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100 text-slate-700">
+                          <tbody className="divide-y divide-slate-100 text-slate-800">
                             {submissionsList
-                              .filter(s => {
+                              .filter(sub => statusFilter === 'all' || sub.status === statusFilter)
+                              .filter(sub => {
                                 const term = facilitatorFilter.toLowerCase();
                                 return (
-                                  (s.participantName || '').toLowerCase().includes(term) ||
-                                  (s.district || '').toLowerCase().includes(term) ||
-                                  (s.picNumber || '').toLowerCase().includes(term)
+                                  (sub.participantName || '').toLowerCase().includes(term) ||
+                                  (sub.district || '').toLowerCase().includes(term) ||
+                                  (sub.participantEmail || '').toLowerCase().includes(term) ||
+                                  (sub.picNumber || '').toLowerCase().includes(term)
                                 );
                               })
                               .map((sub) => (
-                                <tr key={sub.id} className="hover:bg-slate-50/80">
+                                <tr key={sub.uid} className="hover:bg-slate-50/80">
                                   <td className="p-4">
                                     <div className="font-bold text-slate-900">{sub.participantName}</div>
-                                    <div className="text-[11px] text-slate-500">{sub.participantEmail}</div>
-                                    <div className="text-[10px] text-emerald-700 font-medium">{sub.district}</div>
+                                    <div className="text-[11px] text-slate-700">{sub.participantEmail}</div>
+                                    <div className="text-[10px] text-emerald-800 font-semibold">{sub.district}</div>
                                   </td>
-                                  <td className="p-4 font-mono font-bold text-slate-700">{sub.picNumber}</td>
-                                  <td className="p-4 text-slate-500 text-[11px]">{sub.dateString || 'Recently'}</td>
-                                  <td className="p-4">
-                                    {sub.capstone?.artifactUrl ? (
-                                      <a href={sub.capstone.artifactUrl} target="_blank" rel="noreferrer" className="text-emerald-700 underline font-semibold">
-                                        View Link/Video
-                                      </a>
-                                    ) : sub.capstone?.lessonTitle ? (
-                                      <div className="font-semibold text-slate-800">{sub.capstone.lessonTitle}</div>
-                                    ) : (
-                                      <span className="text-slate-400">Attached File</span>
-                                    )}
-                                  </td>
+                                  <td className="p-4 font-mono font-bold text-slate-800">{sub.picNumber}</td>
+                                  <td className="p-4 text-slate-700 text-[11px]">{formatWhen(sub.submittedAt, sub.dateString)}</td>
+                                  <td className="p-4 font-black text-slate-900">{typeof sub.scechTotal === 'number' ? sub.scechTotal : '—'}</td>
+                                  <td className="p-4"><StatusPill status={sub.status} /></td>
                                   <td className="p-4 text-right">
                                     <button
-                                      onClick={() => setSelectedSubmission(sub)}
-                                      className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg font-bold text-[11px] border border-emerald-200"
+                                      onClick={() => { setSelectedSubmission(sub); setReviewNoteDraft(sub.reviewNote || ''); }}
+                                      className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 rounded-lg font-bold text-[11px] border border-emerald-300"
                                     >
-                                      Review Work
+                                      Review
                                     </button>
                                   </td>
                                 </tr>
@@ -4526,47 +5117,141 @@
                     </div>
                   )}
 
-                  {selectedSubmission && (
-                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl space-y-6">
-                        <div className="flex items-start justify-between border-b pb-4">
-                          <div>
-                            <span className="text-[10px] uppercase font-black text-emerald-700 tracking-wider">SCECH Audit Detail</span>
-                            <h3 className="text-xl font-black text-slate-900">{selectedSubmission.participantName}</h3>
-                            <p className="text-xs text-slate-500">
-                              {selectedSubmission.district} • PIC: <span className="font-mono font-bold text-slate-800">{selectedSubmission.picNumber}</span>
+                  {selectedSubmission && (() => {
+                    const live = submissionsList.find(x => x.uid === selectedSubmission.uid) || selectedSubmission;
+                    const cap = live.capstone || {};
+                    return (
+                      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+                        <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl space-y-6">
+                          <div className="flex items-start justify-between border-b pb-4 gap-3">
+                            <div>
+                              <span className="text-[10px] uppercase font-black text-emerald-800 tracking-wider">SCECH Review</span>
+                              <h3 className="text-xl font-black text-slate-900">{live.participantName}</h3>
+                              <p className="text-xs text-slate-700">
+                                {live.participantEmail} • {live.district} • PIC: <span className="font-mono font-bold text-slate-900">{live.picNumber}</span>
+                              </p>
+                              <p className="text-[11px] text-slate-700 mt-1">
+                                Submitted {formatWhen(live.submittedAt, live.dateString)} • Code {live.verificationCode}
+                              </p>
+                              <div className="mt-2"><StatusPill status={live.status} /></div>
+                            </div>
+                            <button onClick={() => setSelectedSubmission(null)} className="p-1.5 rounded-full hover:bg-slate-100" aria-label="Close review">
+                              <X className="w-5 h-5 text-slate-500" />
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">Time Log • {live.scechTotal || 0} SCECH{live.scechTotal === 1 ? '' : 's'}</h4>
+                              <button
+                                type="button"
+                                onClick={() => printTimeLogs([live])}
+                                className="px-3 py-1.5 rounded-lg bg-white border-2 border-emerald-800 text-emerald-900 hover:bg-emerald-50 text-[11px] font-black inline-flex items-center gap-1"
+                              >
+                                <Printer className="w-3.5 h-3.5" />
+                                <span>Print Time Log</span>
+                              </button>
+                            </div>
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-[11px] text-left border border-slate-200">
+                                <tbody className="divide-y divide-slate-200 text-slate-900">
+                                  {SCECH_ITEMS.map(it => {
+                                    const entries = (live.timeLog || {})[it.key] || [];
+                                    return (
+                                      <tr key={it.key}>
+                                        <td className="p-2 font-bold w-1/3">{it.label}</td>
+                                        <td className="p-2">
+                                          {entries.length === 0 ? '—' : entries.map((x, k) => (
+                                            <div key={k}>{fmtDate(x.date)}: {fmtTime(x.start)}–{fmtTime(x.end)}</div>
+                                          ))}
+                                        </td>
+                                        <td className="p-2 whitespace-nowrap">{fmtHours(totalHours(entries))} hr</td>
+                                        <td className="p-2 font-black whitespace-nowrap">{live.scech && live.scech[it.key] ? '✅ SCECH' : '—'}</td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                            <p className="text-[11px] text-slate-800">
+                              Signed: <strong>{(live.certification && live.certification.signedName) || '—'}</strong> • Course dates logged: {fmtDate(live.courseStartDate) || '—'} to {fmtDate(live.completionDate) || '—'}
                             </p>
                           </div>
-                          <button onClick={() => setSelectedSubmission(null)} className="p-1.5 rounded-full hover:bg-slate-100">
-                            <X className="w-5 h-5 text-slate-400" />
-                          </button>
-                        </div>
 
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">Weekly Module Micro-Reflections</h4>
-                          {[1, 2, 3, 4].map(idx => (
-                            <div key={idx} className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                              <div className="font-bold text-xs text-slate-800 mb-1">Module {idx}:</div>
-                              <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed font-sans">
-                                {selectedSubmission.moduleReflections?.[`module${idx}`] || 'No response recorded.'}
-                              </p>
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">Module Reflections</h4>
+                            {[1, 2, 3, 4].map(idx => (
+                              <div key={idx} className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                                <div className="font-bold text-xs text-slate-900 mb-1">Module {idx}:</div>
+                                <p className="text-xs text-slate-800 whitespace-pre-wrap leading-relaxed">
+                                  {live.moduleReflections?.[`module${idx}`] || 'No response recorded.'}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="space-y-2">
+                            <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">Capstone Artifact</h4>
+                            {cap.submissionType === 'lessonPlan' ? (
+                              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs text-slate-900 space-y-1.5">
+                                <div><strong>Lesson:</strong> {cap.lessonTitle || '—'} ({cap.lessonGrade})</div>
+                                <div><strong>THIS (high-tech):</strong> {cap.lessonHighTech || '—'}</div>
+                                <div><strong>THAT (low-tech):</strong> {cap.lessonLowTech || '—'}</div>
+                                <div><strong>The intentional blend:</strong> <span className="whitespace-pre-wrap">{cap.lessonIntegrationPlan || '—'}</span></div>
+                              </div>
+                            ) : cap.artifactUrl ? (
+                              <a href={cap.artifactUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm font-black text-emerald-800 underline break-all">
+                                <ExternalLink className="w-4 h-4 shrink-0" />
+                                <span>{cap.artifactUrl}</span>
+                              </a>
+                            ) : (
+                              <p className="text-xs text-slate-700">No artifact recorded.</p>
+                            )}
+                          </div>
+
+                          <div className="space-y-2 border-t pt-4">
+                            <label htmlFor="review-note" className="text-xs font-black uppercase tracking-wider text-slate-700 block">Note to the teacher (shown on their capstone page)</label>
+                            <textarea
+                              id="review-note"
+                              rows={2}
+                              value={reviewNoteDraft}
+                              onChange={(e) => setReviewNoteDraft(e.target.value)}
+                              placeholder="Optional for Verified. Required for Needs Revision, e.g., 'Please add your Module 3 rationale.'"
+                              className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                            ></textarea>
+                            <div className="flex flex-wrap gap-2 justify-end">
+                              <button
+                                type="button"
+                                onClick={() => setReviewStatus(live, 'Needs Revision')}
+                                className="px-4 py-2 rounded-xl bg-white border-2 border-red-600 text-red-800 hover:bg-red-50 text-xs font-black"
+                              >
+                                Needs Revision
+                              </button>
+                              {live.status !== 'Submitted' && (
+                                <button
+                                  type="button"
+                                  onClick={() => setReviewStatus(live, 'Submitted')}
+                                  className="px-4 py-2 rounded-xl bg-white border-2 border-slate-400 text-slate-800 hover:bg-slate-50 text-xs font-black"
+                                >
+                                  Move Back to Awaiting Review
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setReviewStatus(live, 'Verified')}
+                                className="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black"
+                              >
+                                Mark Verified
+                              </button>
                             </div>
-                          ))}
-                        </div>
-
-                        <div className="flex justify-end pt-2 border-t">
-                          <button
-                            onClick={() => setSelectedSubmission(null)}
-                            className="px-5 py-2 bg-emerald-800 text-white rounded-xl text-xs font-bold shadow"
-                          >
-                            Close Review
-                          </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                 </div>
+                )
               )}
 
             </main>
@@ -4687,6 +5372,7 @@
                     type="button"
                     onClick={() => {
                       setIsPrintModalOpen(false);
+                      setPrintMode('desk');
                       setTimeout(() => window.print(), 150);
                     }}
                     className="px-5 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-black shadow flex items-center space-x-1.5"
@@ -4701,6 +5387,7 @@
 
           {/* PRINT TEMPLATE */}
           <div id="print-area" className="hidden">
+            {printMode === 'timelogs' ? <TimeLogSheets subs={printSubs} /> : (<>
             <div className="border-b-2 border-slate-900 pb-4 mb-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -4813,6 +5500,7 @@
             <div className="text-center text-[10px] text-slate-400 border-t pt-3 mt-6">
               REMC 12E Lending Portal: https://remc12echeckout.myturn.com/library/?defaultPage=true • Generated via Tech the Halls: This or That!
             </div>
+            </>)}
           </div>
 
         </div>
