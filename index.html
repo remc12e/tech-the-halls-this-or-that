@@ -6,7 +6,7 @@
   <title>Tech the Halls: This or That! - REMC 12E</title>
   
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,6 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   
   <style>
+    html { font-size: 106.25%; }
     body { font-family: 'Inter', sans-serif; }
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -133,8 +134,16 @@
       outline-offset: 2px;
     }
 
+    .reduce-motion .animate-twinkle, .reduce-motion .animate-twinkle-alt, .reduce-motion .animate-tree-grow,
+    .reduce-motion .animate-garland-shimmer, .reduce-motion .animate-pulse, .reduce-motion .tag-unwrap,
+    .reduce-motion .animate-in {
+      animation: none !important;
+    }
+    .reduce-motion .gift, .reduce-motion .gift-lid, .reduce-motion .gift-sparkle, .reduce-motion .transition-all {
+      transition: none !important;
+    }
     @media (prefers-reduced-motion: reduce) {
-      .animate-twinkle, .animate-twinkle-alt, .animate-tree-grow, .animate-garland-shimmer, .tag-unwrap {
+      .animate-twinkle, .animate-twinkle-alt, .animate-tree-grow, .animate-garland-shimmer, .tag-unwrap, .animate-pulse {
         animation: none !important;
       }
       .gift, .gift-lid, .gift-sparkle { transition: none !important; }
@@ -153,21 +162,21 @@
   </style>
 
   <!-- Standalone React & Babel Setup -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 
   <!-- Firebase (sign-in + cloud saving) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-red-200">
   <div id="root">
     <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
       <div class="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
       <h2 class="text-xl font-black text-slate-800">Loading Tech the Halls...</h2>
-      <p class="text-xs text-slate-500 mt-1">Preparing interactive modules & REMC 12E resources</p>
+      <p class="text-xs text-slate-700 mt-1">Preparing interactive modules & REMC 12E resources</p>
     </div>
   </div>
 
@@ -317,7 +326,7 @@
 
       if (hasError) {
         return (
-          <span className="text-[10px] uppercase tracking-widest font-black text-amber-300 bg-emerald-950 px-2 py-0.5 rounded border border-amber-400/50 inline-flex items-center space-x-1">
+          <span className="text-[0.75rem] uppercase tracking-widest font-black text-amber-300 bg-emerald-950 px-2 py-0.5 rounded border border-amber-400/50 inline-flex items-center space-x-1">
             <span className="text-white font-black">REMC 12E</span>
             <span className="text-sky-300">• Branch | Calhoun</span>
           </span>
@@ -346,6 +355,15 @@
       endDate: '2027-01-08',
       hoursPerItem: 1,
       maxScech: 5
+    };
+
+    // =====================================================================
+    // PRIVACY NOTE SETTINGS (shown on Start Here). Confirm these with your district.
+    // =====================================================================
+    const PRIVACY_CONFIG = {
+      contactName: 'Anna Mccrumb, REMC 12E',
+      contactEmail: '', // add an email address to show it in the privacy note
+      retention: 'Course records are kept as long as needed for SCECH reporting and REMC 12E record-keeping, then deleted.'
     };
 
     const SCECH_ITEMS = [
@@ -446,12 +464,12 @@
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
             <div>
-              <label htmlFor={`log-date-${item.key}`} className="block text-[11px] font-black text-slate-900 mb-1">Date</label>
+              <label htmlFor={`log-date-${item.key}`} className="block text-[0.8125rem] font-black text-slate-900 mb-1">Date</label>
               <input id={`log-date-${item.key}`} type="date" min={COURSE_CONFIG.startDate} max={maxDate} value={date} onChange={(e) => setDate(e.target.value)}
                 className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs focus:border-emerald-600 focus:outline-none" />
             </div>
             <div>
-              <label htmlFor={`log-start-${item.key}`} className="block text-[11px] font-black text-slate-900 mb-1">Start</label>
+              <label htmlFor={`log-start-${item.key}`} className="block text-[0.8125rem] font-black text-slate-900 mb-1">Start</label>
               <select id={`log-start-${item.key}`} value={start} onChange={(e) => setStart(e.target.value)}
                 className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs bg-white focus:border-emerald-600 focus:outline-none">
                 <option value="">Start time</option>
@@ -459,7 +477,7 @@
               </select>
             </div>
             <div>
-              <label htmlFor={`log-end-${item.key}`} className="block text-[11px] font-black text-slate-900 mb-1">End</label>
+              <label htmlFor={`log-end-${item.key}`} className="block text-[0.8125rem] font-black text-slate-900 mb-1">End</label>
               <select id={`log-end-${item.key}`} value={end} onChange={(e) => setEnd(e.target.value)}
                 className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs bg-white focus:border-emerald-600 focus:outline-none">
                 <option value="">End time</option>
@@ -499,7 +517,7 @@
               <div key={sub.uid || i} style={{ pageBreakAfter: i < subs.length - 1 ? 'always' : 'auto' }} className="text-slate-900 mb-8">
                 <h1 className="text-xl font-black">{COURSE_CONFIG.title}</h1>
                 <div className="text-xs font-bold">Agenda/Time Log • Instructor: {COURSE_CONFIG.instructor} • {COURSE_CONFIG.datesLabel}</div>
-                <p className="text-[11px] mt-2 leading-snug">
+                <p className="text-[0.8125rem] mt-2 leading-snug">
                   This log sheet documents the dates and hours spent working on course material, including readings, participation in collaborative events, time spent completing course activities, and the application of the course content. Time spent must be equal to or greater than the minimum time for each module to receive the SCECH for that module.
                 </p>
                 <table className="w-full text-xs mt-3 border-collapse">
@@ -514,7 +532,7 @@
                     </tr>
                   </tbody>
                 </table>
-                <table className="w-full text-[11px] mt-3 border-collapse">
+                <table className="w-full text-[0.8125rem] mt-3 border-collapse">
                   <thead>
                     <tr className="bg-slate-100">
                       <th className="border border-slate-500 p-1.5 text-left">Module</th>
@@ -539,7 +557,7 @@
                           </td>
                           <td className="border border-slate-500 p-1.5">
                             {fmtHours(credited)} hr credited
-                            {logged !== credited && <div className="text-[10px]">({fmtHours(logged)} hr logged)</div>}
+                            {logged !== credited && <div className="text-[0.75rem]">({fmtHours(logged)} hr logged)</div>}
                           </td>
                         </tr>
                       );
@@ -550,13 +568,13 @@
                     </tr>
                   </tbody>
                 </table>
-                <p className="text-[11px] mt-3 leading-snug">
+                <p className="text-[0.8125rem] mt-3 leading-snug">
                   By adding my name below and submitting this form electronically through the course site, I certify that all the information documented on this form is accurate.
                 </p>
                 <p className="text-xs mt-1">
                   <strong>Electronically signed:</strong> {(sub.certification && sub.certification.signedName) || '—'} • {formatWhen(sub.submittedAt, sub.dateString)}
                 </p>
-                <p className="text-[10px] mt-1">Verification code {sub.verificationCode} • Facilitator status: {sub.status === 'Submitted' ? 'Awaiting Review' : sub.status}</p>
+                <p className="text-[0.75rem] mt-1">Verification code {sub.verificationCode} • Facilitator status: {sub.status === 'Submitted' ? 'Awaiting Review' : sub.status}</p>
               </div>
             );
           })}
@@ -643,7 +661,7 @@
             aria-checked={on}
             aria-label={`${label}: ${on ? 'open to teachers' : 'hidden from teachers'}`}
             onClick={onToggle}
-            className={`relative inline-flex items-center h-8 w-36 rounded-full border-2 text-[11px] font-black transition-colors shrink-0 ${
+            className={`relative inline-flex items-center h-8 w-36 rounded-full border-2 text-[0.8125rem] font-black transition-colors shrink-0 ${
               on ? 'bg-emerald-700 border-emerald-800 text-white' : 'bg-slate-200 border-slate-400 text-slate-800'
             }`}
           >
@@ -671,7 +689,7 @@
         'Verified': 'bg-emerald-100 text-emerald-900 border-emerald-500'
       };
       const label = status === 'Submitted' ? 'Awaiting Review' : (status || 'Unknown');
-      return <span className={`inline-block px-2.5 py-1 rounded-full border text-[11px] font-black ${map[status] || 'bg-slate-100 text-slate-800 border-slate-300'}`}>{label}</span>;
+      return <span className={`inline-block px-2.5 py-1 rounded-full border text-[0.8125rem] font-black ${map[status] || 'bg-slate-100 text-slate-800 border-slate-300'}`}>{label}</span>;
     }
 
     // --- 5E PHASE ORNAMENTS ---
@@ -688,7 +706,7 @@
       const info = PHASE_INFO[phase];
       if (!info) return null;
       return (
-        <span className={`ornament inline-flex items-center px-1.5 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-wide ${info.cls}`}>
+        <span className={`ornament inline-flex items-center px-1.5 py-0.5 rounded-full border text-[0.75rem] font-black uppercase tracking-wide ${info.cls}`}>
           {phase}
         </span>
       );
@@ -755,10 +773,10 @@
       return (
         <div>
           <div className="flex items-center justify-between gap-2 mb-3">
-            <span className={`text-[11px] font-black uppercase tracking-wider ${palette.heading}`}>
+            <span className={`text-[0.8125rem] font-black uppercase tracking-wider ${palette.heading}`}>
               🎁 Pick a {isThis ? 'Tool' : 'Strategy'} ({gradeLabel})
             </span>
-            <span className="text-[10px] font-bold text-slate-700">Click a gift to unwrap</span>
+            <span className="text-[0.75rem] font-bold text-slate-700">Click a gift to unwrap</span>
           </div>
 
           <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(gifts.length, 1)}, minmax(0, 1fr))` }}>
@@ -777,14 +795,14 @@
                   className={`gift-btn flex flex-col items-center text-center gap-1.5 px-1.5 pt-5 pb-2.5 rounded-2xl ${isOpen ? palette.btnOpen : 'hover:bg-slate-50'}`}
                 >
                   <span className={`gift ${isOpen ? 'is-open' : ''}`} aria-hidden="true">
-                    <span className="gift-sparkle">✨</span>
+                    <span className="gift-sparkle" aria-hidden="true">✨</span>
                     <span className={`gift-box ${palette.box}`}>
                       <span className={`gift-ribbon ${palette.ribbon}`}></span>
                       <span className={`gift-ribbon-h ${palette.ribbon}`}></span>
                     </span>
                     <span className={`gift-lid ${palette.lid}`}>
                       <span className={`gift-ribbon ${palette.ribbon}`}></span>
-                      <span className="gift-bow">🎀</span>
+                      <span className="gift-bow" aria-hidden="true">🎀</span>
                     </span>
                     {isFav && (
                       <span className="absolute -top-1 -right-1 z-10 w-5 h-5 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center">
@@ -792,7 +810,7 @@
                       </span>
                     )}
                     {isTeen && (
-                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 text-[9px] font-black bg-white text-amber-900 px-1 rounded">13+</span>
+                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 text-[0.75rem] font-black bg-white text-amber-900 px-1 rounded">13+</span>
                     )}
                   </span>
                   {show5E && (tool.phases || []).length > 0 && (
@@ -800,13 +818,13 @@
                       {tool.phases.map(ph => <PhaseOrnament key={ph} phase={ph} />)}
                     </span>
                   )}
-                  <span className={`text-[11px] font-black leading-tight ${palette.need}`}>{tool.need || tool.badge}</span>
-                  <span className="text-[11px] font-bold text-slate-900 leading-tight line-clamp-2">{shortName(tool.name)}</span>
+                  <span className={`text-[0.8125rem] font-black leading-tight ${palette.need}`}>{tool.need || tool.badge}</span>
+                  <span className="text-[0.8125rem] font-bold text-slate-900 leading-tight line-clamp-2">{shortName(tool.name)}</span>
                   {tool.prepTime && (
-                    <span className="text-[10px] font-black bg-emerald-950 text-amber-300 px-2 py-0.5 rounded-full whitespace-nowrap">⏱️ {tool.prepTime}</span>
+                    <span className="text-[0.75rem] font-black bg-emerald-950 text-amber-300 px-2 py-0.5 rounded-full whitespace-nowrap">⏱️ {tool.prepTime}</span>
                   )}
                   {isPlanned && (
-                    <span className="text-[9px] font-black uppercase tracking-wide bg-amber-400 text-emerald-950 px-1.5 py-0.5 rounded-full">In My Plan</span>
+                    <span className="text-[0.75rem] font-black uppercase tracking-wide bg-amber-400 text-emerald-950 px-1.5 py-0.5 rounded-full">In My Plan</span>
                   )}
                 </button>
               );
@@ -825,7 +843,7 @@
                     onClick={() => toggle(tool.name)}
                     aria-expanded={isOpen}
                     aria-controls={panelId}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 text-[11px] font-black transition-colors ${isOpen ? palette.stufferOpen : palette.stuffer}`}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 text-[0.8125rem] font-black transition-colors ${isOpen ? palette.stufferOpen : palette.stuffer}`}
                   >
                     <span aria-hidden="true">🧦</span>
                     <span>Stocking stuffer: {shortName(tool.name)}</span>
@@ -842,10 +860,10 @@
               <div className="flex items-start justify-between gap-2">
                 <div>
                   {openTool.need && (
-                    <div className={`text-[11px] font-black uppercase tracking-wider ${palette.badge}`}>{openTool.need}</div>
+                    <div className={`text-[0.8125rem] font-black uppercase tracking-wider ${palette.badge}`}>{openTool.need}</div>
                   )}
                   <div className="font-black text-slate-900 text-sm">{openTool.name}</div>
-                  <div className="text-[11px] font-bold text-slate-700 mt-0.5">{openTool.badge}</div>
+                  <div className="text-[0.8125rem] font-bold text-slate-700 mt-0.5">{openTool.badge}</div>
                 </div>
                 <button
                   type="button"
@@ -858,7 +876,7 @@
               </div>
 
               {openIsTeen && (
-                <div className="flex items-start gap-2 bg-amber-100 border border-amber-400 rounded-xl p-2.5 text-[11px] font-bold text-amber-950">
+                <div className="flex items-start gap-2 bg-amber-100 border border-amber-400 rounded-xl p-2.5 text-[0.8125rem] font-bold text-amber-950">
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
                   <span>Ages 13+ only. Check your district AI policy before any student use.</span>
                 </div>
@@ -880,7 +898,7 @@
               {openTool.prepTime && (
                 <div className="bg-emerald-950 border-2 border-amber-400 rounded-xl p-3">
                   <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
-                    <span className="text-[11px] font-black text-amber-300">⏱️ Santa's Workshop Prep</span>
+                    <span className="text-[0.8125rem] font-black text-amber-300">⏱️ Santa's Workshop Prep</span>
                     <span className="text-sm font-black text-white">{openTool.prepTime}</span>
                   </div>
                   <p className="text-xs text-white font-medium leading-relaxed">{openTool.prepDetail}</p>
@@ -906,14 +924,14 @@
 
               {openTool.inClass && (
                 <div className="bg-white border-l-4 border-amber-400 rounded-lg p-3">
-                  <div className="text-[11px] font-black text-slate-900 mb-1">🎄 In Your Classroom</div>
+                  <div className="text-[0.8125rem] font-black text-slate-900 mb-1">🎄 In Your Classroom</div>
                   <p className="text-xs text-slate-900 font-medium leading-relaxed">{openTool.inClass}</p>
                 </div>
               )}
 
               {openTool.tryIt && (
                 <div className="bg-white border-2 border-dashed border-amber-400 rounded-xl p-3">
-                  <div className="text-[11px] font-black text-amber-900 mb-1">🧪 Try It in 10 Minutes</div>
+                  <div className="text-[0.8125rem] font-black text-amber-900 mb-1">🧪 Try It in 10 Minutes</div>
                   <p className="text-xs text-slate-900 font-medium leading-relaxed">{openTool.tryIt}</p>
                 </div>
               )}
@@ -2372,7 +2390,7 @@
       const [currentView, setCurrentView] = useState('welcome'); 
       const [moduleStep, setModuleStep] = useState(0); 
       const [activeGrade, setActiveGrade] = useState('g38'); 
-      const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+      const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
       
       const [favoriteTools, setFavoriteTools] = useState([]);
       const [timeLogs, setTimeLogs] = useState(EMPTY_LOGS);
@@ -2388,6 +2406,15 @@
       const [selectedUser, setSelectedUser] = useState(null);
       const [progressSearch, setProgressSearch] = useState('');
       const lastInteraction = useRef(Date.now());
+      const lastFocusRef = useRef(null);
+      const [motionOn, setMotionOn] = useState(() => {
+        try {
+          const saved = localStorage.getItem('remc12e_tth_motion');
+          if (saved !== null) return saved === 'on';
+          return !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        } catch (e) { return true; }
+      });
+      const [submitError, setSubmitError] = useState('');
       const [show5E, setShow5E] = useState(true);
       const [authUser, setAuthUser] = useState(null);
       const [cloudLoaded, setCloudLoaded] = useState(false);
@@ -2402,12 +2429,8 @@
       const [emailVerified, setEmailVerified] = useState(false);
       const [verifyNote, setVerifyNote] = useState('');
 
-      const [tinselVotes, setTinselVotes] = useState({
-        1: { thisCount: 28, thatCount: 22, userVote: null },
-        2: { thisCount: 33, thatCount: 29, userVote: null },
-        3: { thisCount: 24, thatCount: 27, userVote: null },
-        4: { thisCount: 30, thatCount: 21, userVote: null }
-      });
+      const [voteTally, setVoteTally] = useState({});
+      const [myVotes, setMyVotes] = useState({});
 
       const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
       const [printFilter, setPrintFilter] = useState('all'); 
@@ -2484,8 +2507,7 @@
           if (savedLogs) setTimeLogs({ ...EMPTY_LOGS, ...JSON.parse(savedLogs) });
           const saved5E = localStorage.getItem('remc12e_tth_show5e');
           if (saved5E !== null) setShow5E(saved5E === 'true');
-          const savedVotes = localStorage.getItem('remc12e_tth_tinsel_votes');
-          if (savedVotes) setTinselVotes(JSON.parse(savedVotes));
+          localStorage.removeItem('remc12e_tth_tinsel_votes'); // old sample counts, no longer used
         } catch (e) {
           console.log("Local storage initialized");
         }
@@ -2621,6 +2643,7 @@
         setNotes(initialReflections);
         setFavoriteTools([]);
         setTimeLogs(EMPTY_LOGS);
+        setMyVotes({});
         setCertAgreed(false);
         setCertName('');
         setParticipantInfo({ name: '', email: '', district: '', picNumber: '' });
@@ -2682,6 +2705,7 @@
             if (d.grade) setActiveGrade(d.grade);
             if (d.capstoneDraft) setCapstoneData(prev => ({ ...prev, ...d.capstoneDraft }));
             if (d.timeLogs) setTimeLogs({ ...EMPTY_LOGS, ...d.timeLogs });
+            if (d.votes) setMyVotes(d.votes);
           }
           setParticipantInfo(prev => (prev.email ? prev : { ...prev, email: authUser.email || '' }));
           setCloudLoaded(true);
@@ -2779,6 +2803,29 @@
         return unsub;
       }, []);
 
+      // Live community vote tally (readable by everyone)
+      useEffect(() => {
+        if (!fbDb) return;
+        const unsub = fbDb.collection('tallies').doc('votes').onSnapshot(
+          snap => setVoteTally(snap.exists ? (snap.data() || {}) : {}),
+          () => {}
+        );
+        return unsub;
+      }, []);
+
+      // The first time a facilitator signs in, create the empty tally so teachers can vote
+      useEffect(() => {
+        if (!fbDb || !isFacilitator) return;
+        const ref = fbDb.collection('tallies').doc('votes');
+        ref.get().then(snap => {
+          if (!snap.exists) {
+            const zeros = {};
+            [1, 2, 3, 4].forEach(n => { zeros[`m${n}_this`] = 0; zeros[`m${n}_that`] = 0; });
+            return ref.set(zeros);
+          }
+        }).catch(err => console.error(err));
+      }, [isFacilitator]);
+
       // Every teacher's progress, for the facilitator Progress tab
       useEffect(() => {
         if (!fbDb || !isFacilitator || currentView !== 'facilitator') return;
@@ -2830,6 +2877,65 @@
         return () => clearInterval(timer);
       }, [trackingOn, viewKey]);
 
+      // --- ACCESSIBILITY: dialogs, page titles, motion, small screens ---
+      const anyDialogOpen = Boolean(confirmOpen || selectedSubmission || isPrintModalOpen || selectedUser);
+
+      useEffect(() => {
+        if (anyDialogOpen) {
+          lastFocusRef.current = document.activeElement;
+          setTimeout(() => {
+            const dlg = document.querySelector('[role="dialog"]');
+            if (!dlg) return;
+            const first = dlg.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (first) first.focus(); else { dlg.setAttribute('tabindex', '-1'); dlg.focus(); }
+          }, 30);
+        } else if (lastFocusRef.current && typeof lastFocusRef.current.focus === 'function') {
+          lastFocusRef.current.focus();
+          lastFocusRef.current = null;
+        }
+      }, [anyDialogOpen]);
+
+      useEffect(() => {
+        const onKey = (e) => {
+          const dlg = document.querySelector('[role="dialog"]');
+          if (!dlg) return;
+          if (e.key === 'Escape') {
+            setConfirmOpen(false);
+            setSelectedSubmission(null);
+            setIsPrintModalOpen(false);
+            setSelectedUser(null);
+            return;
+          }
+          if (e.key === 'Tab') {
+            const items = Array.from(dlg.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+              .filter(el => !el.disabled && el.offsetParent !== null);
+            if (items.length === 0) return;
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+          }
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+      }, []);
+
+      useEffect(() => {
+        const names = { welcome: 'Start Here', capstone: 'Final Reflection & SCECH Portfolio', facilitator: 'Facilitator Dashboard' };
+        const mod = modulesData.find(m => String(m.id) === currentView);
+        const page = names[currentView] || (mod ? `Module ${mod.navTitle}` : '');
+        document.title = page ? `${page} | Tech the Halls: This or That!` : 'Tech the Halls: This or That! - REMC 12E';
+        if (typeof window !== 'undefined' && window.innerWidth < 768) setSidebarCollapsed(true);
+      }, [currentView]);
+
+      const toggleMotion = () => {
+        setMotionOn(prev => {
+          const next = !prev;
+          try { localStorage.setItem('remc12e_tth_motion', next ? 'on' : 'off'); } catch (e) {}
+          return next;
+        });
+      };
+
       const trackUnwrap = (toolName) => {
         if (!trackingOn) return;
         fbDb.collection('users').doc(authUser.uid)
@@ -2859,41 +2965,35 @@
         return `[THIS Digital]: ${d}\n[THAT Analog]: ${a}\n[Rationale]: ${r.why || 'None'}`;
       };
 
-      const handleTinselVote = (modId, chosenSide) => {
-        setTinselVotes(prev => {
-          const cur = prev[modId] || { thisCount: 25, thatCount: 25, userVote: null };
-          let nextThis = cur.thisCount;
-          let nextThat = cur.thatCount;
-
-          if (cur.userVote === chosenSide) return prev;
-
-          if (cur.userVote === 'this' && chosenSide === 'that') {
-            nextThis = Math.max(0, nextThis - 1);
-            nextThat += 1;
-          } else if (cur.userVote === 'that' && chosenSide === 'this') {
-            nextThat = Math.max(0, nextThat - 1);
-            nextThis += 1;
-          } else if (!cur.userVote) {
-            if (chosenSide === 'this') nextThis += 1;
-            if (chosenSide === 'that') nextThat += 1;
-          }
-
-          const updated = {
-            ...prev,
-            [modId]: { thisCount: nextThis, thatCount: nextThat, userVote: chosenSide }
-          };
-
-          try {
-            localStorage.setItem('remc12e_tth_tinsel_votes', JSON.stringify(updated));
-          } catch(e) {}
-
-          triggerToast(chosenSide === 'this' 
-            ? "✨ Unwrapped THIS (Pixels)! Garland shifted." 
-            : "🎄 Unwrapped THAT (Paper & Tactile)! Garland shifted."
-          );
-
-          return updated;
-        });
+      const handleTinselVote = async (modId, chosenSide) => {
+        if (!fbDb) {
+          triggerToast('Voting needs sign-in to be set up. Please contact your facilitator.');
+          return;
+        }
+        if (!authUser || !emailVerified) {
+          triggerToast('🗳️ Sign in on Start Here to cast your vote in the Tug-of-War!');
+          return;
+        }
+        const key = String(modId);
+        const previous = myVotes[key];
+        if (previous === chosenSide) return;
+        const FV = firebase.firestore.FieldValue;
+        const tallyUpdate = { [`m${key}_${chosenSide}`]: FV.increment(1) };
+        if (previous === 'this' || previous === 'that') tallyUpdate[`m${key}_${previous}`] = FV.increment(-1);
+        setMyVotes(prev => ({ ...prev, [key]: chosenSide }));
+        try {
+          const batch = fbDb.batch();
+          batch.set(fbDb.collection('users').doc(authUser.uid), { votes: { [key]: chosenSide } }, { merge: true });
+          batch.update(fbDb.collection('tallies').doc('votes'), tallyUpdate);
+          await batch.commit();
+          triggerToast(chosenSide === 'this'
+            ? '✨ Vote cast for THIS (Pixels)! Garland shifted.'
+            : '🎄 Vote cast for THAT (Paper & Tactile)! Garland shifted.');
+        } catch (err) {
+          console.error(err);
+          setMyVotes(prev => ({ ...prev, [key]: previous }));
+          triggerToast('Your vote did not count yet. Please try again in a moment.');
+        }
       };
 
       const toggleFavoriteTool = (toolName) => {
@@ -2947,7 +3047,7 @@
 
       const triggerToast = (msg) => {
         setToastMessage(msg);
-        setTimeout(() => setToastMessage(''), 3000);
+        setTimeout(() => setToastMessage(''), 5000);
       };
 
       const saveNotesLocally = (modId, val) => {
@@ -2992,29 +3092,31 @@
 
       const handleSubmitPortfolio = (e) => {
         if (e) e.preventDefault();
+        setSubmitError('');
+        const failSubmit = (msg) => { setSubmitError(msg); triggerToast(msg); };
         if (!fbDb) {
-          triggerToast('Submissions need sign-in to be set up. Please contact your facilitator.');
+          failSubmit('Submissions need sign-in to be set up. Please contact your facilitator.');
           return;
         }
         if (!authUser || !emailVerified) {
-          triggerToast('Please sign in first so your submission is linked to your account.');
+          failSubmit('Please sign in first so your submission is linked to your account.');
           setCurrentView('welcome');
           return;
         }
         if (courseClosed()) {
-          triggerToast(`Submissions closed on ${fmtDate(COURSE_CONFIG.endDate)}. Please contact your facilitator.`);
+          failSubmit(`Submissions closed on ${fmtDate(COURSE_CONFIG.endDate)}. Please contact your facilitator.`);
           return;
         }
         if (!participantInfo.name.trim() || !participantInfo.email.trim() || !participantInfo.picNumber.trim()) {
-          triggerToast('Please provide your Full Name, Email, and Michigan PIC Number.');
+          failSubmit('Please provide your Full Name, Email, and Michigan PIC Number.');
           return;
         }
         if (scechTotal < 1) {
-          triggerToast('Earn at least one SCECH first: finish one module reflection and log 1 hour of time.');
+          failSubmit('Earn at least one SCECH first: finish one module reflection and log 1 hour of time.');
           return;
         }
         if (!certAgreed || !certName.trim()) {
-          triggerToast('Please check the certification box and type your name to sign your time log.');
+          failSubmit('Please check the certification box and type your name to sign your time log.');
           return;
         }
         if (scechStatus.some(x => !x.earned)) {
@@ -3153,7 +3255,12 @@
       const defaultAnnasCorner = "You've explored the tools—now it's time to build your masterpiece! Your final artifact is where intentional integration comes to life.";
       const activeAnnasCorner = currentModule ? currentModule.annasCorner : defaultAnnasCorner;
 
-      const activeVoteData = tinselVotes[currentModule?.id || 1] || { thisCount: 25, thatCount: 25, userVote: null };
+      const voteMod = currentModule?.id || 1;
+      const activeVoteData = {
+        thisCount: Math.max(0, voteTally[`m${voteMod}_this`] || 0),
+        thatCount: Math.max(0, voteTally[`m${voteMod}_that`] || 0),
+        userVote: myVotes[String(voteMod)] || null
+      };
       const totalVotes = activeVoteData.thisCount + activeVoteData.thatCount;
       const thisPercent = totalVotes > 0 ? Math.round((activeVoteData.thisCount / totalVotes) * 100) : 50;
       const thatPercent = 100 - thisPercent;
@@ -3207,7 +3314,15 @@
 
 
       return (
-        <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
+        <div className={`min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800 ${motionOn ? '' : 'reduce-motion'}`}>
+          <a
+            href="#main-content"
+            onClick={(e) => { e.preventDefault(); const m = document.getElementById('main-content'); if (m) m.focus(); }}
+            className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:bg-amber-400 focus:text-emerald-950 focus:px-4 focus:py-2 focus:rounded-xl focus:font-black"
+          >
+            Skip to main content
+          </a>
+          <div className="sr-only" role="status" aria-live="polite">{toastMessage}</div>
           
           {/* TOAST POPUP */}
           {toastMessage && (
@@ -3266,7 +3381,7 @@
               <div className="flex items-center space-x-3 sm:space-x-5 text-emerald-100">
                 <div className="hidden sm:flex bg-emerald-950/80 border border-emerald-700/80 px-3.5 py-1.5 rounded-2xl items-center space-x-3 shadow-inner">
                   <div className="text-right">
-                    <div className="text-[10px] uppercase font-black text-amber-300 tracking-wider">SCECH Progress</div>
+                    <div className="text-[0.75rem] uppercase font-black text-amber-300 tracking-wider">SCECH Progress</div>
                     <div className="text-xs font-black text-white">{progress.count} of {progress.total} SCECHs Earned</div>
                   </div>
                   <div className="w-14 bg-emerald-900 rounded-full h-2.5 overflow-hidden ring-1 ring-emerald-500">
@@ -3277,17 +3392,29 @@
                   </div>
                 </div>
 
+                <button
+                  type="button"
+                  onClick={toggleMotion}
+                  aria-pressed={motionOn}
+                  aria-label="Decorative motion"
+                  title="Turn the twinkling and moving decorations on or off"
+                  className="inline-flex items-center px-2.5 py-1.5 rounded-xl text-xs font-black border border-emerald-700 bg-emerald-950/80 text-emerald-100 hover:bg-emerald-800"
+                >
+                  <span aria-hidden="true">✨</span>
+                  <span className="hidden sm:inline ml-1" aria-hidden="true">Motion: {motionOn ? 'On' : 'Off'}</span>
+                </button>
+
                 {FIREBASE_READY && (
                   authUser && emailVerified ? (
                     <div className="flex items-center gap-2 bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-1.5 rounded-xl">
-                      <span className="text-[11px] font-black text-emerald-100 whitespace-nowrap" aria-live="polite">
+                      <span className="text-[0.8125rem] font-black text-emerald-100 whitespace-nowrap" aria-live="polite">
                         {syncStatus === 'saving' ? '☁️ Saving…' : syncStatus === 'error' ? '⚠️ Not saved' : '☁️ Saved'}
                       </span>
-                      <span className="hidden lg:inline text-[11px] text-emerald-200 max-w-[10rem] truncate">{authUser.email}</span>
+                      <span className="hidden lg:inline text-[0.8125rem] text-emerald-200 max-w-[10rem] truncate">{authUser.email}</span>
                       <button
                         type="button"
                         onClick={handleSignOut}
-                        className="text-[11px] font-black text-amber-300 hover:text-amber-200 underline"
+                        className="text-[0.8125rem] font-black text-amber-300 hover:text-amber-200 underline"
                       >
                         Sign out
                       </button>
@@ -3333,7 +3460,7 @@
                     <ShieldCheck className="w-4 h-4 text-amber-400" />
                     <span className="hidden sm:inline">Facilitator</span>
                     {submissionsList.filter(x => x.status === 'Submitted').length > 0 && (
-                      <span className="ml-1 bg-red-600 text-white px-1.5 py-0.5 rounded-full text-[10px] font-bold" title="Awaiting review">
+                      <span className="ml-1 bg-red-600 text-white px-1.5 py-0.5 rounded-full text-[0.75rem] font-bold" title="Awaiting review">
                         {submissionsList.filter(x => x.status === 'Submitted').length}
                       </span>
                     )}
@@ -3355,7 +3482,7 @@
                   {/* Event Logo Badge in Sidebar */}
                   <div className="bg-gradient-to-b from-emerald-900/90 to-emerald-950 p-4 rounded-3xl border-2 border-amber-400/60 shadow-lg text-center">
                     <EventLogo className="w-24 h-24 lg:w-28 lg:h-28 mx-auto mb-2 drop-shadow-md" />
-                    <div className="text-[10px] uppercase font-black tracking-widest text-amber-300">
+                    <div className="text-[0.75rem] uppercase font-black tracking-widest text-amber-300">
                       Professional Learning Series
                     </div>
                     <div className="text-xs font-bold text-emerald-200 mt-1 flex justify-center">
@@ -3377,9 +3504,9 @@
                     <p className="text-amber-100 text-xs leading-relaxed font-medium italic relative pl-3 border-l-2 border-amber-400">
                       "{activeAnnasCorner}"
                     </p>
-                    <div className="mt-3 pt-2 border-t border-emerald-800/80 text-[10px] uppercase tracking-wider text-amber-300/80 font-bold flex items-center justify-between">
+                    <div className="mt-3 pt-2 border-t border-emerald-800/80 text-[0.75rem] uppercase tracking-wider text-amber-300/80 font-bold flex items-center justify-between">
                       <span>EdTech Thought of the Week</span>
-                      <span className="text-[11px]">✨</span>
+                      <span className="text-[0.8125rem]" aria-hidden="true">✨</span>
                     </div>
                   </div>
 
@@ -3397,7 +3524,7 @@
                       <span className="text-xl" aria-hidden="true">🎄</span>
                       <div>
                         <div className="text-xs font-black">Start Here</div>
-                        <div className={`text-[10px] font-semibold ${currentView === 'welcome' ? 'text-emerald-900' : 'text-emerald-200'}`}>Welcome & Directions</div>
+                        <div className={`text-[0.75rem] font-semibold ${currentView === 'welcome' ? 'text-emerald-900' : 'text-emerald-200'}`}>Welcome & Directions</div>
                       </div>
                     </div>
                     {currentView === 'welcome' && <ChevronRight className="w-4 h-4" />}
@@ -3406,8 +3533,8 @@
                   {/* Course Modules Switcher */}
                   <div>
                     <div className="flex items-center justify-between mb-2.5 px-2">
-                      <span className="text-[11px] font-black uppercase tracking-widest text-amber-300">Course Modules</span>
-                      <span className="text-[11px] text-emerald-300 font-bold bg-emerald-900/80 px-2 py-0.5 rounded-full">4 Weeks</span>
+                      <span className="text-[0.8125rem] font-black uppercase tracking-widest text-amber-300">Course Modules</span>
+                      <span className="text-[0.8125rem] text-emerald-300 font-bold bg-emerald-900/80 px-2 py-0.5 rounded-full">4 Weeks</span>
                     </div>
                     
                     <nav className="space-y-1.5">
@@ -3432,8 +3559,8 @@
                               <span className="text-xl shrink-0 drop-shadow-sm">{locked ? '🎁' : mod.theme.bakeryIcon}</span>
                               <span className="truncate">
                                 <span className="block text-xs font-bold tracking-tight truncate">{mod.navTitle}</span>
-                                {locked && <span className="block text-[10px] font-black text-amber-300">Unwraps soon</span>}
-                                {!locked && hiddenForTeachers && <span className="block text-[10px] font-black text-amber-300">Hidden from teachers</span>}
+                                {locked && <span className="block text-[0.75rem] font-black text-amber-300">Unwraps soon</span>}
+                                {!locked && hiddenForTeachers && <span className="block text-[0.75rem] font-black text-amber-300">Hidden from teachers</span>}
                               </span>
                             </div>
                             
@@ -3455,7 +3582,7 @@
 
                   {/* Final SCECH Capstone Button */}
                   <div className="pt-2 border-t border-emerald-800/80">
-                    <span className="text-[11px] font-black uppercase tracking-widest text-amber-300 px-2 block mb-2.5">
+                    <span className="text-[0.8125rem] font-black uppercase tracking-widest text-amber-300 px-2 block mb-2.5">
                       Final SCECH Portfolio
                     </span>
 
@@ -3474,7 +3601,7 @@
                         </div>
                         <div>
                           <div className="font-black text-xs">SCECH Capstone</div>
-                          <div className={`text-[10px] font-semibold ${currentView === 'capstone' ? 'text-emerald-900' : 'text-emerald-200'}`}>
+                          <div className={`text-[0.75rem] font-semibold ${currentView === 'capstone' ? 'text-emerald-900' : 'text-emerald-200'}`}>
                             {!isReleased('final') ? 'Unwraps soon' : (released && released.final === false ? 'Hidden from teachers' : 'Turn In Notes & Artifact')}
                           </div>
                         </div>
@@ -3497,7 +3624,7 @@
                       </div>
                       <ExternalLink className="w-3.5 h-3.5 text-emerald-400 group-hover:text-sky-300" />
                     </div>
-                    <p className="text-[11px] text-emerald-300/90">
+                    <p className="text-[0.8125rem] text-emerald-300/90">
                       Need physical supplies? Request free classroom tabletop games, hydroponics, and maker supplies directly through the REMC 12E lending portal.
                     </p>
                   </a>
@@ -3507,7 +3634,7 @@
             )}
 
             {/* WORKSPACE */}
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto md:h-[calc(100vh-4.75rem)] bg-slate-100">
+            <main id="main-content" tabIndex={-1} className="focus:outline-none flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto md:h-[calc(100vh-4.75rem)] bg-slate-100">
               
               {/* VIEW: WELCOME / START HERE */}
               {currentView === 'welcome' && (
@@ -3518,7 +3645,7 @@
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                       <EventLogo className="w-24 h-24 md:w-28 md:h-28" />
                       <div className="text-center sm:text-left">
-                        <span className="text-[11px] font-black uppercase tracking-widest text-amber-300">Start Here • REMC 12E Professional Learning</span>
+                        <span className="text-[0.8125rem] font-black uppercase tracking-widest text-amber-300">Start Here • REMC 12E Professional Learning</span>
                         <h2 className="text-2xl md:text-3xl font-black mt-1">Welcome to Tech the Halls: This or That!</h2>
                         <p className="text-emerald-50 text-sm md:text-base leading-relaxed mt-2 font-medium">
                           Each week puts a high-tech tool (<strong className="text-amber-300">THIS</strong>) next to a hands-on, low-tech strategy (<strong className="text-amber-300">THAT</strong>). We're not crowning a winner. The goal is to choose the right tool for the job, and often to blend both.
@@ -3583,7 +3710,18 @@
                         <div>
                           <h3 className="text-lg font-black text-slate-900">Sign in to save your progress</h3>
                           <p className="text-sm text-slate-900 font-medium mt-0.5 mb-3">
-                            Sign in with your school Google account, with no password needed. Your work will save to your account and count toward your SCECHs.
+                            Sign in with your school Google account, with no password needed. Your work will save to your account and count toward your SCECHs.{' '}
+                            <a
+                              href="#privacy-note"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                const el = document.getElementById('privacy-note');
+                                if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); const d = el.querySelector('details'); if (d) d.open = true; }
+                              }}
+                              className="underline font-bold text-emerald-900"
+                            >
+                              See what we collect and why
+                            </a>.
                           </p>
                           <button
                             id="signin-google"
@@ -3723,6 +3861,52 @@
                     </section>
                   )}
 
+
+                  {/* PRIVACY NOTE */}
+                  <section id="privacy-note" className="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-200 shadow-sm" aria-labelledby="privacy-title">
+                    <h3 id="privacy-title" className="text-lg font-black text-slate-900 flex items-center gap-2">
+                      <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                      <span>Your privacy: what we collect and why</span>
+                    </h3>
+                    <p className="text-sm text-slate-900 font-medium mt-1">
+                      This course collects only what it needs to award your SCECHs and to improve the course. It is never sold, never used for advertising, and never used to evaluate your job performance.
+                    </p>
+                    <details className="mt-3 group">
+                      <summary className="cursor-pointer text-sm font-black text-emerald-900 underline">Read the details</summary>
+                      <div className="mt-3 space-y-3 text-sm text-slate-900 leading-relaxed">
+                        <div>
+                          <h4 className="font-black">What we collect</h4>
+                          <ul className="list-disc pl-5 space-y-1 mt-1">
+                            <li><strong>Your account:</strong> your email address, and your name if you sign in with Google.</li>
+                            <li><strong>SCECH information:</strong> your name, email, district, and Michigan PIC number.</li>
+                            <li><strong>Your course work:</strong> reflections, saved tools, plans, time logs, your capstone artifact, and your certification signature.</li>
+                            <li><strong>How you use the course:</strong> which modules and steps you open, minutes active on each part of the site, which tool "gifts" you unwrap, and your Tug-of-War votes.</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-black">How it's used and who sees it</h4>
+                          <ul className="list-disc pl-5 space-y-1 mt-1">
+                            <li><strong>Your facilitator</strong> (approved REMC 12E staff) can see your work and usage so they can support you, verify your SCECHs, and improve the course.</li>
+                            <li><strong>The REMC 12E SCECH coordinator</strong> receives only your time log and SCECH roster information (name, email, district, PIC, dates, hours, SCECHs earned, and signature) for reporting to the Michigan Department of Education.</li>
+                            <li><strong>Other participants</strong> never see your work. The Tug-of-War shows only vote totals, never names.</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-black">Where it's stored and for how long</h4>
+                          <p className="mt-1">Your information is stored securely with Google Firebase in United States data centers. {PRIVACY_CONFIG.retention}</p>
+                          <p className="mt-1">If you don't sign in, your work stays only in this browser on this device and isn't sent anywhere.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black">Questions or requests</h4>
+                          <p className="mt-1">
+                            To ask a question or request a copy or removal of your information, contact {PRIVACY_CONFIG.contactName}
+                            {PRIVACY_CONFIG.contactEmail ? <> at <a className="underline font-bold text-emerald-900" href={`mailto:${PRIVACY_CONFIG.contactEmail}`}>{PRIVACY_CONFIG.contactEmail}</a></> : ''}.
+                          </p>
+                        </div>
+                      </div>
+                    </details>
+                  </section>
+
                   {/* Step 1: grade band */}
                   <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-200 shadow-sm">
                     <div className="flex items-center gap-2 mb-1">
@@ -3858,8 +4042,8 @@
                           <span className="text-2xl" aria-hidden="true">{isReleased(String(mod.id)) ? mod.theme.bakeryIcon : '🎁'}</span>
                           <div className="flex-1">
                             <div className="text-xs font-black text-slate-900">Module {mod.navTitle}</div>
-                            <div className="text-[11px] text-slate-800 font-medium leading-snug">{mod.tagline}</div>
-                            {!isReleased(String(mod.id)) && <div className="text-[11px] font-black text-amber-800 mt-0.5">Unwraps soon</div>}
+                            <div className="text-[0.8125rem] text-slate-800 font-medium leading-snug">{mod.tagline}</div>
+                            {!isReleased(String(mod.id)) && <div className="text-[0.8125rem] font-black text-amber-800 mt-0.5">Unwraps soon</div>}
                           </div>
                           {isReflectionComplete(mod.id) && <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />}
                         </button>
@@ -3872,7 +4056,7 @@
                         <Award className="w-6 h-6 text-amber-700 shrink-0" />
                         <div>
                           <div className="text-xs font-black text-slate-900">SCECH Capstone</div>
-                          <div className="text-[11px] text-slate-800 font-medium">Turn in your notes and integration artifact.</div>
+                          <div className="text-[0.8125rem] text-slate-800 font-medium">Turn in your notes and integration artifact.</div>
                         </div>
                       </button>
                     </div>
@@ -4003,12 +4187,12 @@
                               : 'hover:bg-slate-50 text-slate-600'
                           }`}
                         >
-                          <div className={`p-1.5 rounded-lg shrink-0 ${isCurrent ? 'bg-white/20 text-white' : isPast ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}>
+                          <div className={`p-1.5 rounded-lg shrink-0 ${isCurrent ? 'bg-white/20 text-white' : isPast ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-700'}`}>
                             {isPast ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <StepIcon className="w-3.5 h-3.5" />}
                           </div>
                           <div className="truncate">
-                            <div className="text-[11px] font-black uppercase tracking-wider">{step.title}</div>
-                            <div className={`text-[10px] truncate ${isCurrent ? 'text-white/80' : 'text-slate-400'}`}>
+                            <div className="text-[0.8125rem] font-black uppercase tracking-wider">{step.title}</div>
+                            <div className={`text-[0.75rem] truncate ${isCurrent ? 'text-white/80' : 'text-slate-600'}`}>
                               {step.desc}
                             </div>
                           </div>
@@ -4032,7 +4216,7 @@
                         </p>
                         <div className="mt-4 pt-3 border-t border-amber-200/60 text-xs font-bold text-amber-900 flex items-center justify-between">
                           <span>Which tool or strategy would you unwrap in your classroom tomorrow?</span>
-                          <span className="text-red-600 uppercase font-black tracking-wider text-[11px]">Unwrap Your Choice Below ↓</span>
+                          <span className="text-red-600 uppercase font-black tracking-wider text-[0.8125rem]">Unwrap Your Choice Below ↓</span>
                         </div>
                       </div>
 
@@ -4040,7 +4224,7 @@
                       {currentModule.id === 4 && (
                         <section className="bg-white rounded-3xl p-6 md:p-7 border-2 border-purple-600 shadow-sm space-y-4">
                           <div>
-                            <div className="text-[11px] font-black uppercase tracking-widest text-purple-800">The 5E Lens</div>
+                            <div className="text-[0.8125rem] font-black uppercase tracking-widest text-purple-800">The 5E Lens</div>
                             <h3 className="text-lg font-black text-slate-900">The Model Behind the Ornaments</h3>
                             <p className="text-xs text-slate-800 font-medium mt-1 leading-relaxed">
                               Every gift in this course has carried a 5E ornament. This week we zoom out: each phase asks a different job of your tools, and both pixels and paper can do every job.
@@ -4049,13 +4233,13 @@
                           <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
                             {PHASE_ORDER.map((ph, i) => (
                               <div key={ph} className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-3 flex flex-col items-start gap-1.5">
-                                <span className="text-[10px] font-black text-slate-700">{i + 1}</span>
+                                <span className="text-[0.75rem] font-black text-slate-700">{i + 1}</span>
                                 <PhaseOrnament phase={ph} />
-                                <p className="text-[11px] text-slate-900 font-medium leading-snug">{PHASE_INFO[ph].desc}</p>
+                                <p className="text-[0.8125rem] text-slate-900 font-medium leading-snug">{PHASE_INFO[ph].desc}</p>
                               </div>
                             ))}
                           </div>
-                          <p className="text-[11px] text-slate-800 font-semibold bg-amber-50 border border-amber-300 rounded-xl p-2.5">
+                          <p className="text-[0.8125rem] text-slate-800 font-semibold bg-amber-50 border border-amber-300 rounded-xl p-2.5">
                             Not a 5E school? The pixels-or-paper choices work in any lesson design. Turn the ornaments off anytime with the 5E Tags switch at the top of the page.
                           </p>
                         </section>
@@ -4066,14 +4250,14 @@
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center space-x-2.5">
                             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-800 to-emerald-950 text-white flex items-center justify-center font-black shadow border border-emerald-600">
-                              <span className="animate-tree-grow text-lg">🎄</span>
+                              <span className="animate-tree-grow text-lg" aria-hidden="true">🎄</span>
                             </div>
                             <div>
                               <h3 className="text-base font-black text-slate-900 flex items-center space-x-1.5">
                                 <span>The Holiday Garland Tug-of-War</span>
-                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-black uppercase px-2 py-0.5 rounded-full border border-emerald-300">Live Community Vote</span>
+                                <span className="text-[0.75rem] bg-emerald-100 text-emerald-800 font-black uppercase px-2 py-0.5 rounded-full border border-emerald-300">Live Community Vote</span>
                               </h3>
-                              <p className="text-xs text-slate-500">Cast your vote to tug the pine & tinsel garland toward your preferred approach!</p>
+                              <p className="text-xs text-slate-700">Cast your vote to tug the pine & tinsel garland toward your preferred approach!</p>
                             </div>
                           </div>
 
@@ -4087,6 +4271,7 @@
                           <button
                             type="button"
                             onClick={() => handleTinselVote(currentModule.id, 'this')}
+                            aria-pressed={activeVoteData.userVote === 'this'}
                             className={`p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden group ${
                               activeVoteData.userVote === 'this'
                                 ? `${activeTheme.showdownBg} text-white border-red-700 shadow-lg ring-2 ring-amber-300 scale-[1.01]`
@@ -4094,15 +4279,15 @@
                             }`}
                           >
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center space-x-1 ${
+                              <span className={`text-[0.75rem] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center space-x-1 ${
                                 activeVoteData.userVote === 'this' ? 'bg-white/20 text-white' : 'bg-red-200 text-red-900'
                               }`}>
-                                <span className="animate-twinkle text-amber-300">✨</span>
+                                <span className="animate-twinkle text-amber-300" aria-hidden="true">✨</span>
                                 <span>Team Tinsel: High-Tech</span>
-                                <span className="animate-twinkle-alt text-yellow-300">⭐</span>
+                                <span className="animate-twinkle-alt text-yellow-300" aria-hidden="true">⭐</span>
                               </span>
                               {activeVoteData.userVote === 'this' && (
-                                <span className="text-[11px] font-black bg-white text-red-700 px-2.5 py-0.5 rounded-full shadow-sm flex items-center space-x-1">
+                                <span className="text-[0.8125rem] font-black bg-white text-red-700 px-2.5 py-0.5 rounded-full shadow-sm flex items-center space-x-1">
                                   <Check className="w-3 h-3 stroke-[3]" />
                                   <span>My Choice</span>
                                 </span>
@@ -4110,7 +4295,7 @@
                             </div>
                             <div className="text-sm font-black flex items-center space-x-1.5">
                               <span>🎁 Unwrap THIS (Pixels)</span>
-                              <span className="animate-twinkle text-amber-400">✨</span>
+                              <span className="animate-twinkle text-amber-400" aria-hidden="true">✨</span>
                             </div>
                             <p className={`text-xs mt-1 ${activeVoteData.userVote === 'this' ? 'text-red-100' : 'text-slate-600'}`}>
                               Pick for audio scaffolds, adaptive leveling, and dynamic engagement.
@@ -4120,6 +4305,7 @@
                           <button
                             type="button"
                             onClick={() => handleTinselVote(currentModule.id, 'that')}
+                            aria-pressed={activeVoteData.userVote === 'that'}
                             className={`p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden group ${
                               activeVoteData.userVote === 'that'
                                 ? 'bg-gradient-to-r from-emerald-800 to-teal-900 text-white border-emerald-900 shadow-lg ring-2 ring-amber-300 scale-[1.01]'
@@ -4127,21 +4313,21 @@
                             }`}
                           >
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center space-x-1 ${
+                              <span className={`text-[0.75rem] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center space-x-1 ${
                                 activeVoteData.userVote === 'that' ? 'bg-white/20 text-white' : 'bg-emerald-200 text-emerald-900'
                               }`}>
-                                <span className="animate-tree-grow text-xs">🎄</span>
+                                <span className="animate-tree-grow text-xs" aria-hidden="true">🎄</span>
                                 <span>Team Evergreen: Analog</span>
                               </span>
                               {activeVoteData.userVote === 'that' && (
-                                <span className="text-[11px] font-black bg-white text-emerald-800 px-2.5 py-0.5 rounded-full shadow-sm flex items-center space-x-1">
+                                <span className="text-[0.8125rem] font-black bg-white text-emerald-800 px-2.5 py-0.5 rounded-full shadow-sm flex items-center space-x-1">
                                   <Check className="w-3 h-3 stroke-[3]" />
                                   <span>My Choice</span>
                                 </span>
                               )}
                             </div>
                             <div className="text-sm font-black flex items-center space-x-1.5">
-                              <span className="animate-tree-grow mr-0.5">🎄</span>
+                              <span className="animate-tree-grow mr-0.5" aria-hidden="true">🎄</span>
                               <span>Unwrap THAT (Paper & Tactile)</span>
                             </div>
                             <p className={`text-xs mt-1 ${activeVoteData.userVote === 'that' ? 'text-emerald-100' : 'text-slate-600'}`}>
@@ -4154,45 +4340,49 @@
                         <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between text-xs font-black">
                             <span className="text-red-700 flex items-center space-x-1">
-                              <span className="animate-twinkle text-amber-500">✨</span>
+                              <span className="animate-twinkle text-amber-500" aria-hidden="true">✨</span>
                               <span>THIS (Pixels): {thisPercent}%</span>
                             </span>
                             <span className="text-emerald-800 flex items-center space-x-1">
                               <span>THAT (Paper & Analog): {thatPercent}%</span>
-                              <span className="animate-tree-grow">🎄</span>
+                              <span className="animate-tree-grow" aria-hidden="true">🎄</span>
                             </span>
                           </div>
 
-                          <div className="relative h-7 w-full garland-pattern rounded-full p-1 shadow-inner border-2 border-emerald-900 flex items-center overflow-hidden animate-garland-shimmer">
+                          <div role="img" aria-label={totalVotes === 0 ? "No votes yet" : `Votes: ${thisPercent}% for THIS, ${thatPercent}% for THAT`} className="relative h-7 w-full garland-pattern rounded-full p-1 shadow-inner border-2 border-emerald-900 flex items-center overflow-hidden animate-garland-shimmer">
                             <div 
                               className={`h-full bg-gradient-to-r ${activeTheme.garlandThis} rounded-l-full transition-all duration-700 flex items-center justify-start pl-3 space-x-1`}
                               style={{ width: `${thisPercent}%` }}
                             >
-                              <span className="animate-twinkle text-white text-[11px]">✨</span>
-                              <span className="text-[10px] font-black text-white drop-shadow hidden sm:inline">TINSEL</span>
-                              <span className="animate-twinkle-alt text-amber-200 text-[10px]">⭐</span>
+                              <span className="animate-twinkle text-white text-[0.8125rem]" aria-hidden="true">✨</span>
+                              <span className="text-[0.75rem] font-black text-white drop-shadow hidden sm:inline">TINSEL</span>
+                              <span className="animate-twinkle-alt text-amber-200 text-[0.75rem]" aria-hidden="true">⭐</span>
                             </div>
 
                             <div 
                               className={`h-full bg-gradient-to-r ${activeTheme.garlandThat} rounded-r-full transition-all duration-700 flex items-center justify-end pr-3 space-x-1`}
                               style={{ width: `${thatPercent}%` }}
                             >
-                              <span className="text-[10px] font-black text-white drop-shadow hidden sm:inline">EVERGREEN</span>
-                              <span className="animate-tree-grow text-xs">🎄</span>
+                              <span className="text-[0.75rem] font-black text-white drop-shadow hidden sm:inline">EVERGREEN</span>
+                              <span className="animate-tree-grow text-xs" aria-hidden="true">🎄</span>
                             </div>
 
                             <div 
                               className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-amber-400 border-2 border-white rounded-full shadow-lg flex items-center justify-center transition-all duration-700 text-sm z-10"
                               style={{ left: `${thisPercent}%` }}
                             >
-                              <span className="animate-tree-grow">🎄</span>
+                              <span className="animate-tree-grow" aria-hidden="true">🎄</span>
                             </div>
                           </div>
 
-                          <p className="text-[11px] text-center text-slate-500 italic pt-1">
-                            {thisPercent > thatPercent
-                              ? `Teachers are pulling the garland toward Team Tinsel (Pixels) for fast scaffolding!`
-                              : `Teachers are pulling the garland toward Team Evergreen (Analog) for tactile focus!`
+                          <p className="text-[0.8125rem] text-center text-slate-700 italic pt-1">
+                            {totalVotes === 0
+                              ? 'No votes yet. Cast the first vote and start the tug-of-war!'
+                              : thisPercent > thatPercent
+                                ? `Teachers are pulling the garland toward Team Tinsel (Pixels) for fast scaffolding!`
+                                : thisPercent < thatPercent
+                                  ? `Teachers are pulling the garland toward Team Evergreen (Analog) for tactile focus!`
+                                  : `It's a perfect tie! Your vote could tip the garland.`
                             }
                           </p>
                         </div>
@@ -4237,7 +4427,7 @@
                           <div className="grid grid-cols-1 sm:grid-cols-2">
                             <div className={`${activeTheme.showdownBg} p-5 text-white flex items-center justify-between gap-3`}>
                               <div>
-                                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
+                                <span className="text-[0.75rem] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
                                   {currentModule.thisTech.badge}
                                 </span>
                                 <h4 className="text-base md:text-lg font-black text-white mt-1 leading-snug">{currentModule.thisTech.title}</h4>
@@ -4246,13 +4436,13 @@
                             </div>
                             <div className={`${activeTheme.thatShowdownBg} p-5 text-white flex items-center justify-between gap-3`}>
                               <div>
-                                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
+                                <span className="text-[0.75rem] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
                                   {currentModule.thatTech.badge}
                                 </span>
                                 <h4 className="text-base md:text-lg font-black text-white mt-1 leading-snug">{currentModule.thatTech.title}</h4>
                               </div>
                               <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center text-xl shrink-0" aria-hidden="true">
-                                <span className="animate-tree-grow text-lg">🎄</span>
+                                <span className="animate-tree-grow text-lg" aria-hidden="true">🎄</span>
                               </div>
                             </div>
                           </div>
@@ -4263,18 +4453,18 @@
                             {showdownRows.map(row => (
                               <div key={row.key} className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-2 sm:gap-3 items-stretch">
                                 <div className={`rounded-2xl border-2 p-3.5 ${row.thisBox}`}>
-                                  <div className={`font-black uppercase tracking-wider text-[11px] mb-1 flex items-center gap-1.5 ${row.thisLabelColor}`}>
-                                    <span className="sm:hidden bg-rose-700 text-white px-1.5 py-0.5 rounded text-[9px]">THIS</span>
+                                  <div className={`font-black uppercase tracking-wider text-[0.8125rem] mb-1 flex items-center gap-1.5 ${row.thisLabelColor}`}>
+                                    <span className="sm:hidden bg-rose-700 text-white px-1.5 py-0.5 rounded text-[0.75rem]">THIS</span>
                                     <span>{row.thisLabel}</span>
                                   </div>
                                   <p className="text-slate-900 text-xs leading-relaxed font-medium">{row.thisText}</p>
                                 </div>
                                 <div className="hidden sm:flex items-center justify-center" aria-hidden="true">
-                                  <span className="w-8 h-8 rounded-full bg-emerald-950 text-amber-300 text-[10px] font-black flex items-center justify-center ring-2 ring-amber-300">VS</span>
+                                  <span className="w-8 h-8 rounded-full bg-emerald-950 text-amber-300 text-[0.75rem] font-black flex items-center justify-center ring-2 ring-amber-300">VS</span>
                                 </div>
                                 <div className={`rounded-2xl border-2 p-3.5 ${row.thatBox}`}>
-                                  <div className={`font-black uppercase tracking-wider text-[11px] mb-1 flex items-center gap-1.5 ${row.thatLabelColor}`}>
-                                    <span className="sm:hidden bg-emerald-800 text-white px-1.5 py-0.5 rounded text-[9px]">THAT</span>
+                                  <div className={`font-black uppercase tracking-wider text-[0.8125rem] mb-1 flex items-center gap-1.5 ${row.thatLabelColor}`}>
+                                    <span className="sm:hidden bg-emerald-800 text-white px-1.5 py-0.5 rounded text-[0.75rem]">THAT</span>
                                     <span>{row.thatLabel}</span>
                                   </div>
                                   <p className="text-slate-900 text-xs leading-relaxed font-medium">{row.thatText}</p>
@@ -4353,7 +4543,7 @@
                             <BookOpen className="w-6 h-6" />
                           </div>
                           <div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">Cognitive Science & Balanced Research</span>
+                            <span className="text-[0.75rem] font-black uppercase tracking-widest text-amber-300">Cognitive Science & Balanced Research</span>
                             <h3 className="text-xl md:text-2xl font-black text-white">The Science in 60 Seconds</h3>
                           </div>
                         </div>
@@ -4428,7 +4618,7 @@
                               <h3 className="text-xl font-black text-slate-900">
                                 {activeRecipe?.title || `${activeTheme.bakeryType} Recipe`}
                               </h3>
-                              <p className="text-xs text-slate-500 font-medium">Ready-to-bake lesson blend for your classroom tomorrow</p>
+                              <p className="text-xs text-slate-700 font-medium">Ready-to-bake lesson blend for your classroom tomorrow</p>
                             </div>
                           </div>
 
@@ -4455,25 +4645,25 @@
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 text-xs bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200">
                           <div>
-                            <span className="font-black text-amber-900 uppercase text-[10px] block">⏱️ Prep & Bake Time:</span>
+                            <span className="font-black text-amber-900 uppercase text-[0.75rem] block">⏱️ Prep & Bake Time:</span>
                             <span className="text-slate-900 font-black text-sm">{activeRecipe?.prepTime || 'Prep time varies'}</span>
                             {activeRecipe?.prepBreakdown && (
                               <p className="text-slate-800 font-medium leading-snug mt-1">{activeRecipe.prepBreakdown}</p>
                             )}
                           </div>
                           <div>
-                            <span className="font-black text-amber-900 uppercase text-[10px] block">🥣 Ingredients:</span>
+                            <span className="font-black text-amber-900 uppercase text-[0.75rem] block">🥣 Ingredients:</span>
                             <span className="text-slate-800 font-medium">{activeRecipe?.ingredients || '1 Digital Tool + 1 Analog Strategy'}</span>
                           </div>
                         </div>
 
                         <div className="space-y-3">
-                          <span className="text-xs font-black uppercase text-slate-400 block tracking-wider">
+                          <span className="text-xs font-black uppercase text-slate-600 block tracking-wider">
                             Step-by-Step Directions:
                           </span>
                           {(activeRecipe?.steps || []).map((step, idx) => (
                             <div key={idx} className="flex items-start space-x-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
-                              <span className="w-6 h-6 rounded-full bg-emerald-800 text-white flex items-center justify-center font-black shrink-0 text-[11px]">
+                              <span className="w-6 h-6 rounded-full bg-emerald-800 text-white flex items-center justify-center font-black shrink-0 text-[0.8125rem]">
                                 {idx + 1}
                               </span>
                               <div className="flex-1">
@@ -4513,7 +4703,7 @@
                       <div className="bg-gradient-to-br from-amber-50 via-white to-emerald-50 rounded-3xl p-6 md:p-8 shadow-sm border-2 border-amber-300">
                         <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
                           <div className="flex items-center space-x-2">
-                            <span className="bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
+                            <span className="bg-red-600 text-white text-[0.75rem] font-black uppercase px-2.5 py-0.5 rounded-full">
                               SCECH Micro-Reflection
                             </span>
                             <h3 className="text-lg font-black text-slate-900">Module {currentModule.id} Checkpoint</h3>
@@ -4533,11 +4723,12 @@
                           
                           {/* PART 1 */}
                           <div>
-                            <label className="block text-xs font-black uppercase tracking-wider text-emerald-800 mb-1.5 flex items-center space-x-1.5">
-                              <span className="bg-emerald-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px]">1</span>
+                            <label htmlFor={`reflect-digital-${currentModule.id}`} className="block text-xs font-black uppercase tracking-wider text-emerald-800 mb-1.5 flex items-center space-x-1.5">
+                              <span className="bg-emerald-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem]">1</span>
                               <span>The Digital Tool I Will Test ("THIS") *</span>
                             </label>
                             <select
+                              id={`reflect-digital-${currentModule.id}`}
                               value={notes[currentModule.id]?.digital || ''}
                               onChange={(e) => updateReflectionField(currentModule.id, 'digital', e.target.value)}
                               className="w-full p-3 rounded-xl border border-slate-300 text-xs md:text-sm bg-slate-50 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -4562,11 +4753,12 @@
 
                           {/* PART 2 */}
                           <div>
-                            <label className="block text-xs font-black uppercase tracking-wider text-red-800 mb-1.5 flex items-center space-x-1.5">
-                              <span className="bg-red-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px]">2</span>
+                            <label htmlFor={`reflect-analog-${currentModule.id}`} className="block text-xs font-black uppercase tracking-wider text-red-800 mb-1.5 flex items-center space-x-1.5">
+                              <span className="bg-red-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem]">2</span>
                               <span>The Analog / Tactile Strategy I'm Keeping or Testing ("THAT") *</span>
                             </label>
                             <select
+                              id={`reflect-analog-${currentModule.id}`}
                               value={notes[currentModule.id]?.analog || ''}
                               onChange={(e) => updateReflectionField(currentModule.id, 'analog', e.target.value)}
                               className="w-full p-3 rounded-xl border border-slate-300 text-xs md:text-sm bg-slate-50 font-medium focus:ring-2 focus:ring-red-500 focus:outline-none"
@@ -4592,8 +4784,8 @@
                           {/* PART 3 */}
                           <div>
                             <div className="flex items-center justify-between mb-1.5">
-                              <label className="block text-xs font-black uppercase tracking-wider text-slate-700 flex items-center space-x-1.5">
-                                <span className="bg-amber-500 text-slate-900 w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px] font-bold">3</span>
+                              <label htmlFor={`reflect-why-${currentModule.id}`} className="block text-xs font-black uppercase tracking-wider text-slate-700 flex items-center space-x-1.5">
+                                <span className="bg-amber-500 text-slate-900 w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem] font-bold">3</span>
                                 <span>Why This Matters for My Students (The Intentional Blend) *</span>
                               </label>
                               <button
@@ -4608,13 +4800,14 @@
                                   const stem = `In my classroom, using ${dig} provides a quick hook and scaffold for striving learners, while pairing it with ${ana} guarantees active peer collaboration and focus without screen distraction.`;
                                   updateReflectionField(currentModule.id, 'why', stem);
                                 }}
-                                className="text-[11px] font-bold text-amber-700 hover:text-amber-900 underline flex items-center space-x-1"
+                                className="text-[0.8125rem] font-bold text-amber-700 hover:text-amber-900 underline flex items-center space-x-1"
                               >
                                 <Sparkles className="w-3 h-3 text-amber-500" />
                                 <span>Insert Sentence Stem</span>
                               </button>
                             </div>
                             <textarea
+                              id={`reflect-why-${currentModule.id}`}
                               rows={3}
                               value={notes[currentModule.id]?.why || ''}
                               onChange={(e) => updateReflectionField(currentModule.id, 'why', e.target.value)}
@@ -4645,7 +4838,7 @@
                             }}
                             className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-300 flex items-center space-x-1.5"
                           >
-                            <Printer className="w-3.5 h-3.5 text-slate-500" />
+                            <Printer className="w-3.5 h-3.5 text-slate-700" />
                             <span>Make Me a Print Copy</span>
                           </button>
 
@@ -4793,14 +4986,15 @@
                         <Building2 className="w-5 h-5 mr-2 text-emerald-600" />
                         1. MOECS SCECH Registration Information
                       </h3>
-                      <p className="text-xs text-slate-500 mb-6">
+                      <p className="text-xs text-slate-700 mb-6">
                         Required for reporting your clock hours directly into the Michigan Online Educator Certification System.
                       </p>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Full Name *</label>
+                          <label htmlFor="reg-name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Full Name *</label>
                           <input
+                            id="reg-name"
                             type="text"
                             required
                             value={participantInfo.name}
@@ -4811,8 +5005,9 @@
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">School Email *</label>
+                          <label htmlFor="reg-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">School Email *</label>
                           <input
+                            id="reg-email"
                             type="email"
                             required
                             value={participantInfo.email}
@@ -4823,8 +5018,9 @@
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">School District / Center</label>
+                          <label htmlFor="reg-district" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">School District / Center</label>
                           <input
+                            id="reg-district"
                             type="text"
                             value={participantInfo.district}
                             onChange={(e) => setParticipantInfo({ ...participantInfo, district: e.target.value })}
@@ -4834,8 +5030,9 @@
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Michigan PIC Number *</label>
+                          <label htmlFor="reg-pic" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Michigan PIC Number *</label>
                           <input
+                            id="reg-pic"
                             type="text"
                             required
                             value={participantInfo.picNumber}
@@ -4861,12 +5058,12 @@
                         </div>
                         <div className="text-right">
                           <div className="text-3xl font-black text-emerald-800">{scechTotal}</div>
-                          <div className="text-[11px] font-black text-slate-900">of {COURSE_CONFIG.maxScech} SCECHs earned</div>
+                          <div className="text-[0.8125rem] font-black text-slate-900">of {COURSE_CONFIG.maxScech} SCECHs earned</div>
                         </div>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-xs text-left">
-                          <thead className="text-[10px] uppercase tracking-wider text-slate-700 border-b border-slate-200">
+                          <thead className="text-[0.75rem] uppercase tracking-wider text-slate-700 border-b border-slate-200">
                             <tr>
                               <th className="py-2 pr-3">Part</th>
                               <th className="py-2 pr-3">Activity</th>
@@ -4911,7 +5108,7 @@
                             <FileText className="w-5 h-5 mr-2 text-emerald-600" />
                             3. Compiled 3-Part Micro-Reflections
                           </h3>
-                          <p className="text-xs text-slate-500">Your structured selections and rationales from each module are assembled here.</p>
+                          <p className="text-xs text-slate-700">Your structured selections and rationales from each module are assembled here.</p>
                         </div>
                         <button
                           type="button"
@@ -4942,7 +5139,7 @@
                                 <button
                                   type="button"
                                   onClick={() => handleSelectModule(String(mod.id))}
-                                  className="text-[11px] text-red-600 hover:underline font-bold"
+                                  className="text-[0.8125rem] text-red-600 hover:underline font-bold"
                                 >
                                   Edit in Walkthrough
                                 </button>
@@ -4950,17 +5147,17 @@
 
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                                 <div className="bg-white p-2.5 rounded-xl border border-emerald-200">
-                                  <span className="font-bold text-emerald-800 block text-[10px] uppercase">THIS (Digital):</span>
+                                  <span className="font-bold text-emerald-800 block text-[0.75rem] uppercase">THIS (Digital):</span>
                                   <span className="text-slate-800 font-medium">{dVal}</span>
                                 </div>
                                 <div className="bg-white p-2.5 rounded-xl border border-red-200">
-                                  <span className="font-bold text-red-800 block text-[10px] uppercase">THAT (Analog):</span>
+                                  <span className="font-bold text-red-800 block text-[0.75rem] uppercase">THAT (Analog):</span>
                                   <span className="text-slate-800 font-medium">{aVal}</span>
                                 </div>
                               </div>
 
                               <div className="bg-white p-2.5 rounded-xl border border-slate-200 text-xs">
-                                <span className="font-bold text-slate-500 block text-[10px] uppercase mb-0.5">Rationale:</span>
+                                <span className="font-bold text-slate-700 block text-[0.75rem] uppercase mb-0.5">Rationale:</span>
                                 <p className="text-slate-700 italic">{r?.why || 'No rationale recorded yet.'}</p>
                               </div>
                             </div>
@@ -4976,7 +5173,7 @@
                           <Sparkles className="w-5 h-5 mr-2 text-amber-500" />
                           4. Final Reflection: Integration Artifact
                         </h3>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-slate-700 mt-0.5">
                           Choose how you would like to showcase your synthesis of high-tech and low-tech strategies.
                         </p>
                       </div>
@@ -4999,9 +5196,9 @@
                                   : 'border-slate-200 bg-white hover:bg-slate-50'
                               }`}
                             >
-                              <Icon className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-emerald-700' : 'text-slate-400'}`} />
+                              <Icon className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-emerald-700' : 'text-slate-600'}`} />
                               <div className={`text-xs font-black ${isSelected ? 'text-emerald-950' : 'text-slate-800'}`}>{tab.label}</div>
-                              <div className="text-[10px] text-slate-500">{tab.sub}</div>
+                              <div className="text-[0.75rem] text-slate-700">{tab.sub}</div>
                             </button>
                           );
                         })}
@@ -5028,8 +5225,9 @@
                         <div className="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-xs font-bold text-slate-700 mb-1">Lesson Title</label>
+                              <label htmlFor="lesson-title" className="block text-xs font-bold text-slate-700 mb-1">Lesson Title</label>
                               <input
+                            id="lesson-title"
                                 type="text"
                                 value={capstoneData.lessonTitle}
                                 onChange={(e) => setCapstoneData({ ...capstoneData, lessonTitle: e.target.value })}
@@ -5038,8 +5236,9 @@
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-slate-700 mb-1">Target Grade Band</label>
+                              <label htmlFor="lesson-grade" className="block text-xs font-bold text-slate-700 mb-1">Target Grade Band</label>
                               <select
+                            id="lesson-grade"
                                 value={capstoneData.lessonGrade}
                                 onChange={(e) => setCapstoneData({ ...capstoneData, lessonGrade: e.target.value })}
                                 className="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-white"
@@ -5054,8 +5253,9 @@
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-xs font-bold text-emerald-800 mb-1">High-Tech Element ("THIS")</label>
+                              <label htmlFor="lesson-this" className="block text-xs font-bold text-emerald-800 mb-1">High-Tech Element ("THIS")</label>
                               <input
+                            id="lesson-this"
                                 type="text"
                                 value={capstoneData.lessonHighTech}
                                 onChange={(e) => setCapstoneData({ ...capstoneData, lessonHighTech: e.target.value })}
@@ -5064,8 +5264,9 @@
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-red-800 mb-1">Low-Tech Element ("THAT")</label>
+                              <label htmlFor="lesson-that" className="block text-xs font-bold text-red-800 mb-1">Low-Tech Element ("THAT")</label>
                               <input
+                            id="lesson-that"
                                 type="text"
                                 value={capstoneData.lessonLowTech}
                                 onChange={(e) => setCapstoneData({ ...capstoneData, lessonLowTech: e.target.value })}
@@ -5076,8 +5277,9 @@
                           </div>
 
                           <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">The Intentional Blend</label>
+                            <label htmlFor="lesson-blend" className="block text-xs font-bold text-slate-700 mb-1">The Intentional Blend</label>
                             <textarea
+                            id="lesson-blend"
                               rows={3}
                               value={capstoneData.lessonIntegrationPlan}
                               onChange={(e) => setCapstoneData({ ...capstoneData, lessonIntegrationPlan: e.target.value })}
@@ -5137,6 +5339,9 @@
                             ? `Submissions closed on ${fmtDate(COURSE_CONFIG.endDate)}.`
                             : `You've earned ${scechTotal} of ${COURSE_CONFIG.maxScech} SCECHs. You can resubmit to add more before ${fmtDate(COURSE_CONFIG.endDate)}.`}
                         </p>
+                        {submitError && (
+                          <p role="alert" className="mt-2 text-sm font-bold text-amber-200">⚠️ {submitError}</p>
+                        )}
                       </div>
 
                       <button
@@ -5203,7 +5408,7 @@
               {currentView === 'facilitator' && (
                 !isFacilitator ? (
                   <div className="max-w-xl mx-auto bg-white rounded-3xl p-8 text-center border-2 border-slate-200 shadow-sm">
-                    <ShieldCheck className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                    <ShieldCheck className="w-12 h-12 text-slate-600 mx-auto mb-3" />
                     <h2 className="text-xl font-black text-slate-900">Facilitator access only</h2>
                     <p className="text-sm text-slate-800 font-medium mt-2">
                       This dashboard is available to approved REMC 12E facilitators. If you're a facilitator, sign in with the email address on the approved list.
@@ -5240,7 +5445,7 @@
                   {facTab === 'submissions' && (<>
                   <section className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border-2 border-slate-200 flex items-center justify-between flex-wrap gap-4">
                     <div>
-                      <div className="inline-flex items-center space-x-1.5 bg-amber-100 text-amber-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-1">
+                      <div className="inline-flex items-center space-x-1.5 bg-amber-100 text-amber-900 text-[0.75rem] font-black uppercase px-2.5 py-0.5 rounded-full mb-1">
                         <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
                         <span>Facilitator Dashboard</span>
                       </div>
@@ -5289,7 +5494,7 @@
                   </div>
 
                   <div className="relative max-w-sm">
-                    <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+                    <Search className="w-4 h-4 absolute left-3 top-3 text-slate-700" />
                     <input
                       type="text"
                       value={facilitatorFilter}
@@ -5312,7 +5517,7 @@
                     <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
-                          <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-black uppercase tracking-wider text-[10px]">
+                          <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-black uppercase tracking-wider text-[0.75rem]">
                             <tr>
                               <th className="p-4">Educator & District</th>
                               <th className="p-4">Michigan PIC</th>
@@ -5338,17 +5543,17 @@
                                 <tr key={sub.uid} className="hover:bg-slate-50/80">
                                   <td className="p-4">
                                     <div className="font-bold text-slate-900">{sub.participantName}</div>
-                                    <div className="text-[11px] text-slate-700">{sub.participantEmail}</div>
-                                    <div className="text-[10px] text-emerald-800 font-semibold">{sub.district}</div>
+                                    <div className="text-[0.8125rem] text-slate-700">{sub.participantEmail}</div>
+                                    <div className="text-[0.75rem] text-emerald-800 font-semibold">{sub.district}</div>
                                   </td>
                                   <td className="p-4 font-mono font-bold text-slate-800">{sub.picNumber}</td>
-                                  <td className="p-4 text-slate-700 text-[11px]">{formatWhen(sub.submittedAt, sub.dateString)}</td>
+                                  <td className="p-4 text-slate-700 text-[0.8125rem]">{formatWhen(sub.submittedAt, sub.dateString)}</td>
                                   <td className="p-4 font-black text-slate-900">{typeof sub.scechTotal === 'number' ? sub.scechTotal : '—'}</td>
                                   <td className="p-4"><StatusPill status={sub.status} /></td>
                                   <td className="p-4 text-right">
                                     <button
                                       onClick={() => { setSelectedSubmission(sub); setReviewNoteDraft(sub.reviewNote || ''); }}
-                                      className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 rounded-lg font-bold text-[11px] border border-emerald-300"
+                                      className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 rounded-lg font-bold text-[0.8125rem] border border-emerald-300"
                                     >
                                       Review
                                     </button>
@@ -5365,22 +5570,22 @@
                     const live = submissionsList.find(x => x.uid === selectedSubmission.uid) || selectedSubmission;
                     const cap = live.capstone || {};
                     return (
-                      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+                      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={`SCECH review for ${live.participantName || 'teacher'}`}>
                         <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl space-y-6">
                           <div className="flex items-start justify-between border-b pb-4 gap-3">
                             <div>
-                              <span className="text-[10px] uppercase font-black text-emerald-800 tracking-wider">SCECH Review</span>
+                              <span className="text-[0.75rem] uppercase font-black text-emerald-800 tracking-wider">SCECH Review</span>
                               <h3 className="text-xl font-black text-slate-900">{live.participantName}</h3>
                               <p className="text-xs text-slate-700">
                                 {live.participantEmail} • {live.district} • PIC: <span className="font-mono font-bold text-slate-900">{live.picNumber}</span>
                               </p>
-                              <p className="text-[11px] text-slate-700 mt-1">
+                              <p className="text-[0.8125rem] text-slate-700 mt-1">
                                 Submitted {formatWhen(live.submittedAt, live.dateString)} • Code {live.verificationCode}
                               </p>
                               <div className="mt-2"><StatusPill status={live.status} /></div>
                             </div>
                             <button onClick={() => setSelectedSubmission(null)} className="p-1.5 rounded-full hover:bg-slate-100" aria-label="Close review">
-                              <X className="w-5 h-5 text-slate-500" />
+                              <X className="w-5 h-5 text-slate-700" />
                             </button>
                           </div>
 
@@ -5390,14 +5595,14 @@
                               <button
                                 type="button"
                                 onClick={() => printTimeLogs([live])}
-                                className="px-3 py-1.5 rounded-lg bg-white border-2 border-emerald-800 text-emerald-900 hover:bg-emerald-50 text-[11px] font-black inline-flex items-center gap-1"
+                                className="px-3 py-1.5 rounded-lg bg-white border-2 border-emerald-800 text-emerald-900 hover:bg-emerald-50 text-[0.8125rem] font-black inline-flex items-center gap-1"
                               >
                                 <Printer className="w-3.5 h-3.5" />
                                 <span>Print Time Log</span>
                               </button>
                             </div>
                             <div className="overflow-x-auto">
-                              <table className="w-full text-[11px] text-left border border-slate-200">
+                              <table className="w-full text-[0.8125rem] text-left border border-slate-200">
                                 <tbody className="divide-y divide-slate-200 text-slate-900">
                                   {SCECH_ITEMS.map(it => {
                                     const entries = (live.timeLog || {})[it.key] || [];
@@ -5417,7 +5622,7 @@
                                 </tbody>
                               </table>
                             </div>
-                            <p className="text-[11px] text-slate-800">
+                            <p className="text-[0.8125rem] text-slate-800">
                               Signed: <strong>{(live.certification && live.certification.signedName) || '—'}</strong> • Course dates logged: {fmtDate(live.courseStartDate) || '—'} to {fmtDate(live.completionDate) || '—'}
                             </p>
                           </div>
@@ -5540,7 +5745,7 @@
 
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="relative max-w-sm flex-1">
-                            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+                            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-700" />
                             <input
                               type="text"
                               value={progressSearch}
@@ -5565,7 +5770,7 @@
                           </button>
                         </div>
 
-                        <p className="text-[11px] text-slate-800 font-semibold">
+                        <p className="text-[0.8125rem] text-slate-800 font-semibold">
                           ✅ SCECH earned • 🟡 In progress • ⬜ Not started. Hours are from their time log; minutes are time active on the site. Click a teacher to see their work.
                         </p>
 
@@ -5577,7 +5782,7 @@
                           <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                             <div className="overflow-x-auto">
                               <table className="w-full text-left text-xs">
-                                <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-black uppercase tracking-wider text-[10px]">
+                                <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-black uppercase tracking-wider text-[0.75rem]">
                                   <tr>
                                     <th className="p-3">Teacher</th>
                                     {SCECH_ITEMS.map(it => <th key={it.key} className="p-3 text-center">{it.modId ? `M${it.modId}` : 'Final'}</th>)}
@@ -5592,8 +5797,8 @@
                                         <button type="button" onClick={(e) => { e.stopPropagation(); setSelectedUser(p.uid); }} className="font-bold text-slate-900 underline text-left">
                                           {p.name || p.email || 'Unnamed teacher'}
                                         </button>
-                                        <div className="text-[10px] text-slate-700">{p.district || p.email}</div>
-                                        {submittedIds.has(p.uid) && <div className="text-[10px] font-black text-emerald-800">Submitted</div>}
+                                        <div className="text-[0.75rem] text-slate-700">{p.district || p.email}</div>
+                                        {submittedIds.has(p.uid) && <div className="text-[0.75rem] font-black text-emerald-800">Submitted</div>}
                                       </td>
                                       {p.items.map(it => {
                                         const c = cellFor(it);
@@ -5601,13 +5806,13 @@
                                           <td key={it.key} className="p-2 text-center">
                                             <div className={`rounded-lg border px-1.5 py-1 ${c.cls}`} title={`${it.label}: ${c.label}`}>
                                               <div aria-label={c.label}>{c.icon}</div>
-                                              <div className="text-[10px] font-bold whitespace-nowrap">{fmtHours(it.hours)}h • {it.minutes}m</div>
+                                              <div className="text-[0.75rem] font-bold whitespace-nowrap">{fmtHours(it.hours)}h • {it.minutes}m</div>
                                             </div>
                                           </td>
                                         );
                                       })}
                                       <td className="p-3 text-center font-black text-sm">{p.scech}</td>
-                                      <td className="p-3 text-[11px] whitespace-nowrap">
+                                      <td className="p-3 text-[0.8125rem] whitespace-nowrap">
                                         {p.lastActive ? (daysSince(p.lastActive) === 0 ? 'Today' : `${daysSince(p.lastActive)} day${daysSince(p.lastActive) === 1 ? '' : 's'} ago`) : 'Never'}
                                       </td>
                                     </tr>
@@ -5627,11 +5832,11 @@
                             <div key={box.title} className="bg-white rounded-2xl p-4 border-2 border-slate-200">
                               <h4 className="text-xs font-black text-slate-900 mb-2">{box.title}</h4>
                               {box.rows.length === 0 ? (
-                                <p className="text-[11px] text-slate-700">No data yet.</p>
+                                <p className="text-[0.8125rem] text-slate-700">No data yet.</p>
                               ) : (
                                 <ol className="space-y-1">
                                   {box.rows.map(([name, n]) => (
-                                    <li key={name} className="flex justify-between gap-2 text-[11px] text-slate-900">
+                                    <li key={name} className="flex justify-between gap-2 text-[0.8125rem] text-slate-900">
                                       <span className="truncate">{name}</span>
                                       <span className="font-black shrink-0">{n} {box.unit}</span>
                                     </li>
@@ -5642,24 +5847,24 @@
                           ))}
                         </div>
 
-                        <p className="text-[11px] text-slate-700 font-medium">
+                        <p className="text-[0.8125rem] text-slate-700 font-medium">
                           This view is for you only. None of this engagement data appears in the SCECH roster or the printed time logs.
                         </p>
 
                         {sel && (
-                          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+                          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={`Progress for ${sel.name || sel.email || 'teacher'}`}>
                             <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl space-y-5">
                               <div className="flex items-start justify-between gap-3 border-b pb-4">
                                 <div>
-                                  <span className="text-[10px] uppercase font-black text-emerald-800 tracking-wider">Teacher Progress</span>
+                                  <span className="text-[0.75rem] uppercase font-black text-emerald-800 tracking-wider">Teacher Progress</span>
                                   <h3 className="text-xl font-black text-slate-900">{sel.name || sel.email}</h3>
                                   <p className="text-xs text-slate-700">{sel.email}{sel.district ? ` • ${sel.district}` : ''}</p>
-                                  <p className="text-[11px] text-slate-700 mt-1">
+                                  <p className="text-[0.8125rem] text-slate-700 mt-1">
                                     {sel.scech} of {COURSE_CONFIG.maxScech} SCECHs earned so far • {sel.totalMinutes} minutes active on the site • Last active {sel.lastActive ? sel.lastActive.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'never'}
                                   </p>
                                 </div>
                                 <button onClick={() => setSelectedUser(null)} className="p-1.5 rounded-full hover:bg-slate-100" aria-label="Close teacher progress">
-                                  <X className="w-5 h-5 text-slate-500" />
+                                  <X className="w-5 h-5 text-slate-700" />
                                 </button>
                               </div>
 
@@ -5670,9 +5875,9 @@
                                   <div key={it.key} className="rounded-2xl border border-slate-200 p-4 space-y-2">
                                     <div className="flex items-center justify-between gap-2 flex-wrap">
                                       <h4 className="text-sm font-black text-slate-900">{it.label}</h4>
-                                      <span className="text-[11px] font-black">{cellFor(it).icon} {cellFor(it).label}</span>
+                                      <span className="text-[0.8125rem] font-black">{cellFor(it).icon} {cellFor(it).label}</span>
                                     </div>
-                                    <div className="text-[11px] text-slate-800">
+                                    <div className="text-[0.8125rem] text-slate-800">
                                       {fmtHours(it.hours)} hr logged • {it.minutes} min active • Steps visited: {it.stepsSeen.length ? it.stepsSeen.map(n => ['Showdown', 'Research', 'Reflection'][n] || n).join(', ') : 'none'}
                                     </div>
                                     {it.modId ? (
@@ -5693,7 +5898,7 @@
                                       </div>
                                     )}
                                     {entries.length > 0 && (
-                                      <div className="text-[11px] text-slate-800">
+                                      <div className="text-[0.8125rem] text-slate-800">
                                         {entries.map((x, k) => <div key={k}>{fmtDate(x.date)}: {fmtTime(x.start)}–{fmtTime(x.end)}</div>)}
                                       </div>
                                     )}
@@ -5702,12 +5907,12 @@
                               })}
 
                               {Object.keys(sel.unwraps).length > 0 && (
-                                <div className="text-[11px] text-slate-800">
+                                <div className="text-[0.8125rem] text-slate-800">
                                   <strong>Gifts unwrapped:</strong> {Object.entries(sel.unwraps).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} (${n})`).join(', ')}
                                 </div>
                               )}
                               {sel.favorites.length > 0 && (
-                                <div className="text-[11px] text-slate-800"><strong>Saved to toolkit:</strong> {sel.favorites.join(', ')}</div>
+                                <div className="text-[0.8125rem] text-slate-800"><strong>Saved to toolkit:</strong> {sel.favorites.join(', ')}</div>
                               )}
                             </div>
                           </div>
@@ -5736,7 +5941,7 @@
                           onToggle={() => toggleRelease(row.key)}
                         />
                       ))}
-                      <p className="text-[11px] text-slate-700 font-medium">
+                      <p className="text-[0.8125rem] text-slate-700 font-medium">
                         Hiding a module controls what teachers see on the site. It isn't a security lock, since the course text is part of the public page code, so don't put anything confidential in a hidden module.
                       </p>
                     </div>
@@ -5751,7 +5956,7 @@
 
           {/* PRINT MODAL */}
           {isPrintModalOpen && (
-            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="print-modal-title">
               <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
                 <div className="flex items-start justify-between border-b pb-4">
                   <div className="flex items-center space-x-3">
@@ -5759,20 +5964,20 @@
                       <Printer className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-900">Print Desk Reference</h3>
-                      <p className="text-xs text-slate-500">Save as PDF or print a classroom binder sheet</p>
+                      <h3 id="print-modal-title" className="text-lg font-black text-slate-900">Print Desk Reference</h3>
+                      <p className="text-xs text-slate-700">Save as PDF or print a classroom binder sheet</p>
                     </div>
                   </div>
-                  <button onClick={() => setIsPrintModalOpen(false)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700">
+                  <button onClick={() => setIsPrintModalOpen(false)} aria-label="Close print options" className="p-1.5 rounded-full hover:bg-slate-100 text-slate-600 hover:text-slate-700">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
+                    <p className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
                       1. Which Modules to Include:
-                    </label>
+                    </p>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
@@ -5800,9 +6005,9 @@
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
+                    <p className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
                       2. Tool Card Selection:
-                    </label>
+                    </p>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
@@ -5889,11 +6094,11 @@
                 {participantInfo.name && (
                   <div className="text-right text-xs">
                     <div className="font-black text-slate-900">{participantInfo.name}</div>
-                    <div className="text-slate-500">PIC: {participantInfo.picNumber || 'N/A'} • {participantInfo.district || 'Branch/Calhoun'}</div>
+                    <div className="text-slate-700">PIC: {participantInfo.picNumber || 'N/A'} • {participantInfo.district || 'Branch/Calhoun'}</div>
                   </div>
                 )}
               </div>
-              <div className="text-[10px] text-slate-500 mt-2">
+              <div className="text-[0.75rem] text-slate-700 mt-2">
                 Target Grade Band: {activeGrade === 'k2' ? 'K–2 Primary' : activeGrade === 'g38' ? '3–8 Intermediate' : '9–12 & Career Center (CTE)'} • Printed on {new Date().toLocaleDateString()}
               </div>
             </div>
@@ -5929,19 +6134,19 @@
                       </h3>
                       <div className="space-y-2">
                         {filteredThis.length === 0 ? (
-                          <div className="text-[11px] text-slate-400 italic">No tools bookmarked in this section.</div>
+                          <div className="text-[0.8125rem] text-slate-600 italic">No tools bookmarked in this section.</div>
                         ) : (
                           filteredThis.map((tool, idx) => (
                             <div key={idx} className="border border-slate-200 p-2.5 rounded-lg bg-slate-50/50">
                               <div className="text-xs font-black text-slate-900 flex items-center justify-between">
                                 <span>{tool.name}</span>
-                                {favoriteTools.includes(tool.name) && <span className="text-[10px] text-amber-600">⭐ Favorited</span>}
+                                {favoriteTools.includes(tool.name) && <span className="text-[0.75rem] text-amber-600">⭐ Favorited</span>}
                               </div>
-                              <div className="text-[10px] text-slate-600 font-semibold">{tool.need ? `${tool.need} • ` : ''}{tool.slot === 'stuffer' ? 'Stocking stuffer • ' : ''}{tool.badge}{show5E && (tool.phases || []).length > 0 ? ` • 5E: ${tool.phases.join(' & ')}` : ''}</div>
-                              <p className="text-[11px] text-slate-700 mt-1 leading-snug">{tool.teaser || tool.whatItIs}</p>
-                              {tool.prepTime && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>Prep ({tool.prepTime}):</strong> {tool.prepDetail}</p>}
-                              {printIncludeTips && tool.inClass && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>In class:</strong> {tool.inClass}</p>}
-                              {printIncludeTips && tool.tryIt && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>Try it:</strong> {tool.tryIt}</p>}
+                              <div className="text-[0.75rem] text-slate-600 font-semibold">{tool.need ? `${tool.need} • ` : ''}{tool.slot === 'stuffer' ? 'Stocking stuffer • ' : ''}{tool.badge}{show5E && (tool.phases || []).length > 0 ? ` • 5E: ${tool.phases.join(' & ')}` : ''}</div>
+                              <p className="text-[0.8125rem] text-slate-700 mt-1 leading-snug">{tool.teaser || tool.whatItIs}</p>
+                              {tool.prepTime && <p className="text-[0.8125rem] text-slate-800 mt-1 leading-snug"><strong>Prep ({tool.prepTime}):</strong> {tool.prepDetail}</p>}
+                              {printIncludeTips && tool.inClass && <p className="text-[0.8125rem] text-slate-800 mt-1 leading-snug"><strong>In class:</strong> {tool.inClass}</p>}
+                              {printIncludeTips && tool.tryIt && <p className="text-[0.8125rem] text-slate-800 mt-1 leading-snug"><strong>Try it:</strong> {tool.tryIt}</p>}
                             </div>
                           ))
                         )}
@@ -5954,19 +6159,19 @@
                       </h3>
                       <div className="space-y-2">
                         {filteredThat.length === 0 ? (
-                          <div className="text-[11px] text-slate-400 italic">No tools bookmarked in this section.</div>
+                          <div className="text-[0.8125rem] text-slate-600 italic">No tools bookmarked in this section.</div>
                         ) : (
                           filteredThat.map((tool, idx) => (
                             <div key={idx} className="border border-slate-200 p-2.5 rounded-lg bg-slate-50/50">
                               <div className="text-xs font-black text-slate-900 flex items-center justify-between">
                                 <span>{tool.name}</span>
-                                {favoriteTools.includes(tool.name) && <span className="text-[10px] text-amber-600">⭐ Favorited</span>}
+                                {favoriteTools.includes(tool.name) && <span className="text-[0.75rem] text-amber-600">⭐ Favorited</span>}
                               </div>
-                              <div className="text-[10px] text-slate-600 font-semibold">{tool.need ? `${tool.need} • ` : ''}{tool.slot === 'stuffer' ? 'Stocking stuffer • ' : ''}{tool.badge}{show5E && (tool.phases || []).length > 0 ? ` • 5E: ${tool.phases.join(' & ')}` : ''}</div>
-                              <p className="text-[11px] text-slate-700 mt-1 leading-snug">{tool.teaser || tool.whatItIs}</p>
-                              {tool.prepTime && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>Prep ({tool.prepTime}):</strong> {tool.prepDetail}</p>}
-                              {printIncludeTips && tool.inClass && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>In class:</strong> {tool.inClass}</p>}
-                              {printIncludeTips && tool.tryIt && <p className="text-[11px] text-slate-800 mt-1 leading-snug"><strong>Try it:</strong> {tool.tryIt}</p>}
+                              <div className="text-[0.75rem] text-slate-600 font-semibold">{tool.need ? `${tool.need} • ` : ''}{tool.slot === 'stuffer' ? 'Stocking stuffer • ' : ''}{tool.badge}{show5E && (tool.phases || []).length > 0 ? ` • 5E: ${tool.phases.join(' & ')}` : ''}</div>
+                              <p className="text-[0.8125rem] text-slate-700 mt-1 leading-snug">{tool.teaser || tool.whatItIs}</p>
+                              {tool.prepTime && <p className="text-[0.8125rem] text-slate-800 mt-1 leading-snug"><strong>Prep ({tool.prepTime}):</strong> {tool.prepDetail}</p>}
+                              {printIncludeTips && tool.inClass && <p className="text-[0.8125rem] text-slate-800 mt-1 leading-snug"><strong>In class:</strong> {tool.inClass}</p>}
+                              {printIncludeTips && tool.tryIt && <p className="text-[0.8125rem] text-slate-800 mt-1 leading-snug"><strong>Try it:</strong> {tool.tryIt}</p>}
                             </div>
                           ))
                         )}
@@ -5977,7 +6182,7 @@
 
                   {printIncludeReflections && r && (
                     <div className="border-t border-dashed border-slate-300 pt-2 text-xs">
-                      <span className="font-black text-slate-800 block text-[11px] uppercase mb-1">My 3-Part Micro-Reflection:</span>
+                      <span className="font-black text-slate-800 block text-[0.8125rem] uppercase mb-1">My 3-Part Micro-Reflection:</span>
                       <div className="grid grid-cols-2 gap-2 mb-1">
                         <div><strong>Digital Tool ("THIS"):</strong> {r.digital === 'Other' ? r.digitalCustom : r.digital || 'None'}</div>
                         <div><strong>Analog Strategy ("THAT"):</strong> {r.analog === 'Other' ? r.analogCustom : r.analog || 'None'}</div>
@@ -5989,7 +6194,7 @@
               );
             })}
 
-            <div className="text-center text-[10px] text-slate-400 border-t pt-3 mt-6">
+            <div className="text-center text-[0.75rem] text-slate-600 border-t pt-3 mt-6">
               REMC 12E Lending Portal: https://remc12echeckout.myturn.com/library/?defaultPage=true • Generated via Tech the Halls: This or That!
             </div>
             </>)}
