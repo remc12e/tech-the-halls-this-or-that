@@ -202,14 +202,21 @@
         console.error('Firebase failed to start:', e);
       }
     }
-    const EMAIL_KEY = 'remc12e_tth_emailForSignIn';
 
     const friendlyAuthError = (err) => {
       const code = (err && err.code) || '';
       if (code.includes('invalid-email')) return 'That email address doesn\'t look right. Please check it and try again.';
       if (code.includes('invalid-action-code') || code.includes('expired-action-code')) return 'That sign-in link has expired or was already used. Request a new one below.';
       if (code.includes('unauthorized-continue-uri') || code.includes('unauthorized-domain')) return 'This website isn\'t on Firebase\'s approved list yet. Please let your facilitator know.';
-      if (code.includes('quota') || code.includes('too-many-requests')) return 'Too many sign-in emails were sent. Please wait a few minutes and try again.';
+      if (code.includes('popup-blocked')) return 'Your browser blocked the sign-in window. Allow pop-ups for this site, then try again.';
+      if (code.includes('account-exists-with-different-credential')) return 'This email already signed in with an email link. Use the email link option below instead.';
+      if (code.includes('operation-not-allowed')) return 'That sign-in option isn\'t turned on yet. Please let your facilitator know.';
+      if (code.includes('network-request-failed')) return 'Your connection dropped while signing in. Check your internet and try again.';
+      if (code.includes('wrong-password') || code.includes('invalid-credential') || code.includes('invalid-login-credentials') || code.includes('user-not-found')) return 'That email and password don\'t match. Try again, or use Forgot password.';
+      if (code.includes('email-already-in-use')) return 'An account with this email already exists. Try Sign in with Google, or sign in with your password.';
+      if (code.includes('weak-password')) return 'Please choose a password with at least 8 characters.';
+      if (code.includes('too-many-requests')) return 'Too many attempts in a row. Please wait a few minutes and try again.';
+      if (code.includes('quota')) return 'The course has reached a daily email limit. Please try again tomorrow, or contact your facilitator.';
       return 'Something went wrong signing in. Please try again, or contact your facilitator.';
     };
 
@@ -2032,6 +2039,12 @@
       const [signInEmail, setSignInEmail] = useState('');
       const [signInState, setSignInState] = useState('idle');
       const [signInError, setSignInError] = useState('');
+      const [showEmailOption, setShowEmailOption] = useState(false);
+      const [signInPassword, setSignInPassword] = useState('');
+      const [authMode, setAuthMode] = useState('signin');
+      const [resetSent, setResetSent] = useState(false);
+      const [emailVerified, setEmailVerified] = useState(false);
+      const [verifyNote, setVerifyNote] = useState('');
 
       const [tinselVotes, setTinselVotes] = useState({
         1: { thisCount: 28, thatCount: 22, userVote: null },
@@ -2121,42 +2134,126 @@
         }
       }, []);
 
-      // --- SIGN-IN (email link) ---
-      const completeEmailLink = async (email) => {
+      // --- SIGN-IN: Google (main) + email & password (backup) ---
+      const resetAuthForm = () => {
+        setSignInPassword('');
+        setSignInError('');
+        setResetSent(false);
+        setSignInState('idle');
+      };
+
+      const signInWithGoogle = async () => {
         if (!fbAuth) return;
+        setSignInError('');
         setSignInState('sending');
         try {
-          await fbAuth.signInWithEmailLink(email.trim().toLowerCase(), window.location.href);
-          try { localStorage.removeItem(EMAIL_KEY); } catch (e) {}
-          window.history.replaceState(null, '', window.location.pathname);
-          setSignInState('idle');
-          setSignInError('');
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          await fbAuth.signInWithPopup(provider);
+          resetAuthForm();
           triggerToast('🎄 You\'re signed in! Your work now saves to your account.');
+        } catch (err) {
+          const code = (err && err.code) || '';
+          if (code.includes('popup-closed-by-user') || code.includes('cancelled-popup-request')) {
+            setSignInState('idle');
+            return;
+          }
+          setSignInState('error');
+          setSignInError(friendlyAuthError(err));
+        }
+      };
+
+      const validEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+      const submitEmailPassword = async () => {
+        if (!fbAuth) return;
+        const email = signInEmail.trim().toLowerCase();
+        if (!validEmail(email)) {
+          setSignInState('error');
+          setSignInError('Please enter a valid email address.');
+          return;
+        }
+        if (authMode === 'create' && signInPassword.length < 8) {
+          setSignInState('error');
+          setSignInError('Please choose a password with at least 8 characters.');
+          return;
+        }
+        if (!signInPassword) {
+          setSignInState('error');
+          setSignInError('Please enter your password.');
+          return;
+        }
+        setSignInError('');
+        setSignInState('sending');
+        try {
+          if (authMode === 'create') {
+            const cred = await fbAuth.createUserWithEmailAndPassword(email, signInPassword);
+            await cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname });
+            setVerifyNote('');
+            triggerToast('📧 Account created! Check your email to confirm your address.');
+          } else {
+            await fbAuth.signInWithEmailAndPassword(email, signInPassword);
+            triggerToast('🎄 Welcome back! You\'re signed in.');
+          }
+          resetAuthForm();
         } catch (err) {
           setSignInState('error');
           setSignInError(friendlyAuthError(err));
         }
       };
 
-      const sendSignInLink = async () => {
+      const sendPasswordReset = async () => {
+        if (!fbAuth) return;
         const email = signInEmail.trim().toLowerCase();
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (!validEmail(email)) {
           setSignInState('error');
-          setSignInError('Please enter a valid email address.');
+          setSignInError('Enter the email address you used to create your account.');
           return;
         }
+        setSignInError('');
         setSignInState('sending');
         try {
-          await fbAuth.sendSignInLinkToEmail(email, {
-            url: window.location.origin + window.location.pathname,
-            handleCodeInApp: true
-          });
-          try { localStorage.setItem(EMAIL_KEY, email); } catch (e) {}
-          setSignInState('sent');
-          setSignInError('');
+          await fbAuth.sendPasswordResetEmail(email, { url: window.location.origin + window.location.pathname });
         } catch (err) {
-          setSignInState('error');
-          setSignInError(friendlyAuthError(err));
+          const code = (err && err.code) || '';
+          // For privacy, show the same message whether or not the account exists
+          if (!code.includes('user-not-found')) {
+            setSignInState('error');
+            setSignInError(friendlyAuthError(err));
+            return;
+          }
+        }
+        setSignInState('idle');
+        setResetSent(true);
+      };
+
+      const refreshVerification = async (showMessage) => {
+        const user = fbAuth && fbAuth.currentUser;
+        if (!user) return;
+        try {
+          await user.reload();
+          const fresh = fbAuth.currentUser;
+          if (fresh && fresh.emailVerified) {
+            await fresh.getIdToken(true); // make sure the database sees the confirmed email
+            setEmailVerified(true);
+            setVerifyNote('');
+            if (showMessage) triggerToast('✅ Email confirmed! Your work now saves to your account.');
+          } else if (showMessage) {
+            setVerifyNote("We don't see the confirmation yet. Click the link in your email, then try again.");
+          }
+        } catch (e) {
+          if (showMessage) setVerifyNote('Something went wrong checking. Please try again in a moment.');
+        }
+      };
+
+      const resendVerification = async () => {
+        const user = fbAuth && fbAuth.currentUser;
+        if (!user) return;
+        try {
+          await user.sendEmailVerification({ url: window.location.origin + window.location.pathname });
+          setVerifyNote('Sent! Check your inbox and spam folder for a new confirmation link.');
+        } catch (err) {
+          setVerifyNote(friendlyAuthError(err));
         }
       };
 
@@ -2170,33 +2267,48 @@
         try {
           ['remc12e_tth_notes', 'remc12e_tth_info', 'remc12e_tth_favorites'].forEach(k => localStorage.removeItem(k));
         } catch (e) {}
+        setSignInEmail('');
+        resetAuthForm();
+        setVerifyNote('');
         setSyncStatus('idle');
         triggerToast('Signed out. Your work is safe in your account.');
       };
 
-      // Finish sign-in when a teacher arrives from the emailed link, and watch sign-in state
+      // Watch sign-in state; recheck email confirmation when a teacher returns to this tab
       useEffect(() => {
         if (!fbAuth) return;
-        if (fbAuth.isSignInWithEmailLink(window.location.href)) {
-          let stored = null;
-          try { stored = localStorage.getItem(EMAIL_KEY); } catch (e) {}
-          if (stored) {
-            completeEmailLink(stored);
-          } else {
-            setCurrentView('welcome');
-            setSignInState('needEmail');
-          }
-        }
-        const unsubscribe = fbAuth.onAuthStateChanged(user => {
+        const unsubscribe = fbAuth.onAuthStateChanged(async (user) => {
           setAuthUser(user);
-          if (!user) setCloudLoaded(false);
+          if (!user) {
+            setCloudLoaded(false);
+            setEmailVerified(false);
+            return;
+          }
+          if (!user.emailVerified) {
+            try { await user.reload(); } catch (e) {}
+          }
+          const fresh = fbAuth.currentUser;
+          if (fresh && fresh.emailVerified) {
+            try { await fresh.getIdToken(true); } catch (e) {}
+            setEmailVerified(true);
+          } else {
+            setEmailVerified(false);
+          }
         });
-        return unsubscribe;
+        const onFocus = () => {
+          const u = fbAuth.currentUser;
+          if (u && !u.emailVerified) refreshVerification(false);
+        };
+        window.addEventListener('focus', onFocus);
+        return () => {
+          unsubscribe();
+          window.removeEventListener('focus', onFocus);
+        };
       }, []);
 
       // Load this teacher's saved work from the cloud (or move existing browser work into the cloud)
       useEffect(() => {
-        if (!fbDb || !authUser) return;
+        if (!fbDb || !authUser || !emailVerified) return;
         let cancelled = false;
         const ref = fbDb.collection('users').doc(authUser.uid);
         ref.get().then(snap => {
@@ -2216,7 +2328,7 @@
           setSyncStatus('error');
         });
         return () => { cancelled = true; };
-      }, [authUser]);
+      }, [authUser, emailVerified]);
 
       // Save to the cloud a moment after anything changes
       useEffect(() => {
@@ -2559,7 +2671,7 @@
                 </div>
 
                 {FIREBASE_READY && (
-                  authUser ? (
+                  authUser && emailVerified ? (
                     <div className="flex items-center gap-2 bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-1.5 rounded-xl">
                       <span className="text-[11px] font-black text-emerald-100 whitespace-nowrap" aria-live="polite">
                         {syncStatus === 'saving' ? '☁️ Saving…' : syncStatus === 'error' ? '⚠️ Not saved' : '☁️ Saved'}
@@ -2573,10 +2685,28 @@
                         Sign out
                       </button>
                     </div>
-                  ) : (
+                  ) : authUser ? (
                     <button
                       type="button"
                       onClick={() => setCurrentView('welcome')}
+                      className="px-3 py-1.5 rounded-xl text-xs font-black bg-amber-400 text-emerald-950 hover:bg-amber-300 border border-amber-300"
+                    >
+                      📧 Confirm email
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCurrentView('welcome');
+                        if (signInState === 'error') setSignInState('idle');
+                        setTimeout(() => {
+                          const el = document.getElementById('signin-google') || document.getElementById('signin-email');
+                          if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            el.focus({ preventScroll: true });
+                          }
+                        }, 80);
+                      }}
                       className="px-3 py-1.5 rounded-xl text-xs font-black bg-amber-400 text-emerald-950 hover:bg-amber-300 border border-amber-300"
                     >
                       Sign in
@@ -2787,8 +2917,8 @@
 
                   {/* SIGN-IN CARD */}
                   {FIREBASE_READY ? (
-                    <section className={`rounded-3xl p-6 md:p-7 border-2 shadow-sm ${authUser ? 'bg-emerald-50 border-emerald-400' : 'bg-white border-amber-400'}`}>
-                      {authUser ? (
+                    <section className={`rounded-3xl p-6 md:p-7 border-2 shadow-sm ${authUser && emailVerified ? 'bg-emerald-50 border-emerald-400' : 'bg-white border-amber-400'}`}>
+                      {authUser && emailVerified ? (
                         <div className="flex items-start gap-3">
                           <CheckCircle2 className="w-6 h-6 text-emerald-700 shrink-0" />
                           <div>
@@ -2798,60 +2928,174 @@
                             </p>
                           </div>
                         </div>
-                      ) : signInState === 'sent' ? (
+                      ) : authUser ? (
                         <div className="flex items-start gap-3">
-                          <span className="text-2xl" aria-hidden="true">📬</span>
+                          <span className="text-2xl" aria-hidden="true">📧</span>
                           <div>
-                            <h3 className="text-lg font-black text-slate-900">Check your email</h3>
+                            <h3 className="text-lg font-black text-slate-900">Confirm your email to start saving</h3>
                             <p className="text-sm text-slate-900 font-medium mt-0.5">
-                              We sent a sign-in link to <strong>{signInEmail.trim().toLowerCase()}</strong>. Open it on this device to finish signing in. If it hasn't arrived in a few minutes, check your spam or junk folder.
+                              We sent a confirmation link to <strong>{authUser.email}</strong>. Click it, then come back to this page. If you don't see it within a few minutes, check your spam or junk folder.
                             </p>
-                            <button
-                              type="button"
-                              onClick={() => setSignInState('idle')}
-                              className="mt-2 text-xs font-black text-emerald-800 underline"
-                            >
-                              Use a different email
-                            </button>
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              <button
+                                type="button"
+                                onClick={() => refreshVerification(true)}
+                                className="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black"
+                              >
+                                I've confirmed my email
+                              </button>
+                              <button
+                                type="button"
+                                onClick={resendVerification}
+                                className="px-4 py-2 rounded-xl bg-white border-2 border-emerald-800 text-emerald-900 hover:bg-emerald-50 text-xs font-black"
+                              >
+                                Resend the email
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleSignOut}
+                                className="px-4 py-2 rounded-xl text-xs font-black text-slate-800 underline"
+                              >
+                                Use a different account
+                              </button>
+                            </div>
+                            {verifyNote && (
+                              <p className="mt-2 text-sm font-bold text-slate-900" role="status">{verifyNote}</p>
+                            )}
                           </div>
                         </div>
                       ) : (
                         <div>
-                          <h3 className="text-lg font-black text-slate-900">
-                            {signInState === 'needEmail' ? 'Confirm your email to finish signing in' : 'Sign in to save your progress'}
-                          </h3>
+                          <h3 className="text-lg font-black text-slate-900">Sign in to save your progress</h3>
                           <p className="text-sm text-slate-900 font-medium mt-0.5 mb-3">
-                            {signInState === 'needEmail'
-                              ? 'It looks like you opened the link on a different device. Enter the same email you used to request it.'
-                              : "No password needed. Enter your school email and we'll send you a one-click sign-in link. Your work will save to your account and count toward your SCECHs."}
+                            Sign in with your school Google account, with no password needed. Your work will save to your account and count toward your SCECHs.
                           </p>
-                          <div className="flex flex-col sm:flex-row gap-2">
-                            <label htmlFor="signin-email" className="sr-only">School email</label>
-                            <input
-                              id="signin-email"
-                              type="email"
-                              autoComplete="email"
-                              value={signInEmail}
-                              onChange={(e) => setSignInEmail(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  signInState === 'needEmail' ? completeEmailLink(signInEmail) : sendSignInLink();
-                                }
-                              }}
-                              placeholder="you@yourschool.org"
-                              className="flex-1 p-3 rounded-xl border-2 border-slate-300 text-sm focus:border-emerald-600 focus:outline-none"
-                            />
+                          <button
+                            id="signin-google"
+                            type="button"
+                            onClick={signInWithGoogle}
+                            disabled={signInState === 'sending'}
+                            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-black shadow-sm disabled:opacity-60"
+                          >
+                            <span>{signInState === 'sending' && !showEmailOption ? 'Signing in…' : 'Sign in with Google'}</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+
+                          <div className="mt-4 pt-3 border-t border-slate-200">
                             <button
                               type="button"
-                              disabled={signInState === 'sending'}
-                              onClick={() => (signInState === 'needEmail' ? completeEmailLink(signInEmail) : sendSignInLink())}
-                              className="px-5 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-black disabled:opacity-60"
+                              onClick={() => { setShowEmailOption(v => !v); resetAuthForm(); }}
+                              aria-expanded={showEmailOption}
+                              className="text-xs font-black text-emerald-800 underline"
                             >
-                              {signInState === 'sending' ? 'Working…' : signInState === 'needEmail' ? 'Finish signing in' : 'Email me a sign-in link'}
+                              No Google account? Use your email and a password
                             </button>
                           </div>
+
+                          {showEmailOption && (
+                            <div className="mt-3 space-y-3">
+                              {authMode !== 'reset' && (
+                                <div className="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200" role="group" aria-label="Account options">
+                                  {[
+                                    { id: 'signin', label: 'Sign in' },
+                                    { id: 'create', label: 'Create an account' }
+                                  ].map(m => (
+                                    <button
+                                      key={m.id}
+                                      type="button"
+                                      onClick={() => { setAuthMode(m.id); resetAuthForm(); }}
+                                      aria-pressed={authMode === m.id}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-black ${authMode === m.id ? 'bg-emerald-800 text-white' : 'text-slate-800 hover:bg-white'}`}
+                                    >
+                                      {m.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div>
+                                <label htmlFor="signin-email" className="block text-xs font-black text-slate-900 mb-1">School email</label>
+                                <input
+                                  id="signin-email"
+                                  type="email"
+                                  autoComplete="email"
+                                  value={signInEmail}
+                                  onChange={(e) => setSignInEmail(e.target.value)}
+                                  onKeyDown={(e) => { if (e.key === 'Enter') (authMode === 'reset' ? sendPasswordReset() : submitEmailPassword()); }}
+                                  placeholder="you@yourschool.org"
+                                  className="w-full p-3 rounded-xl border-2 border-slate-300 text-sm focus:border-emerald-600 focus:outline-none"
+                                />
+                              </div>
+
+                              {authMode === 'reset' ? (
+                                <div>
+                                  {resetSent ? (
+                                    <p className="text-sm font-bold text-emerald-900" role="status">
+                                      If an account exists for that email, a password reset link is on its way. Check your inbox and spam folder.
+                                    </p>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={sendPasswordReset}
+                                      disabled={signInState === 'sending'}
+                                      className="px-5 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-black disabled:opacity-60"
+                                    >
+                                      {signInState === 'sending' ? 'Sending…' : 'Email me a reset link'}
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => { setAuthMode('signin'); resetAuthForm(); }}
+                                    className="block mt-2 text-xs font-black text-emerald-800 underline"
+                                  >
+                                    Back to sign in
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <div>
+                                    <label htmlFor="signin-password" className="block text-xs font-black text-slate-900 mb-1">
+                                      {authMode === 'create' ? 'Choose a password' : 'Password'}
+                                    </label>
+                                    <input
+                                      id="signin-password"
+                                      type="password"
+                                      autoComplete={authMode === 'create' ? 'new-password' : 'current-password'}
+                                      value={signInPassword}
+                                      onChange={(e) => setSignInPassword(e.target.value)}
+                                      onKeyDown={(e) => { if (e.key === 'Enter') submitEmailPassword(); }}
+                                      className="w-full p-3 rounded-xl border-2 border-slate-300 text-sm focus:border-emerald-600 focus:outline-none"
+                                    />
+                                    {authMode === 'create' && (
+                                      <p className="text-xs text-slate-800 font-medium mt-1">At least 8 characters. We'll email you a link to confirm your address.</p>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-3">
+                                    <button
+                                      type="button"
+                                      onClick={submitEmailPassword}
+                                      disabled={signInState === 'sending'}
+                                      className="px-5 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-black disabled:opacity-60"
+                                    >
+                                      {signInState === 'sending' ? 'Working…' : authMode === 'create' ? 'Create my account' : 'Sign in'}
+                                    </button>
+                                    {authMode === 'signin' && (
+                                      <button
+                                        type="button"
+                                        onClick={() => { setAuthMode('reset'); resetAuthForm(); }}
+                                        className="text-xs font-black text-emerald-800 underline"
+                                      >
+                                        Forgot password?
+                                      </button>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          )}
+
                           {signInState === 'error' && signInError && (
-                            <p className="mt-2 text-sm font-bold text-red-800" role="alert">{signInError}</p>
+                            <p className="mt-3 text-sm font-bold text-red-800" role="alert">{signInError}</p>
                           )}
                         </div>
                       )}
@@ -3018,7 +3262,7 @@
                     </div>
                     <div className="flex items-start gap-2 bg-amber-50 border border-amber-300 rounded-xl p-3 text-xs text-amber-950 font-semibold">
                       <Save className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
-                      <span>{authUser ? 'Your work saves to your account automatically, so you can switch devices anytime. You can still print your notes as a personal copy.' : 'Until you sign in, your work is stored in this browser on this device only. Sign in above to save it to your account and use it on any device.'}</span>
+                      <span>{authUser && emailVerified ? 'Your work saves to your account automatically, so you can switch devices anytime. You can still print your notes as a personal copy.' : 'Until you sign in, your work is stored in this browser on this device only. Sign in above to save it to your account and use it on any device.'}</span>
                     </div>
                   </section>
 
