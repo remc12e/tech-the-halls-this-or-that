@@ -366,6 +366,46 @@
       retention: 'Course records are kept as long as needed for SCECH reporting and REMC 12E record-keeping, then deleted.'
     };
 
+    // Final Reflection (capstone) expectations, shown on Start Here and the capstone page
+    const CAPSTONE_INFO = {
+      summary: "Your Final Reflection is an artifact of your learning: something you create that reflects what you took from this course, worth about an hour of effort and thought.",
+      formats: ['🎥 A 2–5 minute video', '✍️ A written reflection', '📋 A lesson plan', '🖼️ A slide deck'],
+      aiNote: "Create it yourself. Using AI to brainstorm or revise is welcome, as long as you're transparent about how you used it."
+    };
+
+    function CapstoneAbout({ compact }) {
+      return (
+        <div className={`rounded-2xl border-2 border-amber-300 bg-amber-50 ${compact ? 'p-4' : 'p-5'}`}>
+          <h4 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
+            <span aria-hidden="true">🎁</span>
+            <span>About the Final Reflection (Capstone)</span>
+          </h4>
+          <p className="text-sm text-slate-900 font-medium mt-1 leading-relaxed">{CAPSTONE_INFO.summary}</p>
+          <p className="text-xs font-black text-slate-900 mt-3 mb-1.5">Choose any format:</p>
+          <ul className="flex flex-wrap gap-2">
+            {CAPSTONE_INFO.formats.map(f => (
+              <li key={f} className="text-xs font-bold text-slate-900 bg-white border border-amber-300 rounded-full px-3 py-1">{f}</li>
+            ))}
+          </ul>
+          <p className="text-sm text-slate-900 font-medium mt-3 flex items-start gap-1.5">
+            <span aria-hidden="true">🤖</span>
+            <span>{CAPSTONE_INFO.aiNote}</span>
+          </p>
+        </div>
+      );
+    }
+
+    // License and AI attribution (site footer)
+    const SITE_CREDITS = {
+      workTitle: 'Tech the Halls',
+      year: 2026,
+      creator: 'REMC12E - CISD',
+      creatorUrl: '', // add a web address to make the creator name a link
+      licenseName: 'CC BY-NC-SA 4.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+      aiStatement: "This website was created by Anna Mccrumb for REMC 12E. AI tools (Google Gemini and Anthropic's Claude) assisted with writing code, page design, and drafting some text. Anna Mccrumb selected the tools and strategies, reviewed and edited the course content, and is responsible for its accuracy."
+    };
+
     const SCECH_ITEMS = [
       { key: 'm1', modId: 1, short: 'Module 1', label: 'Module 1 - Engagement & Learning', activity: 'Module 1 reflection' },
       { key: 'm2', modId: 2, short: 'Module 2', label: 'Module 2 - Collaborative Tech & Group Work', activity: 'Module 2 reflection' },
@@ -957,7 +997,7 @@
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black shadow-sm ${palette.openBtn}`}
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>{isThis ? 'Open Tool' : 'Open Resource'}</span>
+                  <span>{openTool.urlLabel || (isThis ? 'Open Tool' : 'Open Resource')}</span>
                 </a>
                 <a
                   href={openTool.videoUrl}
@@ -965,7 +1005,9 @@
                   rel="noreferrer"
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${palette.videoBtn}`}
                 >
-                  <Play className="w-3 h-3 fill-current" />
+                  {/youtube\.com|youtu\.be|vimeo\.com|eduvision\.tv/i.test(openTool.videoUrl || '')
+                    ? <Play className="w-3 h-3 fill-current" />
+                    : <FileText className="w-3.5 h-3.5" />}
                   <span>{openTool.videoLabel || 'Watch Video Guide'}</span>
                 </a>
                 <button
@@ -994,7 +1036,7 @@
       {
         id: 1,
         title: "Engagement & Reading: Audio Scaffolds vs. The Paper Jigsaw",
-        navTitle: "1. Engagement & Text",
+        navTitle: "1. Engagement & Learning",
         icon: Lightbulb,
         tagline: "Pixels or Paper? Two Brilliant Ways to Conquer Complex Texts",
         annasCorner: "A pencil is technology, too! We're not crowning a winner here—we're exploring how both digital audio dual-coding and tactile paper margin notes help our students wrestle with complex texts.",
@@ -1057,9 +1099,9 @@
                   badge: "100% Free • Read Alouds", 
                   teaser: "Award-winning streaming library where celebrated actors read beloved picture books aloud with expressive narration.",
                   whatItIs: "Celebrated actors read classic children's literature aloud with animated illustrations and closed captions.", 
-                  url: "https://www.youtube.com/playlist?list=PL04F0FB771098124D", 
-                  videoUrl: "https://www.youtube.com/results?search_query=storyline+online+classroom+ideas", 
-                  videoLabel: "Storyline Guide" 
+                  url: "https://storylineonline.net/", 
+                  videoUrl: "https://sharemylesson.com/partner/storyline-online", 
+                  videoLabel: "Lesson Ideas" 
                 },
                 { 
                   name: "ReadWorks Audio", 
@@ -1067,7 +1109,7 @@
                   teaser: "Free reading passages paired with human-narrated audio tracking and visual vocabulary support.",
                   whatItIs: "High-interest K-2 passages with human read-aloud audio, sentence tracking, and picture vocabulary cards.", 
                   url: "https://www.readworks.org", 
-                  videoUrl: "https://youtu.be/_-pv3bFARDE?si=pHKXLkztCyTBVQVY", 
+                  videoUrl: "https://www.readworks.org/teacher-guide#!articleTab:content/", 
                   videoLabel: "ReadWorks Walkthrough" 
                 }
               ],
@@ -1079,7 +1121,7 @@
                   badge: "13+ Only • Teacher-Facing", 
                   teaser: "Turns your teacher-uploaded curriculum sources into a lively 2-host audio podcast to introduce dense topics.",
                   whatItIs: "NOTE: Gemini Notebook is restricted to ages 13+ and many districts restrict direct student access. In Grades 3–8, teachers use it as an instructional tool to generate audio overview podcasts or leveled study guides to play whole-class without student logins.", 
-                  url: "https://notebooklm.google.com", 
+                  url: "https://notebook.google.com", 
                   videoUrl: "https://www.youtube.com/shorts/Xc1DWJFOdnU", 
                   videoLabel: "Gemini Notebook in 60s" 
                 },
@@ -1110,7 +1152,7 @@
                   badge: "13+ Only • District Approval Req.", 
                   teaser: "AI research tool that queries uploaded sources, DBQs, and trade manuals to create learning and study materials.",
                   whatItIs: "AI research tool that queries uploaded sources, DBQs, and trade manuals to create learning and study materials. NOTE: While legally 13+, ensure your district's specific AI policy allows secondary students to log in directly; otherwise, use as a teacher demonstration tool.", 
-                  url: "https://notebooklm.google.com", 
+                  url: "https://notebook.google.com", 
                   videoUrl: "https://www.youtube.com/shorts/Xc1DWJFOdnU", 
                   videoLabel: "Gemini Notebook in 60s" 
                 },
@@ -1150,21 +1192,23 @@
               tools: [
                 { 
                   name: "The Picture Sequence Jigsaw", 
+                  urlLabel: "Learn about it", 
                   badge: "Early Cooperative Puzzle", 
                   teaser: "Kinesthetic carpet strategy where young learners physically arrange illustrated story cards in chronological order.",
                   whatItIs: "Give small groups illustrated cards. In 'home' circles, students physically order their cards sequentially (First, Next, Then, Finally).", 
                   url: "https://www.readingrockets.org/classroom/classroom-strategies/story-sequence", 
-                  videoUrl: "https://www.youtube.com/results?search_query=picture+sequencing+cards+early+reading", 
-                  videoLabel: "Picture Sequencing" 
+                  videoUrl: "https://www.canva.com/s/designs?query=story+sequencing", 
+                  videoLabel: "Canva Templates" 
                 },
                 { 
-                  name: "Pipe Cleaners & Reading Windows", 
-                  badge: "Zero-Cost Tactile Hunts", 
-                  teaser: "Everyday craft pipe cleaners and cut index cards that allow pre-readers to isolate and frame phonics sounds.",
-                  whatItIs: "Students bend craft pipe cleaners to frame sight words, or cut a small rectangle out of a recycled card to isolate phonics sounds.", 
-                  url: "https://www.readingrockets.org/topics/phonics-and-decoding/articles/six-games-reading-words", 
-                  videoUrl: "https://www.youtube.com/results?search_query=reading+window+index+card+strategy", 
-                  videoLabel: "Reading Windows" 
+                  name: "Elkonin Sound Boxes", 
+                  urlLabel: "Learn about it", 
+                  badge: "Phonemic Awareness • Hands-On", 
+                  teaser: "Students push one counter into a box for each sound they hear, making the sounds in a spoken word visible and touchable.",
+                  whatItIs: "Students say a word slowly and push a counter into a box for each sound they hear. For example, 'ship' has four letters but only three sounds: /sh/ /i/ /p/. Once students can segment confidently, swap the counters for letter tiles or have them write the letters in the boxes, connecting each sound to its spelling.", 
+                  url: "https://www.readingrockets.org/classroom/classroom-strategies/elkonin-boxes", 
+                  videoUrl: "https://www.readingrockets.org/videos/classroom/elkonin-boxes-demonstration", 
+                  videoLabel: "Sound Boxes Demo" 
                 }
               ],
             },
@@ -1261,12 +1305,12 @@
           k2: {
             title: "The Storytime Sugar Cookie",
             prepTime: "10–15 Minutes to Mix & Bake",
-            prepBreakdown: "Preview the Storyline Online video (5 min) and bend a class set of pipe cleaner frames (5–10 min). The frames are reusable after the first batch.",
-            ingredients: "Storyline Online Read-Aloud + Craft Pipe Cleaner Frames",
+            prepBreakdown: "Preview the Storyline Online video (5 min), then choose 3–4 words from the story and set out sound-box mats and counters (5–10 min).",
+            ingredients: "Storyline Online Read-Aloud + Elkonin Sound Boxes & Counters",
             steps: [
               "1 - Preheat (Digital): Stream a 4-minute Storyline Online story on your screen with captions on. Pause halfway through to let students predict the ending.",
-              "2 - Mix (Tactile): Hand each child a pipe cleaner bent into a circle 'cookie cutter'. On printed readers or big books, students physically frame target sight words or story elements.",
-              "3 - Assemble: Students pair up 'knee-to-knee' on the carpet to read their framed cookie-words aloud to a partner."
+              "2 - Mix (Tactile): Pull 3–4 words from the story. Students say each word slowly and push one counter into a sound box for each sound they hear.",
+              "3 - Assemble: Partners sit knee-to-knee, push the sounds for one story word together, then blend the sounds back into the whole word."
             ]
           },
           g38: {
@@ -1298,7 +1342,7 @@
       {
         id: 2,
         title: "Collaboration & Groups: Shared Slides vs. The Big Poster Project",
-        navTitle: "2. Collaboration & Groups",
+        navTitle: "2. Collaborative Tech & Group Work",
         icon: Users,
         tagline: "Audit Trails & Digital Co-creation vs. Giant Markers & Gallery Walks",
         annasCorner: "When kids share a digital slide deck, they learn to share ideas. When they stand around a physical poster, they learn to share space. Both are essential lifelong skills!",
@@ -1604,7 +1648,7 @@
       {
         id: 3,
         title: "Games in Learning: Screen Missions vs. Tabletop Logic",
-        navTitle: "3. Games & Logic",
+        navTitle: "3. Games: Online or on the Table?",
         icon: Gamepad2,
         tagline: "Gamified Digital Loops vs. Face-to-Face Tabletop Strategy",
         annasCorner: "Games hijack dopamine in the best way possible! Use screens for rapid diagnostic reps with instant corrective loops, and tabletop cardboard for emotional regulation, turn-taking, and face-to-face patience.",
@@ -1639,9 +1683,9 @@
             thatBlizzard: "Dice rolling off tables and bouncing under someone's desk.",
           },
           g38: {
-            thisSpark: "Electrifying arcade modes and power-ups where students gladly answer 60 vocab questions in 10 minutes.",
-            thisTree: "Fast formative reviews, vocabulary repetition, high-energy Friday competitions.",
-            thisBlizzard: "Speed-guessing: clicking whatever button lets them get back to the in-game power-up store.",
+            thisSpark: "From fast team review games to story-driven missions where the whole class puts its learning to work, with instant feedback and data.",
+            thisTree: "Fast team reviews, vocabulary practice, and end-of-unit missions that make students apply what they learned.",
+            thisBlizzard: "Speed-guessing to win, or a few confident voices steering every team decision while others ride along.",
             thatSpark: "Deductive social reasoning where kids look each other in the eyes and debate semantic clues.",
             thatTree: "Friday community circles, critical thinking deduction, building healthy sportsmanship.",
             thatBlizzard: "Arguments over vague rules and packing 50 cards back into the box before the bell.",
@@ -1694,13 +1738,13 @@
             g38: {
               tools: [
                 { 
-                  name: "Mission.IO / Gimkit", 
-                  badge: "Game Arenas", 
-                  teaser: "High-energy 2D game arena where students answer curriculum questions to earn power-ups and collaborate in survival modes.",
-                  whatItIs: "Students answer curriculum questions to earn in-game energy, collect resources, and collaborate on modes like 'Floor is Lava'.", 
-                  url: "https://www.gimkit.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=gimkit+modes+for+teachers+tutorial", 
-                  videoLabel: "Gimkit Modes Setup" 
+                  name: "Mission.io", 
+                  badge: "Free Teacher Account • Whole-Class Simulation", 
+                  teaser: "Story-driven, whole-class simulations where teams apply what they just learned to solve a crisis together.",
+                  whatItIs: "Teacher-led, whole-class simulations: the class becomes a crew facing a crisis built from the unit you just taught, and teams have to use that content together to get through it. Missions run about 25–35 minutes, cover science, math, ELA, and social studies for grades K–8, and need one device per student plus your projector and speakers. Students join with a code on the screen, with no logins, and every student gets a skills report afterward. The free teacher account includes a rotating set of Missions.", 
+                  url: "https://mission.io", 
+                  videoUrl: "https://mission.io/how-it-works", 
+                  videoLabel: "How a Mission Works" 
                 },
                 { 
                   name: "Blooket", 
@@ -1712,13 +1756,13 @@
                   videoLabel: "Blooket Teacher Setup" 
                 },
                 { 
-                  name: "Quizizz Team Mode", 
+                  name: "Wayground Team Mode", 
                   badge: "Collaborative Feedback", 
                   teaser: "Formative assessment where students work in teams to pool correct answers and unlock class rewards with live accuracy data.",
-                  whatItIs: "Run team-based question missions where students pool their correct answers together to defeat challenges.", 
-                  url: "https://quizizz.com", 
+                  whatItIs: "Run team-based question missions where students pool their correct answers together to defeat challenges. (Wayground was formerly called Quizizz.)", 
+                  url: "https://wayground.com", 
                   videoUrl: "https://www.youtube.com/results?search_query=quizizz+team+mode+classroom", 
-                  videoLabel: "Quizizz Team Mode" 
+                  videoLabel: "Wayground Team Mode" 
                 }
               ],
             },
@@ -1734,13 +1778,13 @@
                   videoLabel: "Gimkit Secondary" 
                 },
                 { 
-                  name: "Quizizz Mastery Arenas", 
+                  name: "Wayground Self-Paced Practice", 
                   badge: "Diagnostic Gaming", 
                   teaser: "Self-paced diagnostic challenges providing teachers with granular heatmaps of procedural misconceptions.",
-                  whatItIs: "Secondary students complete gamified question sets at their own pace with detailed instructor data.", 
-                  url: "https://quizizz.com", 
+                  whatItIs: "Secondary students complete gamified question sets at their own pace with detailed instructor data. (Wayground was formerly called Quizizz.)", 
+                  url: "https://wayground.com", 
                   videoUrl: "https://www.youtube.com/results?search_query=quizizz+for+high+school+teachers", 
-                  videoLabel: "Quizizz Mastery" 
+                  videoLabel: "Wayground Mastery" 
                 },
                 { 
                   name: "PhET Interactive Challenges", 
@@ -1884,11 +1928,11 @@
           },
           g38: {
             title: "The Braided Arcade Pastry",
-            prepTime: "25–30 Minutes to Roll & Bake, plus REMC 12E lead time",
-            prepBreakdown: "Build and test the Gimkit set (10–15 min) and learn Things in Rings (15 min). Request the game from REMC 12E a few days ahead so courier delivery arrives in time.",
-            ingredients: "Gimkit (Floor is Lava Mode) + Things in Rings (REMC Lending Library)",
+            prepTime: "25 Minutes to Roll & Bake, plus REMC 12E lead time",
+            prepBreakdown: "Set up the Wayground Team Mode quiz (10 min) and learn Things in Rings (15 min). Request the game from REMC 12E a few days ahead so courier delivery arrives in time.",
+            ingredients: "Wayground Team Mode + Things in Rings (REMC Lending Library)",
             steps: [
-              "1 - Preheat (Digital): 12 minutes in Gimkit. Students answer 50+ curriculum questions to earn shields and survive the game arena.",
+              "1 - Preheat (Digital): 12 minutes in Wayground Team Mode. Teams pool their correct answers on 15–20 unit vocabulary questions.",
               "2 - Mix (Tactile): 12 minutes playing Things in Rings from the REMC box. Students categorize items into Venn rings using hidden rules.",
               "3 - Assemble: Regroup as a whole class to contrast rapid fluency (Station A) with deeper logical deduction (Station B)."
             ]
@@ -1910,7 +1954,7 @@
       {
         id: 4,
         title: "Classroom Tech & The 5E Model: Where Screens Soar vs. Where Paper Wins",
-        navTitle: "4. Tech & The 5E Model",
+        navTitle: "4. Reflection on Classroom Tech",
         icon: TreePine,
         tagline: "Engage, Explore, Explain, Elaborate, Evaluate: Selecting the Right Vehicle",
         annasCorner: "Technology is a magnifier: it makes great pedagogy greater, but it also makes unfocused pedagogy faster. Let the 5E Instructional Model guide whether you need a digital simulation or a hands-on physical mystery box today!",
@@ -2049,10 +2093,10 @@
                   videoLabel: "Diffit for Secondary" 
                 },
                 { 
-                  name: "Formative / Quizizz Live Dashboards", 
+                  name: "Formative / Wayground Live Dashboards", 
                   badge: "5E: Evaluate Phase", 
                   teaser: "Real-time diagnostic heatmaps that instantly reveal which safety protocol or concept students missed.",
-                  whatItIs: "Live heatmaps that reveal in real-time which specific conceptual misconception 60% of your class missed.", 
+                  whatItIs: "Live heatmaps that reveal in real-time which specific conceptual misconception 60% of your class missed. (Wayground was formerly called Quizizz.)", 
                   url: "https://www.formative.com", 
                   videoUrl: "https://www.youtube.com/results?search_query=formative+assessment+with+quizizz", 
                   videoLabel: "Instant Data Dashboards" 
@@ -2228,7 +2272,7 @@
           ],
           that: [
             { name: "The Picture Sequence Jigsaw", slot: 1, phases: ["Explain"], need: "Build story comprehension", tryIt: "Print 4 key pictures from a familiar story and check that the order is clear without any words.", prepTime: "15–20 min", prepDetail: "Print, cut, and bag one picture set per group. Laminating adds 10 minutes once, but the cards last all year." },
-            { name: "Pipe Cleaners & Reading Windows", slot: 2, phases: ["Explore"], need: "Spotlight words & sounds", inClass: "Have students bend pipe cleaners into 'magnifying glasses' to hunt for sight or spelling words.", tryIt: "Bend one pipe cleaner window and test it on a big book page to be sure it frames a single word.", prepTime: "5–10 min", prepDetail: "Bend or cut a class set of frames. After the first time, they're reusable." }
+            { name: "Elkonin Sound Boxes", slot: 2, phases: ["Explore"], need: "Spotlight words & sounds", inClass: "Start with plain counters so students focus only on sounds. Switch to letter tiles once they can segment three-sound words on their own.", tryIt: "Draw three boxes and segment 'ship' and 'cat' yourself with counters. Notice that 'ship' has four letters but only three sounds.", prepTime: "5–10 min", prepDetail: "Print or draw sound-box mats and bag a set of counters (or letter tiles) for each student. They are reusable all year." }
           ]
         },
         g38: {
@@ -2309,8 +2353,8 @@
         },
         g38: {
           this: [
-            { name: "Mission.IO / Gimkit", slot: 1, phases: ["Evaluate"], need: "Review vocabulary", inClass: "Switch to Team Mode or Floor is Lava so students pool their energy toward a shared goal.", tryIt: "Build or import a 10-question vocab set, then play a solo practice round to feel the pace.", prepTime: "10–15 min", prepDetail: "Build or import a question set, choose the game mode, and run a quick test round." },
-            { name: "Quizizz Team Mode", slot: 2, phases: ["Evaluate"], need: "Reason as a team", tryIt: "Turn one existing quiz into Team Mode and decide how you'll group students before you launch.", prepTime: "10 min", prepDetail: "Choose or edit a quiz and plan your teams before launching." },
+            { name: "Mission.io", slot: 2, phases: ["Elaborate"], need: "Reason as a team", inClass: "Run The Communication Mission first. It teaches your class how every Mission works.", tryIt: "Create a free teacher account and watch the 5-minute Teacher Preview for one Mission that matches a unit you are teaching now.", prepTime: "5–10 min", prepDetail: "Watch the Mission's 5-minute Teacher Preview and check that student devices and your speakers work. The first time, add about 10 minutes to create your free account." },
+            { name: "Wayground Team Mode", slot: 1, phases: ["Evaluate"], need: "Review vocabulary", inClass: "Use Team Mode so students pool their correct answers toward a shared goal instead of racing each other.", tryIt: "Turn one existing quiz into Team Mode and decide how you will group students before you launch.", prepTime: "10 min", prepDetail: "Choose or edit a quiz and plan your teams before launching." },
             { name: "Blooket", slot: "stuffer", phases: ["Evaluate"], need: "Quick review fun", prepTime: "10 min", prepDetail: "Build or find a question set and choose the game mode." }
           ],
           that: [
@@ -2323,7 +2367,7 @@
           this: [
             { name: "Gimkit (Secondary)", slot: 1, phases: ["Evaluate"], need: "Review key terms", inClass: "Have students build their own question bank as an end-of-unit review that tests their peers.", tryIt: "Write 5 tricky questions from your unit and play them yourself in Classic mode to check the difficulty.", prepTime: "10–15 min", prepDetail: "Build or import your term set, choose the mode, and run a test round." },
             { name: "PhET Interactive Challenges", slot: 2, phases: ["Explore", "Elaborate"], need: "Reason through systems", tryIt: "Pick one PhET sim for your next unit and write one 'make it happen' challenge, like lighting 2 bulbs with 1 battery.", prepTime: "15–20 min", prepDetail: "Preview the sim, write the challenge, and test it on a student Chromebook." },
-            { name: "Quizizz Mastery Arenas", slot: "stuffer", phases: ["Evaluate"], need: "Diagnose misconceptions", prepTime: "15 min", prepDetail: "Build or adapt the question set and turn on the reports you want to see." }
+            { name: "Wayground Self-Paced Practice", slot: "stuffer", phases: ["Evaluate"], need: "Diagnose misconceptions", prepTime: "15 min", prepDetail: "Build or adapt the question set and turn on the reports you want to see." }
           ],
           that: [
             { name: "Codenames: Curriculum Edition", slot: 1, phases: ["Elaborate"], need: "Review key terms", tryIt: "Make a 5x5 grid of course terms and find one clue that links 3 of them without hitting the others.", prepTime: "20–30 min", prepDetail: "Make the first set of course-term cards. After that, they're reusable every year. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
@@ -2360,7 +2404,7 @@
         h912: {
           this: [
             { name: "Desmos STEM & Physics Modeling", slot: 1, phases: ["Explore", "Elaborate"], need: "Investigate a real problem", tryIt: "Graph one real data set from your field (prices, loads, temperatures) and add a slider students can change.", prepTime: "20–30 min", prepDetail: "Enter real data from your field and build the sliders students will change." },
-            { name: "Formative / Quizizz Live Dashboards", slot: 2, phases: ["Evaluate"], need: "Check readiness for lab or shop", inClass: "Check the live dashboard at the midpoint of a block period to catch misconceptions early.", tryIt: "Build a 3-question safety or concept check in Formative and take it yourself on your phone.", prepTime: "10–15 min", prepDetail: "Build the check and test it on a phone before class." },
+            { name: "Formative / Wayground Live Dashboards", slot: 2, phases: ["Evaluate"], need: "Check readiness for lab or shop", inClass: "Check the live dashboard at the midpoint of a block period to catch misconceptions early.", tryIt: "Build a 3-question safety or concept check in Formative and take it yourself on your phone.", prepTime: "10–15 min", prepDetail: "Build the check and test it on a phone before class." },
             { name: "Diffit (Secondary & CTE)", slot: "stuffer", phases: ["Explain"], need: "Scaffold technical reading", tryIt: "Paste one lab procedure or primary source, generate a 9th-grade version, and check that every safety step and key term survived.", prepTime: "10–15 min", prepDetail: "Paste the source, choose the level, and check that technical terms and safety steps are still accurate. Add about 5 minutes the first time to create your free account." }
           ],
           that: [
@@ -4031,6 +4075,9 @@
                     <p className="text-xs text-slate-800 font-medium leading-relaxed mb-4">
                       Earn up to 5 SCECHs: 1 for each module and 1 for the Final Reflection. For each one, finish the activity and log at least 1 hour in its time log. Work in any order, submit whenever you're ready, and resubmit to add more before Jan 8, 2027. Your SCECH count appears in the top bar.
                     </p>
+                    <div className="mb-4">
+                      <CapstoneAbout />
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
                       {modulesData.map(mod => (
                         <button
@@ -4072,7 +4119,7 @@
                       onClick={() => handleSelectModule('1')}
                       className="px-7 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 text-white rounded-2xl text-sm font-black shadow-lg flex items-center gap-2 ring-2 ring-amber-300"
                     >
-                      <span>Start Module 1: Engagement & Text</span>
+                      <span>Start Module 1: Engagement & Learning</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -5173,9 +5220,12 @@
                           <Sparkles className="w-5 h-5 mr-2 text-amber-500" />
                           4. Final Reflection: Integration Artifact
                         </h3>
-                        <p className="text-xs text-slate-700 mt-0.5">
-                          Choose how you would like to showcase your synthesis of high-tech and low-tech strategies.
+                        <p className="text-xs text-slate-800 font-medium mt-0.5">
+                          Share it as a link (video, written reflection, or slides), or fill in the lesson plan template below.
                         </p>
+                        <div className="mt-3">
+                          <CapstoneAbout compact />
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
@@ -5951,6 +6001,27 @@
                 )
               )}
 
+              {/* FOOTER: license + AI attribution */}
+              <footer className="max-w-4xl mx-auto mt-12 pt-5 border-t-2 border-slate-300 text-xs text-slate-800 space-y-2" aria-label="License and attribution">
+                <p className="leading-relaxed">
+                  <a href={typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '#'} className="underline font-bold text-emerald-900">{SITE_CREDITS.workTitle}</a>
+                  {' '}© {SITE_CREDITS.year} by{' '}
+                  {SITE_CREDITS.creatorUrl
+                    ? <a href={SITE_CREDITS.creatorUrl} target="_blank" rel="noreferrer" className="underline font-bold text-emerald-900">{SITE_CREDITS.creator}</a>
+                    : <span className="font-bold">{SITE_CREDITS.creator}</span>}
+                  {' '}is licensed under{' '}
+                  <a href={SITE_CREDITS.licenseUrl} target="_blank" rel="license noopener noreferrer" className="underline font-bold text-emerald-900 inline-flex items-center">
+                    {SITE_CREDITS.licenseName}
+                    {['cc', 'by', 'nc', 'sa'].map(icon => (
+                      <img key={icon} src={`https://mirrors.creativecommons.org/presskit/icons/${icon}.svg`} alt="" style={{ maxWidth: '1em', maxHeight: '1em', marginLeft: '.2em' }} />
+                    ))}
+                  </a>
+                </p>
+                <details>
+                  <summary className="cursor-pointer font-bold underline text-emerald-900 inline">AI Attribution</summary>
+                  <p className="mt-1.5 leading-relaxed max-w-2xl">{SITE_CREDITS.aiStatement}</p>
+                </details>
+              </footer>
             </main>
           </div>
 
