@@ -999,6 +999,7 @@
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>{openTool.urlLabel || (isThis ? 'Open Tool' : 'Open Resource')}</span>
                 </a>
+                {openTool.videoUrl && (
                 <a
                   href={openTool.videoUrl}
                   target="_blank"
@@ -1010,6 +1011,7 @@
                     : <FileText className="w-3.5 h-3.5" />}
                   <span>{openTool.videoLabel || 'Watch Video Guide'}</span>
                 </a>
+                )}
                 <button
                   type="button"
                   onClick={() => onToggleFavorite(openTool.name)}
@@ -1131,7 +1133,7 @@
                   teaser: "One-click Chrome assistant that instantly levels reading passages and generates targeted vocabulary scaffolds.",
                   whatItIs: "Levels any online article or Doc in reading grade level with one click and generates targeted vocabulary scaffolds.", 
                   url: "https://www.briskteaching.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+tutorial+for+teachers", 
+                  videoUrl: "https://youtu.be/RxGCOyuXsPA", 
                   videoLabel: "Brisk Setup" 
                 },
                 { 
@@ -1140,7 +1142,7 @@
                   teaser: "Turns any online educational video into an interactive check-for-understanding with embedded audio questions.",
                   whatItIs: "Embed audio notes and check-in questions directly inside YouTube or teacher videos so students actively process content.", 
                   url: "https://edpuzzle.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=edpuzzle+tutorial+for+teachers", 
+                  videoUrl: "https://youtu.be/bhW8LRLWeNQ", 
                   videoLabel: "Edpuzzle Tour" 
                 }
               ],
@@ -1166,13 +1168,13 @@
                   videoLabel: "Brisk Secondary" 
                 },
                 { 
-                  name: "Perusall", 
-                  badge: "Social Annotation", 
-                  teaser: "Collaborative reading platform where high schoolers annotate complex texts together right in the digital margins.",
-                  whatItIs: "Students collaboratively annotate difficult secondary or CTE texts in the margins, debating complex claims together.", 
-                  url: "https://perusall.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=perusall+collaborative+annotation", 
-                  videoLabel: "Perusall Reading" 
+                  name: "Diffit (Secondary & CTE)", 
+                  badge: "Free Basic Plan • Teacher-Facing", 
+                  teaser: "Adapts dense technical, historical, or scientific texts into scaffolded readings with vocabulary and questions.",
+                  whatItIs: "Paste a primary source, research article, or technical manual section, or share a link or YouTube video, and choose a reading level, up to college. Diffit returns an adapted passage, key vocabulary, and comprehension questions. Students never log in. The free Basic plan has limits, and one-click Google export is a paid feature.", 
+                  url: "https://web.diffit.me/", 
+                  videoUrl: "https://web.diffit.me/quick-start", 
+                  videoLabel: "Quick Start" 
                 }
               ],
             }
@@ -1191,11 +1193,11 @@
             k2: {
               tools: [
                 { 
-                  name: "The Picture Sequence Jigsaw", 
+                  name: "Story Sequencing & Retell", 
                   urlLabel: "Learn about it", 
-                  badge: "Early Cooperative Puzzle", 
-                  teaser: "Kinesthetic carpet strategy where young learners physically arrange illustrated story cards in chronological order.",
-                  whatItIs: "Give small groups illustrated cards. In 'home' circles, students physically order their cards sequentially (First, Next, Then, Finally).", 
+                  badge: "Story Structure • Oral Language", 
+                  teaser: "Students put picture cards in order, then retell the story to a partner using first, next, then, and finally.",
+                  whatItIs: "After a read-aloud, small groups put 4–6 picture cards from the story in order. Then each student retells the story to a partner using sequence words: first, next, then, finally. The partner listens and adds any missing story elements, like a character, the problem, or how it was solved. The retell is where the learning happens, because it builds the narrative language young readers need for comprehension.", 
                   url: "https://www.readingrockets.org/classroom/classroom-strategies/story-sequence", 
                   videoUrl: "https://www.canva.com/s/designs?query=story+sequencing", 
                   videoLabel: "Canva Templates" 
@@ -1225,22 +1227,22 @@
                   videoLabel: "The Four Roles Explained" 
                 },
                 { 
-                  name: "Color-Coded Highlighting Matrix",
-                  badge: "Active Reading Technique", 
-                  teaser: "Multi-colored physical highlighting system that requires learners to categorize claims, evidence, and questions by hand.",
-                  whatItIs: "Students use 3 physical highlighter colors with intentional jobs: Yellow for Claims, Pink for Evidence, Green for Questions.", 
-                  url: "https://www.cultofpedagogy.com/jigsaw-method/", 
-                  videoUrl: "https://www.youtube.com/results?search_query=annotation+strategies+for+students", 
-                  videoLabel: "Active Paper Annotation" 
+                  name: "Purposeful Text Marking", 
+                  urlLabel: "Learn about it", 
+                  badge: "Active Reading Strategy • AVID Marking the Text", 
+                  teaser: "Students read with a purpose question, then number paragraphs, circle key terms, and underline claims and evidence they can use.",
+                  whatItIs: "Based on AVID's Marking the Text strategy. Before reading, give students a purpose question. As they read, they number the paragraphs, circle key terms, and underline claims and evidence that help answer the question. The marks only pay off when students use them, so follow up with discussion or writing. Color-coded highlighters are optional: if you use them, give each color one clear job.", 
+                  url: "https://www.chicagohistory.org/app/uploads/2022/10/Marking-the-TextHandout.pdf", 
+                  videoUrl: "https://youtu.be/ROuhZxr4mmk", 
+                  videoLabel: "How to Effectively Annotate a Text" 
                 },
                 { 
-                  name: "11x17 Butcher Paper Placemats",
-                  badge: "Tactile Synthesis", 
-                  teaser: "Oversized table workspace where each student synthesizes their quadrant before discussing as a team.",
-                  whatItIs: "Large format paper in the middle of a table with designated quadrants for each student to write their key takeaways.", 
-                  url: "https://www.readingrockets.org/strategies/jigsaw", 
-                  videoUrl: "https://www.youtube.com/results?search_query=graphic+organizers+cooperative+learning", 
-                  videoLabel: "Butcher Paper Placemats" 
+                  name: "Reader's Theater", 
+                  urlLabel: "Learn about it", 
+                  badge: "Fluency & Engagement • Performance", 
+                  teaser: "Small groups rehearse and perform passages from a shared text, bringing it to life with pacing, tone, and expression.",
+                  whatItIs: "Students read a passage aloud in a play-like way, sharing the parts among two or more readers and focusing on pacing, tone, and expression. Groups choose a passage with multiple parts, split the roles, and rehearse over a few days using an anchor chart of what strong reading sounds like. Then they perform for the class, or even for families. No costumes or sets needed.",
+                  url: "https://www.edutopia.org/article/using-readers-theater-boost-engagement/"
                 }
               ],
             },
@@ -1266,13 +1268,12 @@
                   videoLabel: "Text Marginalia" 
                 },
                 { 
-                  name: "Graphic Synthesis Placemats", 
-                  badge: "Tactile System Mapping", 
-                  teaser: "Oversized paper mapping routine where teams physically sketch argument flows or diagnostic paths before writing.",
-                  whatItIs: "Students physically sketch argument flowcharts or step-by-step diagnostic workflows on oversized paper before typing or lab work.", 
-                  url: "https://buildingthinkingclassrooms.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=visual+thinking+strategies+cte", 
-                  videoLabel: "Visual Thinking in Secondary" 
+                  name: "Double-Entry Journal", 
+                  urlLabel: "Learn about it", 
+                  badge: "Writing to Learn • Any Subject", 
+                  teaser: "Students copy key quotes or details on the left and write their own thinking on the right: questions, connections, and analysis.",
+                  whatItIs: "Students fold a page in half lengthwise. On the left, they copy a meaningful word, phrase, or sentence from the text, with the page number. On the right, they respond with a question, a connection, or an analysis. It works for novels, primary sources, lab reports, and CTE manuals, and partners can trade journals to discuss each other's thinking. It's also called a dialectical journal.", 
+                  url: "https://www.adlit.org/in-the-classroom/strategies/double-entry-journals"
                 }
               ],
             }
@@ -2059,9 +2060,9 @@
                   badge: "Free Basic Plan • Teacher-Facing", 
                   teaser: "Turns any topic, article, PDF, or YouTube video into a leveled reading with vocabulary and questions.",
                   whatItIs: "Give Diffit a topic, link, YouTube video, pasted text, or PDF and choose a reading level. It returns an adapted passage, a vocabulary list, and comprehension questions you can edit, print, or share. Students never log in. The free Basic plan has limits, and one-click export to Google Docs or Slides is a paid feature.", 
-                  url: "https://web.diffit.me", 
-                  videoUrl: "https://www.youtube.com/results?search_query=diffit+tutorial+for+teachers", 
-                  videoLabel: "Diffit in Action" 
+                  url: "https://web.diffit.me/", 
+                  videoUrl: "https://web.diffit.me/quick-start", 
+                  videoLabel: "Quick Start" 
                 },
                 { 
                   name: "PhET Interactive Simulations", 
@@ -2090,9 +2091,9 @@
                   badge: "Free Basic Plan • Teacher-Facing", 
                   teaser: "Adapts dense technical, historical, or scientific texts into scaffolded readings with vocabulary and questions.",
                   whatItIs: "Paste a lab procedure, trade article, primary source, or YouTube link and choose a reading level, all the way up to college. Diffit returns an adapted passage, key vocabulary, and comprehension questions. Students never log in. The free Basic plan has limits, and one-click Google export is a paid feature.", 
-                  url: "https://web.diffit.me", 
-                  videoUrl: "https://www.youtube.com/results?search_query=diffit+high+school+teachers", 
-                  videoLabel: "Diffit for Secondary" 
+                  url: "https://web.diffit.me/", 
+                  videoUrl: "https://web.diffit.me/quick-start", 
+                  videoLabel: "Quick Start" 
                 },
                 { 
                   name: "Formative / Wayground Live Dashboards", 
@@ -2273,7 +2274,7 @@
             { name: "ReadWorks Audio", slot: 2, phases: ["Explore"], need: "Spotlight words & sounds", tryIt: "Find one K–2 ReadWorks passage for your current theme and listen to it with sentence tracking on.", prepTime: "10–15 min", prepDetail: "Find a passage that fits your theme and test the audio on your classroom screen. Add about 10 minutes the first time to create your free account." }
           ],
           that: [
-            { name: "The Picture Sequence Jigsaw", slot: 1, phases: ["Explain"], need: "Build story comprehension", tryIt: "Print 4 key pictures from a familiar story and check that the order is clear without any words.", prepTime: "15–20 min", prepDetail: "Print, cut, and bag one picture set per group. Laminating adds 10 minutes once, but the cards last all year." },
+            { name: "Story Sequencing & Retell", slot: 1, phases: ["Explain"], need: "Build story comprehension", inClass: "Post a retell frame (First... Next... Then... Finally...) and have partners take turns: one retells while the other adds a missing story element.", tryIt: "Print 4 key pictures from a familiar story, put them in order, and retell it aloud in under a minute using first, next, then, finally. Check that the pictures make sense without words.", prepTime: "15–20 min", prepDetail: "Print, cut, and bag one picture set per group. Laminating adds 10 minutes once, but the cards last all year." },
             { name: "Elkonin Sound Boxes", slot: 2, phases: ["Explore"], need: "Spotlight words & sounds", inClass: "Start with plain counters so students focus only on sounds. Switch to letter tiles once they can segment three-sound words on their own.", tryIt: "Draw three boxes and segment 'ship' and 'cat' yourself with counters. Notice that 'ship' has four letters but only three sounds.", prepTime: "5–10 min", prepDetail: "Print or draw sound-box mats and bag a set of counters (or letter tiles) for each student. They are reusable all year." }
           ]
         },
@@ -2285,20 +2286,20 @@
           ],
           that: [
             { name: "Reciprocal Reading", slot: 1, phases: ["Explore", "Explain"], need: "Make a dense text approachable", inClass: "Play the Gemini Notebook Audio Overview first, then have each group's Predictor use it to make the opening prediction.", tryIt: "Print the protocol for your grade band and run all four roles yourself on one page of tomorrow's text. Note where students will need a sentence stem.", prepTime: "5–10 min", prepDetail: "Print the free protocol and sentence stems, and copy the text. Plan one short modeling round the first time you use it.", prepLinks: [{"label": "Printable Protocol: Grades 3–5 (Edutopia)", "url": "https://wpvip.edutopia.org/wp-content/uploads/2025/04/Reciprocal_Reading_Protocol_3-5.pdf"}, {"label": "Printable Protocol: Grades 6–12 (Edutopia)", "url": "https://wpvip.edutopia.org/wp-content/uploads/2025/04/Reciprocal_Reading_Protocol_6-12.pdf"}] },
-            { name: "Color-Coded Highlighting Matrix", slot: 2, phases: ["Explore"], need: "Support close reading", tryIt: "Annotate one page yourself with the 3-color key. If it takes you more than 5 minutes, trim the text before students try it.", prepTime: "10 min", prepDetail: "Copy the article with the 3-color key printed at the top and check that every group has all 3 highlighter colors." },
-            { name: "11x17 Butcher Paper Placemats", slot: "stuffer", phases: ["Elaborate"], need: "Synthesize as a team", prepTime: "10 min", prepDetail: "Cut or fold one sheet per table and write the shared question in the center box." }
+            { name: "Purposeful Text Marking", slot: 2, phases: ["Explore"], need: "Support close reading", inClass: "Have students bring their marks to their Reciprocal Reading group as talking points, using a starter like \"The author argues in paragraph ___ that...\"", tryIt: "Write one purpose question for tomorrow's text, mark one page against it, then check whether your marks alone could answer the question.", prepTime: "10 min", prepDetail: "Write the purpose question at the top of the text, copy it with wide margins, and post the marking steps where students can see them." },
+            { name: "Reader's Theater", slot: "stuffer", phases: ["Elaborate"], need: "Build fluency & expression", inClass: "Before groups rehearse, listen to a Storyline Online read-aloud together and chart what makes the reading engaging, like pacing, tone, and emphasis.", tryIt: "Pick one passage from a class novel with at least three speaking parts, and read it aloud yourself the way you would want students to perform it.", prepTime: "15–20 min", prepDetail: "Choose 2–3 texts students know well and start an anchor chart of what strong reading sounds like. Rehearsal happens over a few days of your reading block." }
           ]
         },
         h912: {
           this: [
             { name: "Gemini Notebook (Secondary & CTE)", slot: 1, phases: ["Explore"], need: "Find evidence in complex sources", inClass: "Before an essay or shop work, have students query the source documents for core evidence or safety specs.", tryIt: "Upload one primary source or manual you teach and ask for 3 claims with citations. Check each citation against the page.", prepTime: "15–20 min", prepDetail: "Upload your sources, test the questions students will ask, and spot-check citations. Confirm your district AI policy before the first student use." },
-            { name: "Perusall", slot: 2, phases: ["Explore", "Explain"], need: "Read & discuss as a team", tryIt: "Upload one short article to Perusall and leave two seed comments that model the questions you want students to ask.", prepTime: "20–30 min", prepDetail: "Upload the reading, set the due date, and add 2 seed comments. Creating the course the first time adds about 15 minutes." },
-            { name: "Brisk Teaching (Secondary)", slot: "stuffer", phases: ["Explain"], need: "Level a technical text", prepTime: "5–10 min", prepDetail: "Level the text and check that technical terms and safety language survived the rewrite." }
+            { name: "Brisk Teaching (Secondary)", slot: 2, phases: ["Explain"], need: "Make complex text accessible", inClass: "Give students who need it the leveled version first, then have them return to the original text with their Reciprocal Reading partner.", tryIt: "Open a technical article or manual section in Chrome, use Brisk to level it for 9th grade, and check that key terms and safety steps survived the rewrite.", prepTime: "5–10 min", prepDetail: "Level the text and check that technical terms and safety language survived the rewrite. Add about 5 minutes the first time to install the Chrome extension." },
+            { name: "Diffit (Secondary & CTE)", slot: "stuffer", phases: ["Explain"], need: "Scaffold a complex text", tryIt: "Paste one primary source or manual section into Diffit, generate a 9th-grade version, and compare its vocabulary list with the terms you would pre-teach.", prepTime: "10–15 min", prepDetail: "Paste the source, choose the level, and check that technical terms and safety steps are still accurate. Add about 5 minutes the first time to create your free account." }
           ],
           that: [
             { name: "Margin Marginalia & Highlighting", slot: 1, phases: ["Explore"], need: "Find evidence in complex sources", inClass: "Have students initial in ink next to each claim they've verified against the text.", tryIt: "Mark up one page with only 10 highlighted words and three 3-word margin notes. Notice what you had to leave out.", prepTime: "5–10 min", prepDetail: "Copy the source with wide margins and post the 10-word highlighting rule where everyone can see it." },
-            { name: "Reciprocal Reading (Secondary & CTE)", slot: 2, phases: ["Explore", "Explain"], need: "Read & discuss as a team", tryIt: "Run the 6–12 protocol yourself on one page of a source you teach, and write down the one clarifying question you expect students to get stuck on.", prepTime: "5–10 min", prepDetail: "Print the free protocol and copy the source. Pair students intentionally so each pair includes a confident reader.", prepLinks: [{"label": "Printable Protocol: Grades 6–12 (Edutopia)", "url": "https://wpvip.edutopia.org/wp-content/uploads/2025/04/Reciprocal_Reading_Protocol_6-12.pdf"}] },
-            { name: "Graphic Synthesis Placemats", slot: "stuffer", phases: ["Elaborate"], need: "Map an argument or system", prepTime: "5–10 min", prepDetail: "Set out oversized paper and markers, and write the argument or system prompt each team must map." }
+            { name: "Reciprocal Reading (Secondary & CTE)", slot: 2, phases: ["Explore", "Explain"], need: "Make complex text accessible", tryIt: "Run the 6–12 protocol yourself on one page of a source you teach, and write down the one clarifying question you expect students to get stuck on.", prepTime: "5–10 min", prepDetail: "Print the free protocol and copy the source. Pair students intentionally so each pair includes a confident reader.", prepLinks: [{"label": "Printable Protocol: Grades 6–12 (Edutopia)", "url": "https://wpvip.edutopia.org/wp-content/uploads/2025/04/Reciprocal_Reading_Protocol_6-12.pdf"}] },
+            { name: "Double-Entry Journal", slot: "stuffer", phases: ["Explain"], need: "Write to think about a text", inClass: "Scaffold it by pre-filling a few left-column quotes, then fill in fewer each time as students learn what is worth recording.", tryIt: "Fold a page in half and journal one page of a text you teach: three quotes on the left, with a question, connection, or analysis for each on the right.", prepTime: "2–5 min", prepDetail: "Choose the text and a response prompt. Students only need paper, or you can use AdLit's free fillable template." }
           ]
         }
       },
