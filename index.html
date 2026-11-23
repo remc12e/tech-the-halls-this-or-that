@@ -757,7 +757,7 @@
       1: { k2: ['Engage', 'Explore', 'Explain'], g38: ['Engage', 'Explore', 'Explain', 'Elaborate'], h912: ['Engage', 'Explore', 'Explain'] },
       2: { k2: ['Engage', 'Elaborate', 'Evaluate'], g38: ['Explore', 'Explain', 'Evaluate'], h912: ['Engage', 'Explore', 'Evaluate'] },
       3: { k2: ['Engage', 'Explore', 'Explain'], g38: ['Engage', 'Explore', 'Explain'], h912: ['Explore', 'Elaborate', 'Evaluate', 'Elaborate'] },
-      4: { k2: ['Engage', 'Explore', 'Explain'], g38: ['Engage', 'Explore', 'Explain', 'Evaluate'], h912: ['Engage', 'Explore', 'Explain', 'Evaluate'] }
+      4: { k2: ['Engage', 'Explore', 'Explain', 'Elaborate'], g38: ['Engage', 'Explore', 'Explain', 'Evaluate'], h912: ['Engage', 'Explore', 'Explain', 'Evaluate'] }
     };
 
     // --- GIFT BOX TOOL PICKER (two matched gifts + an optional stocking stuffer) ---
@@ -990,6 +990,7 @@
                   {openInPlan ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Gift className="w-3.5 h-3.5" />}
                   <span>{openInPlan ? 'In My Plan' : 'Put in My Plan'}</span>
                 </button>
+                {openTool.url && (
                 <a
                   href={openTool.url}
                   target="_blank"
@@ -999,6 +1000,7 @@
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>{openTool.urlLabel || (isThis ? 'Open Tool' : 'Open Resource')}</span>
                 </a>
+                )}
                 {openTool.videoUrl && (
                 <a
                   href={openTool.videoUrl}
@@ -1802,7 +1804,7 @@
         thatTech: { 
           badge: "THAT: Low-Tech / Tactile",
           title: "Tabletop Board Games for Critical Thinking", 
-          tagline: "REMC 12E Lending Library, Turn-Taking & Spatial Logic",
+          tagline: "REMC 12E Library of Things, Turn-Taking & Spatial Logic",
           gradeTiers: {
             k2: {
               tools: [
@@ -1865,7 +1867,7 @@
                   urlLabel: "Learn More", 
                   badge: "Free Game Cards • Free Courier Delivery", 
                   teaser: "A whole library of classroom-ready strategy games, each with a free digital game card, delivered to your school by REMC 12E.",
-                  whatItIs: "REMC's Critical Thinking with Tabletop Games project pairs dozens of strategy games with free digital game cards that explain how to play and how each game builds critical thinking. Browse the REMC 12E lending library, request the games you want, and they arrive at your school by regional courier at no cost.", 
+                  whatItIs: "REMC's Critical Thinking with Tabletop Games project pairs dozens of strategy games with free digital game cards that explain how to play and how each game builds critical thinking. Browse the REMC 12E Library of Things, reserve the games you want at least 1 week before you need them, and they arrive at your school by regional courier at no cost.", 
                   url: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/", 
                   videoUrl: "https://remc12echeckout.myturn.com/library/inventory/browse?category_hierarchy=1%2FCritical+Thinking+%26+Gamification%7C23433%2FTabletop+Games+for+Critical+Thinking%7C23605&lastFilter=category_hierarchy-filter-23605", 
                   videoLabel: "Check out Games from REMC 12E" 
@@ -1899,7 +1901,7 @@
                   urlLabel: "Learn More", 
                   badge: "Free Game Cards • Free Courier Delivery", 
                   teaser: "A whole library of classroom-ready strategy games, each with a free digital game card, delivered to your school by REMC 12E.",
-                  whatItIs: "REMC's Critical Thinking with Tabletop Games project pairs dozens of strategy games with free digital game cards that explain how to play and how each game builds critical thinking. Browse the REMC 12E lending library, request the games you want, and they arrive at your school by regional courier at no cost.", 
+                  whatItIs: "REMC's Critical Thinking with Tabletop Games project pairs dozens of strategy games with free digital game cards that explain how to play and how each game builds critical thinking. Browse the REMC 12E Library of Things, reserve the games you want at least 1 week before you need them, and they arrive at your school by regional courier at no cost.", 
                   url: "https://remc.org/educator-resources/critical-thinking-with-tabletop-games/", 
                   videoUrl: "https://remc12echeckout.myturn.com/library/inventory/browse?category_hierarchy=1%2FCritical+Thinking+%26+Gamification%7C23433%2FTabletop+Games+for+Critical+Thinking%7C23605&lastFilter=category_hierarchy-filter-23605", 
                   videoLabel: "Check out Games from REMC 12E" 
@@ -1932,9 +1934,9 @@
           },
           g38: {
             title: "The Braided Arcade Pastry",
-            prepTime: "25 Minutes to Roll & Bake, plus REMC 12E lead time",
-            prepBreakdown: "Set up the Wayground Team Mode quiz (10 min) and learn Things in Rings (15 min). Request the game from REMC 12E a few days ahead so courier delivery arrives in time.",
-            ingredients: "Wayground Team Mode + Things in Rings (REMC Lending Library)",
+            prepTime: "25 Minutes to Roll & Bake (reserve the game 1 week ahead)",
+            prepBreakdown: "Set up the Wayground Team Mode quiz (10 min) and learn Things in Rings (15 min). Reserve Things in Rings from the REMC 12E Library of Things at least 1 week before you need it.",
+            ingredients: "Wayground Team Mode + Things in Rings (REMC 12E Library of Things)",
             steps: [
               "1 - Preheat (Digital): 12 minutes in Wayground Team Mode. Teams pool their correct answers on 15–20 unit vocabulary questions.",
               "2 - Mix (Tactile): 12 minutes playing Things in Rings from the REMC box. Students categorize items into Venn rings using hidden rules.",
@@ -1987,9 +1989,9 @@
         },
         tradeOffs: {
           k2: {
-            thisSpark: "Magnifying microscopic details 500x onto the classroom smartboard so every child can gasp together.",
-            thisTree: "5E Explore phase, hydroponics seed inspection, examining textile weaves.",
-            thisBlizzard: "Knocking over water trays while rushing to touch the smartboard screen.",
+            thisSpark: "Digital tools that let young learners wonder, code, record, and create, giving every child a way to show what they notice.",
+            thisTree: "Every 5E phase: short clips to spark questions, robots to explore, apps to explain and create, and quick checks to show learning.",
+            thisBlizzard: "Screens can crowd out hands-on wonder if every phase goes digital. Young learners need real objects in their hands, too.",
             thatSpark: "Unadulterated mystery: slipping small hands inside a dark cardboard box touches pure childhood wonder.",
             thatTree: "5E Engage phase, sensory descriptive vocabulary, tactile guessing games.",
             thatBlizzard: "Playdough getting stuck in the carpet and drying out overnight.",
@@ -2019,31 +2021,49 @@
             k2: {
               tools: [
                 { 
-                  name: "Digital Handheld Microscope", 
-                  badge: "5E: Explore Phase", 
-                  teaser: "Plugs into tablets or laptops to project 500x magnified details of leaves, fabrics, and seeds on screen.",
-                  whatItIs: "Connect a simple digital USB microscope to zoom in 500x on plant leaves, seeds, or fabrics on screen.", 
-                  url: "https://www.readingrockets.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=digital+microscope+elementary+science", 
-                  videoLabel: "Handheld Microscopes" 
+                  name: "PBS LearningMedia",
+                  badge: "Free for Educators • PBS KIDS Clips",
+                  teaser: "Free, short video clips from PBS KIDS shows like Wild Kratts and Molly of Denali to spark questions before a lesson.",
+                  whatItIs: "PBS LearningMedia is free for educators, with thousands of short, standards-aligned clips from PBS and PBS KIDS shows like Wild Kratts and Molly of Denali. Filter by grade (PreK–2) and subject, then project a 2–3 minute clip to launch your lesson. A free teacher account lets you save favorites and build playlists.",
+                  url: "https://wgvu.pbslearningmedia.org/"
+                },
+                { 
+                  name: "Sphero indi",
+                  urlLabel: "Indi Lesson Ideas",
+                  badge: "Screen-Free Coding Robot • REMC 12E Library of Things",
+                  teaser: "A screen-free robot car that students program with color tiles, discovering cause and effect by building paths and testing them.",
+                  whatItIs: "Students lay down colored tiles to build a path, and indi drives over them, changing direction or speed with each color. Students predict what indi will do, test it, and adjust, exploring through trial and error with no screens required. Sphero's lesson collections connect indi to math, literacy, and science.",
+                  url: "https://edu.sphero.com/indi/collections?page=1",
+                  videoUrl: "https://remc12echeckout.myturn.com/library/inventory/show/1364764",
+                  videoLabel: "Check it out from REMC12E"
                 },
                 { 
                   name: "PBS KIDS ScratchJr Coding", 
-                  badge: "5E: Explain Phase", 
+                  badge: "Free App • Tablets & Chromebooks", 
                   teaser: "Visual block coding app where pre-readers snap blocks together to animate stories and explain lifecycles.",
                   whatItIs: "Pre-readers snap graphical blocks to animate characters and retell science lifecycles visually.", 
-                  url: "https://www.scratchjr.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=scratchjr+in+kindergarten+science", 
-                  videoLabel: "ScratchJr Science" 
+                  url: "https://www.scratchjr.org/", 
+                  videoUrl: "https://youtube.com/playlist?list=PLh-lE4JDTAZaqPLNqe4VqF4X4F5H_BLlZ", 
+                  videoLabel: "Teacher Playlist" 
                 },
                 { 
-                  name: "Seesaw Audio Voice Check", 
-                  badge: "5E: Evaluate Phase", 
-                  teaser: "Digital learning journal letting early learners record 15-second oral reflections to demonstrate mastery.",
-                  whatItIs: "Pre-readers record a 15-second verbal response explaining what they noticed without written barriers.", 
-                  url: "https://web.seesaw.me", 
-                  videoUrl: "https://www.youtube.com/results?search_query=seesaw+voice+recording+exit+ticket", 
-                  videoLabel: "Voice Exit Tickets" 
+                  name: "Book Creator",
+                  urlLabel: "Open Book Creator",
+                  badge: "Free Plan • Make a Book",
+                  teaser: "Students make a one-page digital book with a picture and their own recorded voice explaining what they learned.",
+                  whatItIs: "Keep it simple for K–2: one page, one drawing or photo, and one voice recording that starts with 'I learned...' Students join your library with a class code, and finished pages can be shared with families. The free plan limits how many books you can keep, so plan one class book per unit.",
+                  url: "https://app.bookcreator.com/sign-in/teacher",
+                  videoUrl: "https://app.bookcreator.com/learn",
+                  videoLabel: "Learn More"
+                },
+                { 
+                  name: "Plickers",
+                  badge: "Free Plan • No Student Devices",
+                  teaser: "Students hold up printed cards to answer, and you scan the whole class with your phone in seconds.",
+                  whatItIs: "Each student holds a printed card, turning it so their answer (A, B, C, or D) is at the top, and you scan the room with the Plickers app. Students need no devices or accounts. The free plan allows five questions per set, which is plenty for a K–2 quick check. Young students may need a practice round, and picture answer choices read aloud keep the focus on content, not reading.",
+                  url: "https://www.plickers.com/",
+                  videoUrl: "https://help.plickers.com/hc/en-us/articles/360008948034-Get-Plickers-Cards",
+                  videoLabel: "Get Plickers Cards"
                 }
               ],
             },
@@ -2124,31 +2144,50 @@
             k2: {
               tools: [
                 { 
-                  name: "The Mystery Sensory Box", 
-                  badge: "5E: Engage Phase", 
+                  name: "The Mystery Sensory Box",
+                  urlLabel: "Learn about Mystery Bags", 
+                  badge: "Hands-On • Sensory Discovery", 
                   teaser: "Shoebox with a sock-hole where students reach in blindly to touch natural objects and verbally describe texture.",
                   whatItIs: "A cardboard box with a sock hole. Students slide their hands inside without looking to touch natural items and describe tactile properties.", 
-                  url: "https://ngss.nsta.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=mystery+box+science+kindergarten", 
-                  videoLabel: "Mystery Box Science" 
+                  url: "https://cliengagefamily.org/mystery-bags/", 
+                  videoUrl: "https://www.education.com/lesson-plan/math-mystery-bags/", 
+                  videoLabel: "Math Mystery Bags Lesson" 
                 },
                 { 
-                  name: "Playdough & Clay Schema Sculpting", 
-                  badge: "5E: Explain Phase", 
+                  name: "Hand Lens Observation Station",
+                  url: "https://www.canva.com/s/designs?query=I+see+I+wonder+sheet",
+                  urlLabel: "See, Think, Wonder Templates on Canva",
+                  badge: "Hands-On Observation • Low Cost",
+                  teaser: "Students study real objects up close with hand lenses, then draw and label what they notice before you explain anything.",
+                  whatItIs: "Set out natural objects like leaves, pinecones, shells, and rocks with hand lenses and clipboards. Students observe closely, then draw and label what they notice. Their observations become the questions you answer in the next phase."
+                },
+                { 
+                  name: "Playdough & Clay Schema Sculpting",
+                  urlLabel: "Playdough Mats on Canva", 
+                  badge: "Hands-On Modeling", 
                   teaser: "Tactile modeling strategy where children sculpt physical plant roots or soil layers rather than writing words.",
                   whatItIs: "Students mold physical playdough to demonstrate conceptual understanding: sculpting insect segments or plant roots instead of writing.", 
-                  url: "https://www.readingrockets.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=playdough+modeling+in+elementary+science", 
-                  videoLabel: "Playdough Modeling" 
+                  url: "https://www.canva.com/s/designs?query=playdough+mat" 
                 },
                 { 
-                  name: "Smiley-Face Magnet Door Check", 
-                  badge: "5E: Evaluate Phase", 
-                  teaser: "Quick kinesthetic door routine where students slap a magnet under Green, Yellow, or Red faces on their way out.",
-                  whatItIs: "Before walking to recess, students slap a magnetic token under the Green Smiley, Yellow Neutral, or Red Question face on the door.", 
-                  url: "https://www.edutopia.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=kindergarten+exit+ticket+routines", 
-                  videoLabel: "Door Exit Routines" 
+                  name: "KEVA Planks Engineering Challenge",
+                  urlLabel: "KEVA Lesson Plans",
+                  badge: "Engineering Challenge • REMC 12E Library of Things",
+                  teaser: "Small groups apply what they learned by designing and testing a structure built from identical wooden planks.",
+                  whatItIs: "KEVA planks are identical wooden blocks with no glue or connectors, so every structure stands by balance alone. Give small groups a challenge tied to your lesson, like a bridge for a toy animal or a shelter that survives a 'wind' test with a fan, and let them design, test, and improve.",
+                  url: "https://www.kevaplanks.com/blog/keva-planks-blog-1/easy-lesson-plans-all-purpose-lesson-plan-21",
+                  videoUrl: "https://remc12echeckout.myturn.com/library/inventory/show/1387445",
+                  videoLabel: "Check it out from REMC12E"
+                },
+                { 
+                  name: "Show Me Whiteboards",
+                  urlLabel: "Learn about it",
+                  badge: "All-Student Response • Low Cost",
+                  teaser: "Every child answers on a mini whiteboard and holds it up on '1, 2, 3, show me!' so you see the whole class at once.",
+                  whatItIs: "Ask a question, give think time, and on '1, 2, 3, show me!' every student holds up their answer at the same time. K–2 students can draw, circle, or write a single word. You see every child's thinking in seconds instead of hearing only from the few who raise their hands, and you can reteach on the spot.",
+                  url: "https://www.edutopia.org/article/low-tech-student-participation-tools-increase-participation/",
+                  videoUrl: "https://www.edutopia.org/video/increasing-participation-with-individual-whiteboards/",
+                  videoLabel: "Whiteboards in Action"
                 }
               ],
             },
@@ -2229,13 +2268,14 @@
         recipeCards: {
           k2: {
             title: "The Marshmallow Cocoa Mug",
-            prepTime: "20–25 Minutes to Stir",
-            prepBreakdown: "Focus the microscope on samples (10 min), load the mystery box (5 min), and portion playdough (5–10 min). Building the box the first time adds about 10 minutes.",
-            ingredients: "Cardboard Box with Sock Hole + USB Handheld Microscope",
+            prepTime: "20–25 Minutes to Stir (reserve KEVA planks 1 week ahead)",
+            prepBreakdown: "Find and preview a PBS LearningMedia clip (5–10 min), load the mystery box (5 min), portion playdough (5–10 min), and set out KEVA planks (5 min). Reserve the KEVA planks from the REMC 12E Library of Things at least 1 week before you need them.",
+            ingredients: "PBS LearningMedia Clip + Mystery Box + Playdough + KEVA Planks",
             steps: [
-              "1 - Preheat (Digital): Plug in a handheld USB microscope to zoom in 500x on the big screen, revealing hidden crystalline patterns.",
-              "2 - Mix (Tactile): Slide natural items (pinecone, wet soil sponge) inside a cardboard box. Students slide their hand inside to feel and verbally describe properties.",
-              "3 - Assemble: Students sculpt what they felt and saw using playdough at their tables."
+              "1 - Preheat (Digital): Project a short PBS LearningMedia clip that connects to your topic. Pause before the big reveal and let students share what they think.",
+              "2 - Mix (Tactile): Slide natural items into the mystery box. Students reach in, feel, and describe what they notice before seeing it.",
+              "3 - Assemble: Students sculpt a model of what they discovered with playdough, then explain it to a partner.",
+              "4 - Enjoy! (Build It): Small groups use KEVA planks to build something that applies what they learned, then test it and improve it."
             ]
           },
           g38: {
@@ -2352,9 +2392,9 @@
             { name: "ABCya (Browser Edition)", slot: "stuffer", phases: ["Elaborate"], need: "Extra skill practice", prepTime: "5 min", prepDetail: "Choose the game and test it on a student device." }
           ],
           that: [
-            { name: "Anomia Kids (REMC 12E)", slot: 1, phases: ["Engage"], need: "Practice early literacy", inClass: "Play in a small literacy group and have students say the first sound out loud before they shout their word, so the game reinforces the sound, not just speed.", tryIt: "Flip ten Anomia Kids cards and say a word that starts with the same sound as each picture. Notice which sounds, like 'ch' or a hard 'c', might trip up your students.", prepTime: "5 min", prepDetail: "Shuffle one deck and set out the draw piles. Request it from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
-            { name: "Buildzi (REMC 12E)", slot: 2, phases: ["Explore"], need: "Build number & shape sense", tryIt: "Request Buildzi from the REMC 12E portal and pick the 3 easiest build cards for your first round.", prepTime: "10 min", prepDetail: "Learn the rules and sort out the easiest build cards. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
-            { name: "Tenzi (REMC 12E)", slot: "stuffer", phases: ["Elaborate"], need: "Build number sense", tryIt: "Roll ten dice and get them all on one number. Then try one slower variation you could use with your youngest students.", prepTime: "5 min", prepDetail: "Set out one set of 10 dice per player. Request it from the REMC 12E portal a few days ahead so courier delivery arrives in time." }
+            { name: "Anomia Kids (REMC 12E)", slot: 1, phases: ["Engage"], need: "Practice early literacy", inClass: "Play in a small literacy group and have students say the first sound out loud before they shout their word, so the game reinforces the sound, not just speed.", tryIt: "Flip ten Anomia Kids cards and say a word that starts with the same sound as each picture. Notice which sounds, like 'ch' or a hard 'c', might trip up your students.", prepTime: "5 min", prepDetail: "Shuffle one deck and set out the draw piles. Reserve it from the REMC 12E Library of Things at least 1 week before you need it." },
+            { name: "Buildzi (REMC 12E)", slot: 2, phases: ["Explore"], need: "Build number & shape sense", tryIt: "Reserve Buildzi from the REMC 12E Library of Things and pick the 3 easiest build cards for your first round.", prepTime: "10 min", prepDetail: "Learn the rules and sort out the easiest build cards. Reserve it from the REMC 12E Library of Things at least 1 week before you need it." },
+            { name: "Tenzi (REMC 12E)", slot: "stuffer", phases: ["Elaborate"], need: "Build number sense", tryIt: "Roll ten dice and get them all on one number. Then try one slower variation you could use with your youngest students.", prepTime: "5 min", prepDetail: "Set out one set of 10 dice per player. Reserve it from the REMC 12E Library of Things at least 1 week before you need it." }
           ]
         },
         g38: {
@@ -2364,9 +2404,9 @@
             { name: "Blooket", slot: "stuffer", phases: ["Evaluate"], need: "Quick review fun", prepTime: "10 min", prepDetail: "Build or find a question set and choose the game mode." }
           ],
           that: [
-            { name: "Codenames (REMC 12E)", slot: 1, phases: ["Elaborate"], need: "Review vocabulary", tryIt: "Swap in 25 vocab words from your current unit and find one clue that connects 2 of them.", prepTime: "15–20 min", prepDetail: "Make custom word cards from your unit vocabulary, or use the standard deck for a 5-minute setup. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
-            { name: "Things in Rings (REMC 12E)", slot: 2, phases: ["Explore"], need: "Reason as a team", inClass: "Host a 15-minute Tabletop Warm-up on Friday mornings with your borrowed REMC crate.", tryIt: "Request it from REMC 12E, then write 3 secret rules that use your own content words.", prepTime: "15 min", prepDetail: "Learn the rules and pick the item cards you'll use. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
-            { name: "REMC Critical Thinking with Tabletop Games", slot: "stuffer", phases: [], need: "Explore more tabletop games", tryIt: "Browse the REMC 12E tabletop collection and pick one game that fits a unit you teach this month. Read its digital game card before you request it.", prepTime: "10 min", prepDetail: "Browse the collection, read a game card or two, and submit your request. Plan ahead for courier delivery." }
+            { name: "Codenames (REMC 12E)", slot: 1, phases: ["Elaborate"], need: "Review vocabulary", tryIt: "Swap in 25 vocab words from your current unit and find one clue that connects 2 of them.", prepTime: "15–20 min", prepDetail: "Make custom word cards from your unit vocabulary, or use the standard deck for a 5-minute setup. Reserve it from the REMC 12E Library of Things at least 1 week before you need it." },
+            { name: "Things in Rings (REMC 12E)", slot: 2, phases: ["Explore"], need: "Reason as a team", inClass: "Host a 15-minute Tabletop Warm-up on Friday mornings with your borrowed REMC crate.", tryIt: "Reserve it from the REMC 12E Library of Things, then write 3 secret rules that use your own content words.", prepTime: "15 min", prepDetail: "Learn the rules and pick the item cards you'll use. Reserve it from the REMC 12E Library of Things at least 1 week before you need it." },
+            { name: "REMC Critical Thinking with Tabletop Games", slot: "stuffer", phases: [], need: "Explore more tabletop games", tryIt: "Browse the REMC 12E tabletop collection and pick one game that fits a unit you teach this month. Read its digital game card before you request it.", prepTime: "10 min", prepDetail: "Browse the collection, read a game card or two, and reserve your game at least 1 week before you need it." }
           ]
         },
         h912: {
@@ -2376,23 +2416,27 @@
             { name: "PhET Interactive Challenges", slot: 2, phases: ["Explore"], need: "Connect concepts", inClass: "Have students change one variable at a time and explain how it connects to the others before they try the next one.", tryIt: "Pick one PhET sim for your next unit and write one 'make it happen' challenge, like lighting 2 bulbs with 1 battery.", prepTime: "15–20 min", prepDetail: "Preview the sim, write the challenge, and test it on a student Chromebook." }
           ],
           that: [
-            { name: "Codenames: Curriculum Edition", slot: 2, phases: ["Elaborate"], need: "Connect concepts", tryIt: "Make a 5x5 grid of course terms and find one clue that links 3 of them without hitting the others.", prepTime: "20–30 min", prepDetail: "Make the first set of course-term cards. After that, they're reusable every year. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
-            { name: "Things in Rings (Systems Logic)", slot: 1, phases: ["Explore"], need: "Reason through systems", inClass: "Have students design a custom card pack that tests unit concepts or tool classification.", tryIt: "Write 12 cards of course terms and 2 secret rules, then sort them yourself to test the rules.", prepTime: "20–30 min", prepDetail: "Write your custom cards and secret rules. Request from the REMC 12E portal a few days ahead so courier delivery arrives in time." },
-            { name: "REMC Critical Thinking with Tabletop Games", slot: "stuffer", phases: [], need: "Explore more tabletop games", tryIt: "Browse the REMC 12E tabletop collection and pick one game that fits a unit you teach this month. Read its digital game card before you request it.", prepTime: "10 min", prepDetail: "Browse the collection, read a game card or two, and submit your request. Plan ahead for courier delivery." }
+            { name: "Codenames: Curriculum Edition", slot: 2, phases: ["Elaborate"], need: "Connect concepts", tryIt: "Make a 5x5 grid of course terms and find one clue that links 3 of them without hitting the others.", prepTime: "20–30 min", prepDetail: "Make the first set of course-term cards. After that, they're reusable every year. Reserve it from the REMC 12E Library of Things at least 1 week before you need it." },
+            { name: "Things in Rings (Systems Logic)", slot: 1, phases: ["Explore"], need: "Reason through systems", inClass: "Have students design a custom card pack that tests unit concepts or tool classification.", tryIt: "Write 12 cards of course terms and 2 secret rules, then sort them yourself to test the rules.", prepTime: "20–30 min", prepDetail: "Write your custom cards and secret rules. Reserve it from the REMC 12E Library of Things at least 1 week before you need it." },
+            { name: "REMC Critical Thinking with Tabletop Games", slot: "stuffer", phases: [], need: "Explore more tabletop games", tryIt: "Browse the REMC 12E tabletop collection and pick one game that fits a unit you teach this month. Read its digital game card before you request it.", prepTime: "10 min", prepDetail: "Browse the collection, read a game card or two, and reserve your game at least 1 week before you need it." }
           ]
         }
       },
       4: {
         k2: {
           this: [
-            { name: "Digital Handheld Microscope", slot: 1, phases: ["Explore"], need: "Spark curiosity", inClass: "Zoom in on germinating seeds and project them live to start morning carpet time.", tryIt: "Zoom in on a leaf, a coin, and a sweater sleeve, and pick the one image that will make kids gasp.", prepTime: "10 min", prepDetail: "Connect the microscope and focus on your samples before students arrive." },
-            { name: "PBS KIDS ScratchJr Coding", slot: 2, phases: ["Explain"], need: "Explain their thinking", tryIt: "Make a 3-block ScratchJr animation of one life-cycle stage so students see a finished example.", prepTime: "15–20 min", prepDetail: "Make sure the app is installed on student tablets and build your example. The first-time install may take longer." },
-            { name: "Seesaw Audio Voice Check", slot: "stuffer", phases: ["Evaluate"], need: "Quick voice check", prepTime: "10 min", prepDetail: "Create the activity with your prompt and assign it to the class." }
+            {"name": "PBS LearningMedia", "slot": "phase", "phase": "Engage", "phases": ["Engage"], "need": "Spark curiosity", "inClass": "Pause the clip before the big reveal and have students turn and talk about what they think will happen.", "tryIt": "Search PBS LearningMedia for your next science topic, filter to PreK–2, and pick one clip under 3 minutes.", "prepTime": "5–10 min", "prepDetail": "Find and preview the clip, and plan where you will pause for predictions. Creating your free account the first time takes about 2 minutes."},
+            {"name": "Sphero indi", "slot": "phase", "phase": "Explore", "phases": ["Explore"], "need": "Explore by trying", "inClass": "Ask for a prediction before every test: 'Where do you think indi will go?' The prediction is where the exploring happens.", "tryIt": "Lay out four color tiles and predict where indi will end up before you let it drive.", "prepTime": "10 min", "prepDetail": "Charge indi and sort the color tiles into sets for each group. Reserve it from the REMC 12E Library of Things at least 1 week before you need it."},
+            {"name": "PBS KIDS ScratchJr Coding", "slot": "phase", "phase": "Explain", "phases": ["Explain"], "need": "Explain their thinking", "tryIt": "Make a 3-block ScratchJr animation of one life-cycle stage so students see a finished example.", "prepTime": "15–20 min", "prepDetail": "Make sure the app is installed on student tablets or Chromebooks and build your example. The first-time install may take longer."},
+            {"name": "Book Creator", "slot": "phase", "phase": "Elaborate", "phases": ["Elaborate"], "need": "Apply it somewhere new", "inClass": "Model one page first: snap a photo, then record 'I learned...' in your own voice so students hear exactly what to do.", "tryIt": "Make one example page with a photo and a 20-second 'I learned...' recording.", "prepTime": "15 min", "prepDetail": "Create a class library, share the class code, and make one example page with a voice recording."},
+            {"name": "Plickers", "slot": "phase", "phase": "Evaluate", "phases": ["Evaluate"], "need": "Check understanding", "inClass": "Start with a silly practice question so students learn to hold their card the right way up before the real check.", "tryIt": "Print a few cards, make a 3-question set with picture answers, and scan yourself holding the cards.", "prepTime": "10–15 min", "prepDetail": "Build a short set and assign card numbers. Printing the cards on cardstock the first time takes about 10 extra minutes, and they last all year."}
           ],
           that: [
-            { name: "The Mystery Sensory Box", slot: 1, phases: ["Engage"], need: "Spark curiosity", inClass: "Pull out the box when you need attention. The wiggles stop the moment it appears.", tryIt: "Cut a sock hole in a shoebox and choose 3 objects tied to your next science topic.", prepTime: "5 min", prepDetail: "Swap in new objects. Building the box the first time takes about 10 minutes." },
-            { name: "Playdough & Clay Schema Sculpting", slot: 2, phases: ["Explain"], need: "Explain their thinking", tryIt: "Sculpt the model you'll ask for (an insect, a root system) so you know what 'done' looks like.", prepTime: "5–10 min", prepDetail: "Portion out the dough and cover the tables." },
-            { name: "Smiley-Face Magnet Door Check", slot: "stuffer", phases: ["Evaluate"], need: "Quick exit check", prepTime: "0 min", prepDetail: "About 15 minutes once to make the faces and magnets, then it's ready every day." }
+            {"name": "The Mystery Sensory Box", "slot": "phase", "phase": "Engage", "phases": ["Engage"], "need": "Spark curiosity", "inClass": "Pull out the box when you need attention. The wiggles stop the moment it appears.", "tryIt": "Cut a sock hole in a shoebox and choose 3 objects tied to your next science topic.", "prepTime": "5 min", "prepDetail": "Swap in new objects. Building the box the first time takes about 10 minutes."},
+            {"name": "Hand Lens Observation Station", "slot": "phase", "phase": "Explore", "phases": ["Explore"], "need": "Explore by trying", "inClass": "Give a time challenge: 'Find 5 things you could not see without the lens.' Then share before you explain anything.", "tryIt": "Look at one leaf with a hand lens for two minutes and list five things you notice that you could not see before.", "prepTime": "10 min", "prepDetail": "Collect a few natural objects and set out hand lenses, clipboards, and paper."},
+            {"name": "Playdough & Clay Schema Sculpting", "slot": "phase", "phase": "Explain", "phases": ["Explain"], "need": "Explain their thinking", "tryIt": "Sculpt the model you will ask for (an insect, a root system) so you know what 'done' looks like.", "prepTime": "5–10 min", "prepDetail": "Portion out the dough and cover the tables."},
+            {"name": "KEVA Planks Engineering Challenge", "slot": "phase", "phase": "Elaborate", "phases": ["Elaborate"], "need": "Apply it somewhere new", "inClass": "Give a clear challenge and a test, like 'Will it stand when the fan blows?' Then let groups redesign after the first test.", "tryIt": "Build a tower 10 planks tall, then try a version that uses only 8. What did you have to change?", "prepTime": "10 min", "prepDetail": "Set out one bin of planks per group and plan your challenge and test. Reserve it from the REMC 12E Library of Things at least 1 week before you need it."},
+            {"name": "Show Me Whiteboards", "slot": "phase", "phase": "Evaluate", "phases": ["Evaluate"], "need": "Check understanding", "inClass": "Keep a clipboard nearby and jot down who needs a quick reteach, then use your notes to form tomorrow's small groups.", "tryIt": "Write three 'show me' questions for tomorrow that students can answer with a drawing or one word.", "prepTime": "5 min", "prepDetail": "Set out whiteboards, markers, and erasers (an old sock works great). A sheet protector over white paper works if you don't have boards."}
           ]
         },
         g38: {
@@ -2431,9 +2475,65 @@
         return { ...tool, ...p, slot: p.slot || (i < 2 ? i + 1 : 'stuffer') };
       });
       return {
-        gifts: merged.filter(t => t.slot !== 'stuffer').sort((a, b) => a.slot - b.slot),
+        gifts: merged.filter(t => t.slot !== 'stuffer').sort((a, b) => (a.slot === 'phase' ? PHASE_ORDER.indexOf(a.phase) : a.slot) - (b.slot === 'phase' ? PHASE_ORDER.indexOf(b.phase) : b.slot)),
         stuffers: merged.filter(t => t.slot === 'stuffer')
       };
+    }
+
+    // Module 4 "5E Showdown": one pixel and one paper tool for each 5E phase
+    function getPhaseTools(mod, grade) {
+      const thisSet = getGiftTools(mod, 'this', grade).gifts.filter(t => t.slot === 'phase');
+      const thatSet = getGiftTools(mod, 'that', grade).gifts.filter(t => t.slot === 'phase');
+      if (thisSet.length === 0 || thatSet.length === 0) return null;
+      return PHASE_ORDER.map(phase => ({
+        phase,
+        thisTool: thisSet.find(t => t.phase === phase) || null,
+        thatTool: thatSet.find(t => t.phase === phase) || null
+      }));
+    }
+
+    function PhaseShowdown({ rows, trayProps }) {
+      const [active, setActive] = useState(rows[0].phase);
+      const row = rows.find(r => r.phase === active) || rows[0];
+      return (
+        <div className="space-y-3">
+          <p className="text-center text-xs font-bold text-slate-900 pt-1">
+            🎄 Pick a 5E phase, then choose pixels, paper, or one of each.
+          </p>
+          <div className="grid grid-cols-5 gap-1.5" role="tablist" aria-label="5E phases">
+            {rows.map((r, i) => (
+              <button
+                key={r.phase}
+                type="button"
+                role="tab"
+                aria-selected={active === r.phase}
+                onClick={() => setActive(r.phase)}
+                className={`rounded-xl border-2 px-1 py-2 text-center ${active === r.phase ? PHASE_INFO[r.phase].cls + ' shadow-md' : 'bg-white border-slate-300 text-slate-900 hover:bg-slate-50'}`}
+              >
+                <div className="text-[0.75rem] font-black opacity-80">{i + 1}</div>
+                <div className="text-xs sm:text-sm font-black">{r.phase}</div>
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-slate-900 font-medium text-center" role="status">
+            <strong>{row.phase}:</strong> {PHASE_INFO[row.phase].desc}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {['this', 'that'].map(side => {
+              const tool = side === 'this' ? row.thisTool : row.thatTool;
+              return (
+                <div key={side} className={`rounded-2xl border-2 ${side === 'this' ? 'border-rose-200' : 'border-emerald-200'} bg-white p-3.5`}>
+                  {tool ? (
+                    <GiftTagTray key={`${row.phase}-${side}`} side={side} gifts={[tool]} stuffers={[]} {...trayProps(side)} />
+                  ) : (
+                    <p className="text-xs text-slate-700">No tool for this phase yet.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
     }
 
     function App() {
@@ -3660,7 +3760,7 @@
                     </button>
                   </div>
 
-                  {/* STEM & TABLETOP LENDING CHECKOUT PORTAL LINK */}
+                  {/* REMC 12E LIBRARY OF THINGS LINK */}
                   <a 
                     href="https://remc12echeckout.myturn.com/library/?defaultPage=true"
                     target="_blank"
@@ -3675,7 +3775,7 @@
                       <ExternalLink className="w-3.5 h-3.5 text-emerald-400 group-hover:text-sky-300" />
                     </div>
                     <p className="text-[0.8125rem] text-emerald-300/90">
-                      Need physical supplies? Request free classroom tabletop games, hydroponics, and maker supplies directly through the REMC 12E lending portal.
+                      Need physical supplies? Borrow free classroom tabletop games, hydroponics, and maker supplies from the REMC 12E Library of Things. Reserve at least 1 week before you need them.
                     </p>
                   </a>
 
@@ -4525,6 +4625,26 @@
                               </div>
                             ))}
 
+                            {getPhaseTools(currentModule, activeGrade) ? (
+                              <PhaseShowdown
+                                key={`phases-${currentModule.id}-${activeGrade}`}
+                                rows={getPhaseTools(currentModule, activeGrade)}
+                                trayProps={(side) => ({
+                                  favoriteTools,
+                                  onToggleFavorite: toggleFavoriteTool,
+                                  gradeLabel: gradeShort,
+                                  show5E,
+                                  onUnwrap: trackUnwrap,
+                                  plannedTool: notes[currentModule.id]?.[side === 'this' ? 'digital' : 'analog'],
+                                  onPlan: (name) => {
+                                    const field = side === 'this' ? 'digital' : 'analog';
+                                    updateReflectionField(currentModule.id, field, name);
+                                    triggerToast(`🎁 ${name} added to your Module ${currentModule.id} plan (Step 3)`);
+                                  }
+                                })}
+                              />
+                            ) : (
+                            <>
                             {/* GIFT BOX PICKER: matched by need across columns */}
                             <p className="text-center text-xs font-bold text-slate-900 pt-1">
                               🎁 Gifts in the same spot solve the same need. Pick pixels, paper, or one of each.
@@ -4567,6 +4687,8 @@
                                 />
                               </div>
                             </div>
+                            </>
+                            )}
 
                           </div>
                         </div>
@@ -6284,7 +6406,7 @@
             })}
 
             <div className="text-center text-[0.75rem] text-slate-600 border-t pt-3 mt-6">
-              REMC 12E Lending Portal: https://remc12echeckout.myturn.com/library/?defaultPage=true • Generated via Tech the Halls: This or That!
+              REMC 12E Library of Things: https://remc12echeckout.myturn.com/library/?defaultPage=true • Generated via Tech the Halls: This or That!
             </div>
             </>)}
           </div>
