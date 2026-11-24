@@ -628,7 +628,8 @@
       if (typeof r === 'string') return r.trim().length > 0;
       const hasDigital = r.digital === 'Other' ? Boolean(r.digitalCustom && r.digitalCustom.trim()) : Boolean(r.digital && r.digital.trim());
       const hasAnalog = r.analog === 'Other' ? Boolean(r.analogCustom && r.analogCustom.trim()) : Boolean(r.analog && r.analog.trim());
-      return (hasDigital || hasAnalog) && Boolean(r.why && r.why.trim());
+      const hasNeed = r.need === 'Other' ? Boolean(r.needCustom && r.needCustom.trim()) : Boolean(r.need && r.need.trim());
+      return hasNeed && (hasDigital || hasAnalog) && Boolean(r.why && r.why.trim());
     };
     const capstoneDoneFor = (d) => {
       if (!d) return false;
@@ -814,9 +815,9 @@
         <div>
           <div className="flex items-center justify-between gap-2 mb-3">
             <span className={`text-[0.8125rem] font-black uppercase tracking-wider ${palette.heading}`}>
-              🎁 Pick a {isThis ? 'Tool' : 'Strategy'} ({gradeLabel})
+              🎯 Start with the need • {isThis ? 'Pixels' : 'Paper'} ({gradeLabel})
             </span>
-            <span className="text-[0.75rem] font-bold text-slate-700">Click a gift to unwrap</span>
+            <span className="text-[0.75rem] font-bold text-slate-700">Unwrap a gift to see how it meets the need</span>
           </div>
 
           <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(gifts.length, 1)}, minmax(0, 1fr))` }}>
@@ -858,8 +859,8 @@
                       {tool.phases.map(ph => <PhaseOrnament key={ph} phase={ph} />)}
                     </span>
                   )}
-                  <span className={`text-[0.8125rem] font-black leading-tight ${palette.need}`}>{tool.need || tool.badge}</span>
-                  <span className="text-[0.8125rem] font-bold text-slate-900 leading-tight line-clamp-2">{shortName(tool.name)}</span>
+                  <span className={`text-sm font-black leading-tight ${palette.need}`}><span aria-hidden="true">🎯 </span>{tool.need || tool.badge}</span>
+                  <span className="text-[0.75rem] font-semibold text-slate-800 leading-tight line-clamp-2">{shortName(tool.name)}</span>
                   {tool.prepTime && (
                     <span className="text-[0.75rem] font-black bg-emerald-950 text-amber-300 px-2 py-0.5 rounded-full whitespace-nowrap">⏱️ {tool.prepTime}</span>
                   )}
@@ -935,6 +936,15 @@
 
               <p className="text-xs text-slate-900 leading-relaxed font-medium">{openTool.whatItIs}</p>
 
+              <div className={`rounded-xl border-2 border-dashed p-3 bg-white ${isThis ? 'border-rose-300' : 'border-emerald-400'}`}>
+                <p className="text-xs text-slate-900 font-medium leading-relaxed">
+                  <strong><span aria-hidden="true">🤔 </span>Before you choose:</strong>{' '}
+                  {isThis
+                    ? "Does this tool let students do something new, or enhance your teaching in a way that paper can't?"
+                    : 'Does this strategy specifically need the tactile or durable skills that traditional methods can offer?'}
+                </p>
+              </div>
+
               {openTool.prepTime && (
                 <div className="bg-emerald-950 border-2 border-amber-400 rounded-xl p-3">
                   <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
@@ -979,7 +989,7 @@
               <div className="flex flex-wrap gap-2 pt-1">
                 <button
                   type="button"
-                  onClick={() => onPlan(openTool.name)}
+                  onClick={() => onPlan(openTool.name, openTool.need)}
                   aria-pressed={openInPlan}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black border-2 ${
                     openInPlan
@@ -1166,8 +1176,8 @@
                   teaser: "Differentiates complex secondary reading levels and provides forensic audits of student writing revision histories.",
                   whatItIs: "Translate dense secondary literature or technical manuals into tiered reading levels and inspect writing revision histories.", 
                   url: "https://www.briskteaching.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=brisk+teaching+high+school", 
-                  videoLabel: "Brisk Secondary" 
+                  videoUrl: "https://youtube.com/playlist?list=PLGbI3S88COyM", 
+                  videoLabel: "Get Started Playlist" 
                 },
                 { 
                   name: "Diffit (Secondary & CTE)", 
@@ -1261,13 +1271,14 @@
                   videoLabel: "Grades 6–12 Protocol" 
                 },
                 { 
-                  name: "Margin Marginalia & Highlighting", 
+                  name: "Margin Marginalia & Highlighting",
+                  urlLabel: "Teaching Annotation", 
                   badge: "Deep Processing Protocol", 
                   teaser: "Disciplined analog reading routine enforcing a strict limit on highlights and requiring 3-word margin summaries.",
                   whatItIs: "Students read printed primary sources with strict analog rules: highlight no more than 10 words per page and write a 3-word summary in the margin.", 
-                  url: "https://www.cultofpedagogy.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=text+marginalia+high+school", 
-                  videoLabel: "Text Marginalia" 
+                  url: "https://www.edutopia.org/article/teaching-annotation-effectively/", 
+                  videoUrl: "https://www.edutopia.org/article/encouraging-creative-and-reflective-annotation/", 
+                  videoLabel: "Reflective Annotation" 
                 },
                 { 
                   name: "Double-Entry Journal", 
@@ -2159,8 +2170,8 @@
                   teaser: "Advanced STEM modeling calculator where students graph real trade data and stress formulas dynamically.",
                   whatItIs: "High school math and physics students model real-world trade data, parabolic curves, and stress formulas using dynamic sliders.", 
                   url: "https://teacher.desmos.com", 
-                  videoUrl: "https://www.youtube.com/results?search_query=desmos+graphing+calculator+tutorial+teachers", 
-                  videoLabel: "Desmos STEM Modeling" 
+                  videoUrl: "https://youtu.be/6SpIlYzIWbo", 
+                  videoLabel: "Get Started with Desmos" 
                 },
                 { 
                   name: "Book Creator",
@@ -2335,10 +2346,7 @@
                   name: "Real Artifact Investigation", 
                   badge: "Hands-On • Any Subject", 
                   teaser: "Students examine a real object, like a failed machine part, a historical document, or a first-draft manuscript, and brainstorm what happened and why.",
-                  whatItIs: "Put a real artifact in students' hands: a fractured weld or failed circuit for CTE, a primary source or historical object for social studies, a marked-up manuscript draft for ELA, or a lab specimen for science. Students examine it closely and brainstorm what happened and why before you teach anything. Physical evidence makes the question feel real.", 
-                  url: "https://ngss.nsta.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=discrepant+event+phenomenon+high+school", 
-                  videoLabel: "Physical Phenomena" 
+                  whatItIs: "Physical evidence makes the question feel real. Put a real artifact in students' hands: a fractured weld or failed circuit for CTE, a primary source or historical object for social studies, a marked-up manuscript draft for ELA, or a lab specimen for science. Students examine it closely and brainstorm what happened and why before you teach anything." 
                 },
                 { 
                   name: "Concept Card Sort",
@@ -2379,20 +2387,13 @@
                 },
                 { 
                   name: "Breakout Box (REMC 12E)",
+                  videoUrl: "https://gemini.google.com/gem/14Dsck5g2tKNf58bsyhIzoI8AibQyY1BZ?usp=sharing",
+                  videoLabel: "Plan Your Clues with the Breakout Blueprint Gem (AI)",
                   urlLabel: "Check it out from REMC12E",
                   badge: "Physical Escape Challenge • REMC 12E Library of Things",
                   teaser: "Teams solve content-based clues to open a box locked with several real locks, racing the clock together.",
                   whatItIs: "A breakout box is a hands-on escape challenge: a box secured with several locks, each opened by solving a clue that uses what students learned. Teams work against the clock, so every member's knowledge matters. Write clues that require your content, not just guessing, so the breakout shows real understanding.",
                   url: "https://remc12echeckout.myturn.com/library/inventory/show/1387437"
-                },
-                { 
-                  name: "Mastery Ticket", 
-                  badge: "Handwritten Check • Any Subject", 
-                  teaser: "Students show what they know in their own handwriting before they leave, or before CTE students touch the equipment.",
-                  whatItIs: "Hand out an index card with 2–3 questions that require students to explain, not just recall. Handwritten answers show real understanding and can't be copied and pasted. In CTE, use it as a safety sign-off: students must answer correctly in their own handwriting before operating equipment.", 
-                  url: "https://www.edutopia.org", 
-                  videoUrl: "https://www.youtube.com/results?search_query=exit+tickets+high+school", 
-                  videoLabel: "Secondary Exit Routines" 
                 }
               ],
             }
@@ -2437,12 +2438,12 @@
             title: "The Dark Mocha Diagnostic Blend (Secondary & CTE)",
             prepTime: "30–40 Minutes to Brew",
             prepBreakdown: "Choose and safety-check a real artifact (10 min), build or remix a SchoolAI Space and test it (15–20 min), and set out paper and index cards (5 min).",
-            ingredients: "Real Artifact + SchoolAI Space + One-Pager + Mastery Ticket",
+            ingredients: "Real Artifact + SchoolAI Space + One-Pager + Index Card Exit Check",
             steps: [
               "1 - Preheat (Tactile): Place a real artifact from your subject on each table, like a failed part, a primary source, or a manuscript draft. Groups examine it and brainstorm what happened and why.",
               "2 - Mix (Digital): Students test their theories by questioning an expert in a SchoolAI Space, while you watch the conversations live.",
               "3 - Assemble (Tactile): Each student creates a one-pager that explains what they figured out, with at least one piece of evidence.",
-              "4 - Enjoy! (Mastery Ticket): Students answer two 'explain why' questions on an index card in their own handwriting before they leave."
+              "4 - Enjoy! (Exit Check): Students answer two 'explain why' questions on an index card in their own handwriting before they leave."
             ]
           }
         },
@@ -2619,8 +2620,7 @@
             {"name": "Technical Schematic Hand-Sketches", "slot": "stuffer", "phase": "Explain", "phases": ["Explain"], "need": "Draw the system", "inClass": "Have students sign their name in ink next to their hand-drawn diagram to build pride of workmanship.", "tryIt": "Hand-sketch one system from your course on grid paper and label every part.", "prepTime": "5 min", "prepDetail": "Set out grid paper and post the sketch requirements."},
             {"name": "Problem-Based Case Study", "slot": "phase", "phase": "Elaborate", "phases": ["Elaborate"], "need": "Apply it somewhere new", "inClass": "Add one real constraint, like a budget, deadline, or audience, and make teams defend how they met it.", "tryIt": "Write a half-page scenario from your subject that students could only solve using this unit's content.", "prepTime": "20–30 min", "prepDetail": "Write the scenario and its constraints, and plan how teams will present their solutions."},
             {"name": "3D Pens & Printers (REMC 12E)", "slot": "stuffer", "phase": "Elaborate", "phases": ["Elaborate"], "need": "Make it real", "tryIt": "Use a 3D pen to build a small model of one idea from your unit, and time how long it takes.", "prepTime": "15 min", "prepDetail": "Charge the pens, set out filament, and plan a simple first build. Reserve it from the REMC 12E Library of Things at least 1 week before you need it."},
-            {"name": "Breakout Box (REMC 12E)", "slot": "phase", "phase": "Evaluate", "phases": ["Evaluate"], "need": "Check understanding", "inClass": "Write each clue so it requires your unit's content, then debrief: which clue was hardest, and why?", "tryIt": "Write one clue for a 3-digit lock whose answer comes from your current unit, and test whether a student could guess it without the content.", "prepTime": "30–45 min", "prepDetail": "Write the clues, set the lock combinations, and test the full sequence once. Reserve it from the REMC 12E Library of Things at least 1 week before you need it."},
-            {"name": "Mastery Ticket", "slot": "stuffer", "phase": "Evaluate", "phases": ["Evaluate"], "need": "Handwritten check", "inClass": "In CTE, use it as a safety sign-off: students answer correctly in their own handwriting before operating equipment.", "tryIt": "Write 2 questions for tomorrow that students can only answer by explaining, not recalling.", "prepTime": "5 min", "prepDetail": "Write the questions and set out index cards at the door."}
+            {"name": "Breakout Box (REMC 12E)", "slot": "phase", "phase": "Evaluate", "phases": ["Evaluate"], "need": "Check understanding", "inClass": "Write each clue so it requires your unit's content, then debrief: which clue was hardest, and why?", "tryIt": "Write one clue for a 3-digit lock whose answer comes from your current unit, and test whether a student could guess it without the content.", "prepTime": "30–45 min", "prepDetail": "Write the clues, set the lock combinations, and test the full sequence once. Reserve it from the REMC 12E Library of Things at least 1 week before you need it."}
           ]
         }
       }
@@ -2662,7 +2662,7 @@
       return (
         <div className="space-y-3">
           <p className="text-center text-xs font-bold text-slate-900 pt-1">
-            🎄 Pick a 5E phase, then choose pixels, paper, or one of each.
+            🎯 Start with where your lesson is in the 5E cycle, then choose the tool that does that job best: pixels, paper, or both.
           </p>
           <div className="grid grid-cols-5 gap-1.5" role="tablist" aria-label="5E phases">
             {rows.map((r, i) => (
@@ -2760,10 +2760,10 @@
       });
 
       const initialReflections = {
-        1: { digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' },
-        2: { digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' },
-        3: { digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' },
-        4: { digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' }
+        1: { need: '', needCustom: '', digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' },
+        2: { need: '', needCustom: '', digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' },
+        3: { need: '', needCustom: '', digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' },
+        4: { need: '', needCustom: '', digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' }
       };
 
       const [notes, setNotes] = useState(initialReflections);
@@ -2805,7 +2805,7 @@
             [1, 2, 3, 4].forEach(id => {
               if (parsed[id]) {
                 if (typeof parsed[id] === 'string') {
-                  normalized[id] = { digital: '', digitalCustom: '', analog: '', analogCustom: '', why: parsed[id] };
+                  normalized[id] = { need: '', needCustom: '', digital: '', digitalCustom: '', analog: '', analogCustom: '', why: parsed[id] };
                 } else {
                   normalized[id] = { ...normalized[id], ...parsed[id] };
                 }
@@ -3268,7 +3268,10 @@
           ? Boolean(r.analogCustom && r.analogCustom.trim()) 
           : Boolean(r.analog && r.analog.trim());
         const hasWhy = Boolean(r.why && r.why.trim());
-        return (hasDigital || hasAnalog) && hasWhy;
+        const hasNeed = r.need === 'Other'
+          ? Boolean(r.needCustom && r.needCustom.trim())
+          : Boolean(r.need && r.need.trim());
+        return hasNeed && (hasDigital || hasAnalog) && hasWhy;
       };
 
       const formatReflectionSummary = (r) => {
@@ -3276,7 +3279,8 @@
         if (typeof r === 'string') return r;
         const d = r.digital === 'Other' ? (r.digitalCustom ? `Other: ${r.digitalCustom}` : 'Other') : (r.digital || 'Not specified');
         const a = r.analog === 'Other' ? (r.analogCustom ? `Other: ${r.analogCustom}` : 'Other') : (r.analog || 'Not specified');
-        return `[THIS Digital]: ${d}\n[THAT Analog]: ${a}\n[Rationale]: ${r.why || 'None'}`;
+        const n = r.need === 'Other' ? (r.needCustom ? `Other: ${r.needCustom}` : 'Other') : (r.need || 'Not specified');
+        return `[Need]: ${n}\n[THIS Pixels]: ${d}\n[THAT Paper]: ${a}\n[Rationale]: ${r.why || 'None'}`;
       };
 
       const handleTinselVote = async (modId, chosenSide) => {
@@ -3372,8 +3376,20 @@
         } catch(e) {}
       };
 
+      const updateReflectionFields = (modId, fields) => {
+        const currentRef = notes[modId] || { need: '', needCustom: '', digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' };
+        saveNotesLocally(modId, { ...currentRef, ...fields });
+      };
+
+      const planTool = (modId, side, name, need) => {
+        const fields = { [side === 'this' ? 'digital' : 'analog']: name };
+        if (need && !(notes[modId] && notes[modId].need)) fields.need = need;
+        updateReflectionFields(modId, fields);
+        triggerToast(`🎁 ${name} added to your Module ${modId} plan (Step 3)`);
+      };
+
       const updateReflectionField = (modId, field, value) => {
-        const currentRef = notes[modId] || { digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' };
+        const currentRef = notes[modId] || { need: '', needCustom: '', digital: '', digitalCustom: '', analog: '', analogCustom: '', why: '' };
         const updatedRef = { ...currentRef, [field]: value };
         saveNotesLocally(modId, updatedRef);
       };
@@ -3584,6 +3600,15 @@
 
       const thisGiftSet = getGiftTools(currentModule, 'this', activeGrade);
       const thatGiftSet = getGiftTools(currentModule, 'that', activeGrade);
+
+      const needOptions = (() => {
+        const seen = [];
+        ['this', 'that'].forEach(side => {
+          const set = getGiftTools(currentModule, side, activeGrade);
+          [...set.gifts, ...set.stuffers].forEach(t => { if (t.need && !seen.includes(t.need)) seen.push(t.need); });
+        });
+        return seen;
+      })();
 
       // Grade band labels used across the Holiday Showdown
       const gradeShort = activeGrade === 'k2' ? 'K–2' : activeGrade === 'g38' ? '3–8' : '9–12 / CTE';
@@ -4285,7 +4310,7 @@
                       <h3 className="text-lg font-black text-slate-900">Unwrap a gift, then go experiment</h3>
                     </div>
                     <p className="text-xs text-slate-800 font-medium mb-4">
-                      Each side of the Showdown has two gifts. Gifts in the same spot solve the same need, so pick the one that fits your classroom. Here's what you'll find inside:
+                      Each side of the Showdown has two gifts. Gifts in the same spot meet the same need, so start with what your students need, then compare how pixels and paper each do the job. Here's what you'll find inside:
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {[
@@ -4800,18 +4825,14 @@
                                   show5E,
                                   onUnwrap: trackUnwrap,
                                   plannedTool: notes[currentModule.id]?.[side === 'this' ? 'digital' : 'analog'],
-                                  onPlan: (name) => {
-                                    const field = side === 'this' ? 'digital' : 'analog';
-                                    updateReflectionField(currentModule.id, field, name);
-                                    triggerToast(`🎁 ${name} added to your Module ${currentModule.id} plan (Step 3)`);
-                                  }
+                                  onPlan: (name, need) => planTool(currentModule.id, side, name, need)
                                 })}
                               />
                             ) : (
                             <>
                             {/* GIFT BOX PICKER: matched by need across columns */}
                             <p className="text-center text-xs font-bold text-slate-900 pt-1">
-                              🎁 Gifts in the same spot solve the same need. Pick pixels, paper, or one of each.
+                              🎯 Start with what your students need, not the tool. Gifts in the same spot meet the same need, so compare how pixels and paper each do the job.
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="rounded-2xl border-2 border-rose-200 bg-white p-3.5">
@@ -4826,10 +4847,7 @@
                                   show5E={show5E}
                                   onUnwrap={trackUnwrap}
                                   plannedTool={notes[currentModule.id]?.digital}
-                                  onPlan={(name) => {
-                                    updateReflectionField(currentModule.id, 'digital', name);
-                                    triggerToast(`🎁 ${name} added to your Module ${currentModule.id} plan (Step 3)`);
-                                  }}
+                                  onPlan={(name, need) => planTool(currentModule.id, 'this', name, need)}
                                 />
                               </div>
                               <div className="rounded-2xl border-2 border-emerald-200 bg-white p-3.5">
@@ -4844,10 +4862,7 @@
                                   show5E={show5E}
                                   onUnwrap={trackUnwrap}
                                   plannedTool={notes[currentModule.id]?.analog}
-                                  onPlan={(name) => {
-                                    updateReflectionField(currentModule.id, 'analog', name);
-                                    triggerToast(`🎁 ${name} added to your Module ${currentModule.id} plan (Step 3)`);
-                                  }}
+                                  onPlan={(name, need) => planTool(currentModule.id, 'that', name, need)}
                                 />
                               </div>
                             </div>
@@ -5072,11 +5087,40 @@
 
                         <div className="space-y-5 bg-white p-5 md:p-6 rounded-2xl border border-amber-200 shadow-sm">
                           
-                          {/* PART 1 */}
+                          {/* PART 1: THE NEED */}
+                          <div>
+                            <label htmlFor={`reflect-need-${currentModule.id}`} className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5 flex items-center space-x-1.5">
+                              <span className="bg-slate-800 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem]">1</span>
+                              <span>The Need I'm Focusing On *</span>
+                            </label>
+                            <p className="text-xs text-slate-800 font-medium mb-1.5">Start here: what do your students need? Then choose a pixels tool, a paper strategy, or both that meet it. (* required: the need, at least one tool or strategy, and your reason.)</p>
+                            <select
+                              id={`reflect-need-${currentModule.id}`}
+                              value={notes[currentModule.id]?.need || ''}
+                              onChange={(e) => updateReflectionField(currentModule.id, 'need', e.target.value)}
+                              className="w-full p-3 rounded-xl border border-slate-300 text-xs md:text-sm bg-slate-50 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                            >
+                              <option value="">-- Choose the need you're focusing on --</option>
+                              {needOptions.map(n => <option key={n} value={n}>{n}</option>)}
+                              <option value="Other">Other (Describe my own need)...</option>
+                            </select>
+                            {notes[currentModule.id]?.need === 'Other' && (
+                              <input
+                                type="text"
+                                aria-label="Describe your own need"
+                                value={notes[currentModule.id]?.needCustom || ''}
+                                onChange={(e) => updateReflectionField(currentModule.id, 'needCustom', e.target.value)}
+                                placeholder="Describe the need (e.g., Help English learners access grade-level text)..."
+                                className="w-full mt-2 p-2.5 rounded-xl border border-slate-400 bg-slate-50 text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                              />
+                            )}
+                          </div>
+
+                          {/* PART 2: PIXELS */}
                           <div>
                             <label htmlFor={`reflect-digital-${currentModule.id}`} className="block text-xs font-black uppercase tracking-wider text-emerald-800 mb-1.5 flex items-center space-x-1.5">
-                              <span className="bg-emerald-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem]">1</span>
-                              <span>The Digital Tool I Will Test ("THIS") *</span>
+                              <span className="bg-emerald-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem]">2</span>
+                              <span>The Pixels Tool That Meets This Need ("THIS")</span>
                             </label>
                             <select
                               id={`reflect-digital-${currentModule.id}`}
@@ -5102,11 +5146,11 @@
                             )}
                           </div>
 
-                          {/* PART 2 */}
+                          {/* PART 3: PAPER */}
                           <div>
                             <label htmlFor={`reflect-analog-${currentModule.id}`} className="block text-xs font-black uppercase tracking-wider text-red-800 mb-1.5 flex items-center space-x-1.5">
-                              <span className="bg-red-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem]">2</span>
-                              <span>The Analog / Tactile Strategy I'm Keeping or Testing ("THAT") *</span>
+                              <span className="bg-red-600 text-white w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem]">3</span>
+                              <span>The Paper Strategy That Meets This Need ("THAT")</span>
                             </label>
                             <select
                               id={`reflect-analog-${currentModule.id}`}
@@ -5132,12 +5176,12 @@
                             )}
                           </div>
 
-                          {/* PART 3 */}
+                          {/* PART 4: WHY */}
                           <div>
                             <div className="flex items-center justify-between mb-1.5">
                               <label htmlFor={`reflect-why-${currentModule.id}`} className="block text-xs font-black uppercase tracking-wider text-slate-700 flex items-center space-x-1.5">
-                                <span className="bg-amber-500 text-slate-900 w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem] font-bold">3</span>
-                                <span>Why This Matters for My Students (The Intentional Blend) *</span>
+                                <span className="bg-amber-500 text-slate-900 w-4 h-4 rounded-full inline-flex items-center justify-center text-[0.75rem] font-bold">4</span>
+                                <span>Why This Blend Meets the Need (The Intentional Blend) *</span>
                               </label>
                               <button
                                 type="button"
@@ -5148,7 +5192,8 @@
                                   const ana = notes[currentModule.id]?.analog === 'Other' 
                                     ? (notes[currentModule.id]?.analogCustom || 'the analog strategy') 
                                     : (notes[currentModule.id]?.analog || 'the analog strategy');
-                                  const stem = `In my classroom, using ${dig} provides a quick hook and scaffold for striving learners, while pairing it with ${ana} guarantees active peer collaboration and focus without screen distraction.`;
+                                  const nd = notes[currentModule.id]?.need === 'Other' ? (notes[currentModule.id]?.needCustom || 'this need') : (notes[currentModule.id]?.need || 'this need');
+                                  const stem = `My students need to ${nd.charAt(0).toLowerCase() + nd.slice(1)}. Using ${dig} helps because ___, while ${ana} adds ___ that a screen can't.`;
                                   updateReflectionField(currentModule.id, 'why', stem);
                                 }}
                                 className="text-[0.8125rem] font-bold text-amber-700 hover:text-amber-900 underline flex items-center space-x-1"
@@ -5496,13 +5541,17 @@
                                 </button>
                               </div>
 
+                              <div className="bg-white p-2.5 rounded-xl border border-slate-300 text-xs">
+                                <span className="font-bold text-slate-900 block text-[0.75rem] uppercase">🎯 Need:</span>
+                                <span className="text-slate-800 font-medium">{r?.need === 'Other' ? (r?.needCustom || 'Custom') : (r?.need || 'Not selected')}</span>
+                              </div>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                                 <div className="bg-white p-2.5 rounded-xl border border-emerald-200">
-                                  <span className="font-bold text-emerald-800 block text-[0.75rem] uppercase">THIS (Digital):</span>
+                                  <span className="font-bold text-emerald-800 block text-[0.75rem] uppercase">THIS (Pixels):</span>
                                   <span className="text-slate-800 font-medium">{dVal}</span>
                                 </div>
                                 <div className="bg-white p-2.5 rounded-xl border border-red-200">
-                                  <span className="font-bold text-red-800 block text-[0.75rem] uppercase">THAT (Analog):</span>
+                                  <span className="font-bold text-red-800 block text-[0.75rem] uppercase">THAT (Paper):</span>
                                   <span className="text-slate-800 font-medium">{aVal}</span>
                                 </div>
                               </div>
@@ -6237,6 +6286,7 @@
                                     {it.modId ? (
                                       r && typeof r === 'object' ? (
                                         <div className="text-xs text-slate-900 bg-slate-50 rounded-xl p-3 space-y-1">
+                                          <div><strong>Need:</strong> {r.need === 'Other' ? r.needCustom : r.need || '—'}</div>
                                           <div><strong>THIS:</strong> {r.digital === 'Other' ? r.digitalCustom : r.digital || '—'}</div>
                                           <div><strong>THAT:</strong> {r.analog === 'Other' ? r.analogCustom : r.analog || '—'}</div>
                                           <div className="whitespace-pre-wrap"><strong>Why:</strong> {r.why || '—'}</div>
@@ -6558,9 +6608,10 @@
                   {printIncludeReflections && r && (
                     <div className="border-t border-dashed border-slate-300 pt-2 text-xs">
                       <span className="font-black text-slate-800 block text-[0.8125rem] uppercase mb-1">My 3-Part Micro-Reflection:</span>
+                      <div className="mb-1"><strong>Need:</strong> {r.need === 'Other' ? r.needCustom : r.need || 'None'}</div>
                       <div className="grid grid-cols-2 gap-2 mb-1">
-                        <div><strong>Digital Tool ("THIS"):</strong> {r.digital === 'Other' ? r.digitalCustom : r.digital || 'None'}</div>
-                        <div><strong>Analog Strategy ("THAT"):</strong> {r.analog === 'Other' ? r.analogCustom : r.analog || 'None'}</div>
+                        <div><strong>Pixels Tool ("THIS"):</strong> {r.digital === 'Other' ? r.digitalCustom : r.digital || 'None'}</div>
+                        <div><strong>Paper Strategy ("THAT"):</strong> {r.analog === 'Other' ? r.analogCustom : r.analog || 'None'}</div>
                       </div>
                       <div><strong>Why It Matters (Intentional Blend):</strong> <span className="italic">{r.why || 'None recorded'}</span></div>
                     </div>
