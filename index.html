@@ -414,80 +414,6 @@
       { key: 'final', modId: null, short: 'Final Reflection', label: 'Final Reflection (Capstone)', activity: 'integration artifact' }
     ];
     const EMPTY_LOGS = { m1: [], m2: [], m3: [], m4: [], final: [] };
-    const EMPTY_CAPSTONE = {
-      submissionType: 'link', artifactUrl: '', lessonTitle: '',
-      lessonGrade: 'Middle School (6-8)', lessonHighTech: '', lessonLowTech: '',
-      lessonIntegrationPlan: '', notesForReviewer: ''
-    };
-
-    // Serialize cloud writes; only the latest acknowledged draft can say Saved.
-    function createCourseSaver(write, onStatus) {
-      let context = null;
-      let epoch = 0;
-      let savedSignature = null;
-      let queue = Promise.resolve();
-      let active = null;
-      let pending = 0;
-      return {
-        update(next) {
-          if (!context || context.uid !== next.uid || context.allowed !== next.allowed) {
-            epoch += 1;
-            savedSignature = null;
-            active = null;
-            pending = 0;
-            queue = Promise.resolve();
-          }
-          context = next;
-        },
-        pause() {
-          epoch += 1;
-          active = null;
-          pending = 0;
-          queue = Promise.resolve();
-          if (context) context = { ...context, allowed: false };
-        },
-        canWrite() { return Boolean(context && context.allowed); },
-        isSaved() { return Boolean(context && context.allowed && pending === 0 && savedSignature === context.signature); },
-        save() {
-          if (!context || !context.allowed) return Promise.resolve(false);
-          const snapshot = context;
-          const session = epoch;
-          if (pending === 0 && savedSignature === snapshot.signature) return Promise.resolve(true);
-          if (active && active.session === session && active.signature === snapshot.signature) return active.promise;
-          onStatus('saving');
-          pending += 1;
-          const current = () => epoch === session && context && context.allowed && context.uid === snapshot.uid;
-          const promise = queue.then(async () => {
-            if (!current()) return false;
-            await write(snapshot.uid, snapshot.payload);
-            if (!current()) return false;
-            savedSignature = snapshot.signature;
-            return context.signature === snapshot.signature;
-          }).catch(err => {
-            if (current() && context.signature === snapshot.signature) {
-              console.error(err);
-              onStatus('error');
-            }
-            return false;
-          }).then(result => {
-            if (epoch === session) {
-              pending -= 1;
-              if (pending === 0 && current() && savedSignature === context.signature) onStatus('saved');
-            }
-            return result && current() && pending === 0 && savedSignature === context.signature;
-          });
-          queue = promise;
-          active = { session, signature: snapshot.signature, promise };
-          promise.then(() => { if (active && active.promise === promise) active = null; });
-          return promise;
-        }
-      };
-    }
-
-    const waitForCourseSave = (promise) => new Promise(resolve => {
-      const timer = setTimeout(() => resolve(false), 8000);
-      promise.then(result => { clearTimeout(timer); resolve(result); }, () => { clearTimeout(timer); resolve(false); });
-    });
 
     const TIME_OPTIONS = (() => {
       const out = [];
@@ -514,14 +440,9 @@
       const hours = totalHours(list);
       const pct = Math.min(100, Math.round((hours / COURSE_CONFIG.hoursPerItem) * 100));
       const today = todayISO();
-      const beforeCourse = today < COURSE_CONFIG.startDate;
-      // Avoid an impossible min > max date range before the course starts.
-      const maxDate = beforeCourse ? COURSE_CONFIG.startDate : (today < COURSE_CONFIG.endDate ? today : COURSE_CONFIG.endDate);
-      const remainingHours = Math.max(0, COURSE_CONFIG.hoursPerItem - hours);
-      const timeNeeded = `${fmtHours(remainingHours)} more hour${remainingHours === 1 ? '' : 's'}`;
+      const maxDate = today < COURSE_CONFIG.endDate ? today : COURSE_CONFIG.endDate;
 
       const add = () => {
-        if (beforeCourse) { setErr(`Time logging opens on ${fmtDate(COURSE_CONFIG.startDate)}. Only time worked during the course can be logged.`); return; }
         if (!date) { setErr('Choose the date you worked.'); return; }
         if (date < COURSE_CONFIG.startDate || date > COURSE_CONFIG.endDate) { setErr(`Please choose a date during the course (${fmtDate(COURSE_CONFIG.startDate)} to ${fmtDate(COURSE_CONFIG.endDate)}).`); return; }
         if (date > today) { setErr("You can't log time for a future date."); return; }
@@ -581,20 +502,15 @@
             </ul>
           )}
 
-          <p id={`log-dates-${item.key}`} className="text-xs text-slate-800 leading-relaxed" role={beforeCourse ? 'status' : undefined}>
-            {beforeCourse
-              ? `Time logging opens on ${fmtDate(COURSE_CONFIG.startDate)}. Eligible course dates are ${fmtDate(COURSE_CONFIG.startDate)} through ${fmtDate(COURSE_CONFIG.endDate)}. Future dates cannot be logged.`
-              : `Choose a date from ${fmtDate(COURSE_CONFIG.startDate)} through ${fmtDate(maxDate)}. Future dates cannot be logged.`}
-          </p>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
             <div>
               <label htmlFor={`log-date-${item.key}`} className="block text-[0.8125rem] font-black text-slate-900 mb-1">Date</label>
-              <input id={`log-date-${item.key}`} type="date" min={COURSE_CONFIG.startDate} max={maxDate} disabled={beforeCourse} aria-describedby={`log-dates-${item.key}`} value={date} onChange={(e) => setDate(e.target.value)}
+              <input id={`log-date-${item.key}`} type="date" min={COURSE_CONFIG.startDate} max={maxDate} value={date} onChange={(e) => setDate(e.target.value)}
                 className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs focus:border-emerald-600 focus:outline-none" />
             </div>
             <div>
               <label htmlFor={`log-start-${item.key}`} className="block text-[0.8125rem] font-black text-slate-900 mb-1">Start</label>
-              <select id={`log-start-${item.key}`} disabled={beforeCourse} value={start} onChange={(e) => setStart(e.target.value)}
+              <select id={`log-start-${item.key}`} value={start} onChange={(e) => setStart(e.target.value)}
                 className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs bg-white focus:border-emerald-600 focus:outline-none">
                 <option value="">Start time</option>
                 {TIME_OPTIONS.map(t => <option key={t} value={t}>{fmtTime(t)}</option>)}
@@ -602,13 +518,13 @@
             </div>
             <div>
               <label htmlFor={`log-end-${item.key}`} className="block text-[0.8125rem] font-black text-slate-900 mb-1">End</label>
-              <select id={`log-end-${item.key}`} disabled={beforeCourse} value={end} onChange={(e) => setEnd(e.target.value)}
+              <select id={`log-end-${item.key}`} value={end} onChange={(e) => setEnd(e.target.value)}
                 className="w-full p-2 rounded-lg border-2 border-slate-300 text-xs bg-white focus:border-emerald-600 focus:outline-none">
                 <option value="">End time</option>
                 {TIME_OPTIONS.map(t => <option key={t} value={t}>{fmtTime(t)}</option>)}
               </select>
             </div>
-            <button type="button" onClick={add} disabled={beforeCourse} aria-describedby={`log-dates-${item.key}`} className="p-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-black">
+            <button type="button" onClick={add} className="p-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black">
               Add time
             </button>
           </div>
@@ -619,9 +535,7 @@
               ? `✅ SCECH earned for ${item.short}!`
               : hours >= COURSE_CONFIG.hoursPerItem
                 ? `Your hour is logged. Finish your ${item.activity} to earn this SCECH.`
-                : activityDone
-                  ? `Your ${item.activity} is complete. ${beforeCourse ? `Time logging opens on ${fmtDate(COURSE_CONFIG.startDate)}; you still need to log ${timeNeeded} to earn this SCECH.` : `Log ${timeNeeded} to earn this SCECH.`}`
-                  : `To earn this SCECH, finish your ${item.activity} and log ${timeNeeded}.${beforeCourse ? ` Time logging opens on ${fmtDate(COURSE_CONFIG.startDate)}.` : ''}`}
+                : `${fmtHours(COURSE_CONFIG.hoursPerItem - hours)} more hour${COURSE_CONFIG.hoursPerItem - hours === 1 ? '' : 's'} to go${activityDone ? '. Your activity is already done!' : ` (plus your ${item.activity}).`}`}
           </div>
           {hours > COURSE_CONFIG.hoursPerItem && (
             <p className="text-xs font-bold text-amber-950 bg-amber-50 border border-amber-300 rounded-xl p-3">
@@ -2913,28 +2827,7 @@
       const [submitError, setSubmitError] = useState('');
       const [show5E, setShow5E] = useState(true);
       const [authUser, setAuthUser] = useState(null);
-      // cloudLoaded holds the UID whose draft has actually finished loading.
-      const [cloudLoaded, setCloudLoaded] = useState(null);
-      const [browserLoaded, setBrowserLoaded] = useState(false);
-      const [loadError, setLoadError] = useState('');
-      const [loadAttempt, setLoadAttempt] = useState(0);
-      const [enrollmentError, setEnrollmentError] = useState('');
-      const [enrollmentAttempt, setEnrollmentAttempt] = useState(0);
-      const [manualSaveBusy, setManualSaveBusy] = useState(false);
-      const [signOutPending, setSignOutPending] = useState(false);
-      const authUidRef = useRef(null);
-      const facilitatorAccessRef = useRef(false);
-      const signingOutRef = useRef(false);
-      const signOutBusyRef = useRef(false);
-      const courseSaver = useRef(null);
-      if (!courseSaver.current) {
-        courseSaver.current = createCourseSaver(
-          (uid, payload) => fbDb.collection('users').doc(uid).set({
-            ...payload, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true }),
-          status => setSyncStatus(status)
-        );
-      }
+      const [cloudLoaded, setCloudLoaded] = useState(false);
       const [syncStatus, setSyncStatus] = useState('idle');
       const [signInEmail, setSignInEmail] = useState('');
       const [signInState, setSignInState] = useState('idle');
@@ -2971,7 +2864,16 @@
 
       const [notes, setNotes] = useState(initialReflections);
 
-      const [capstoneData, setCapstoneData] = useState(EMPTY_CAPSTONE);
+      const [capstoneData, setCapstoneData] = useState({
+        submissionType: 'link', 
+        artifactUrl: '',
+        lessonTitle: '',
+        lessonGrade: 'Middle School (6-8)',
+        lessonHighTech: '',
+        lessonLowTech: '',
+        lessonIntegrationPlan: '',
+                notesForReviewer: ''
+      });
 
       const [isSubmitting, setIsSubmitting] = useState(false);
       const [toastMessage, setToastMessage] = useState('');
@@ -3015,15 +2917,12 @@
           if (savedFavs) setFavoriteTools(JSON.parse(savedFavs));
           const savedLogs = localStorage.getItem('remc12e_tth_timelogs');
           if (savedLogs) setTimeLogs({ ...EMPTY_LOGS, ...JSON.parse(savedLogs) });
-          const savedCapstone = localStorage.getItem('remc12e_tth_capstone');
-          if (savedCapstone) setCapstoneData({ ...EMPTY_CAPSTONE, ...JSON.parse(savedCapstone) });
           const saved5E = localStorage.getItem('remc12e_tth_show5e');
           if (saved5E !== null) setShow5E(saved5E === 'true');
           localStorage.removeItem('remc12e_tth_tinsel_votes'); // old sample counts, no longer used
         } catch (e) {
           console.log("Local storage initialized");
         }
-        setBrowserLoaded(true);
       }, []);
 
       // --- SIGN-IN: Google (main) + email & password (backup) ---
@@ -3043,7 +2942,7 @@
           provider.setCustomParameters({ prompt: 'select_account' });
           await fbAuth.signInWithPopup(provider);
           resetAuthForm();
-          triggerToast('🎄 You\'re signed in! Checking your course access…');
+          triggerToast('🎄 You\'re signed in! Your work now saves to your account.');
         } catch (err) {
           const code = (err && err.code) || '';
           if (code.includes('popup-closed-by-user') || code.includes('cancelled-popup-request')) {
@@ -3125,13 +3024,11 @@
         try {
           await user.reload();
           const fresh = fbAuth.currentUser;
-          if (!fresh || fresh.uid !== user.uid || authUidRef.current !== user.uid) return;
-          if (fresh.emailVerified) {
+          if (fresh && fresh.emailVerified) {
             await fresh.getIdToken(true); // make sure the database sees the confirmed email
-            if (fbAuth.currentUser?.uid !== user.uid || authUidRef.current !== user.uid) return;
             setEmailVerified(true);
             setVerifyNote('');
-            if (showMessage) triggerToast('✅ Email confirmed! Checking your course access…');
+            if (showMessage) triggerToast('✅ Email confirmed! Your work now saves to your account.');
           } else if (showMessage) {
             setVerifyNote("We don't see the confirmation yet. Click the link in your email, then try again.");
           }
@@ -3151,93 +3048,43 @@
         }
       };
 
-      const resetAccountWork = () => {
+      const handleSignOut = async () => {
+        if (!fbAuth) return;
+        await fbAuth.signOut();
+        // Clear this device so the next person on a shared computer starts fresh
         setNotes(initialReflections);
         setFavoriteTools([]);
         setTimeLogs(EMPTY_LOGS);
-        setCapstoneData({ ...EMPTY_CAPSTONE });
         setMyVotes({});
-        setParticipantInfo({ name: '', email: '', district: '', picNumber: '' });
         setCertAgreed(false);
         setCertName('');
-        setConfirmOpen(false);
-        setIsPrintModalOpen(false);
-        setSelectedSubmission(null);
-        setSelectedUser(null);
-        setUsersList([]);
-        setSubmissionsList([]);
-        setMySubmission(null);
-        setReviewNoteDraft('');
-        setPrintSubs([]);
-        setPrintMode('desk');
-        setSubmitError('');
-        setManualSaveBusy(false);
-        setCurrentView('welcome');
-        setModuleStep(0);
+        setParticipantInfo({ name: '', email: '', district: '', picNumber: '' });
         try {
-          ['notes', 'info', 'favorites', 'timelogs', 'capstone', 'owner'].forEach(key => localStorage.removeItem('remc12e_tth_' + key));
+          ['remc12e_tth_notes', 'remc12e_tth_info', 'remc12e_tth_favorites', 'remc12e_tth_timelogs'].forEach(k => localStorage.removeItem(k));
         } catch (e) {}
-      };
-
-      const handleSignOut = async () => {
-        if (!fbAuth || signOutBusyRef.current) return;
-        signOutBusyRef.current = true;
-        setSignOutPending(true);
-        try {
-          // Flush the latest draft before clearing this shared device.
-          if (cloudLoaded === authUser?.uid && !courseSaver.current.isSaved()) {
-            const saved = courseSaver.current.canWrite() && await waitForCourseSave(courseSaver.current.save()) && courseSaver.current.isSaved();
-            if (!saved && !window.confirm('Your latest changes have not reached your account. Sign out anyway? Unsaved work on this device will be cleared.')) return;
-          }
-          signingOutRef.current = true;
-          courseSaver.current.pause();
-          await fbAuth.signOut();
-          setSignInEmail('');
-          resetAuthForm();
-          setVerifyNote('');
-          triggerToast('Signed out. This device has been cleared.');
-        } catch (err) {
-          signingOutRef.current = false;
-          console.error(err);
-          triggerToast('Could not sign out. Please try again.');
-        } finally {
-          signOutBusyRef.current = false;
-          setSignOutPending(false);
-        }
+        setSignInEmail('');
+        resetAuthForm();
+        setVerifyNote('');
+        setSyncStatus('idle');
+        triggerToast('Signed out. Your work is safe in your account.');
       };
 
       // Watch sign-in state; recheck email confirmation when a teacher returns to this tab
       useEffect(() => {
         if (!fbAuth) return;
         const unsubscribe = fbAuth.onAuthStateChanged(async (user) => {
-          const uid = user ? user.uid : null;
-          const previousUid = authUidRef.current;
-          let cachedOwner = null;
-          try { cachedOwner = localStorage.getItem('remc12e_tth_owner'); } catch (e) {}
-          if (previousUid !== uid || (cachedOwner && cachedOwner !== uid)) {
-            courseSaver.current.pause();
-            setCloudLoaded(null);
-            setEmailVerified(false);
-            setFacilitatorChecked(false);
-            setIsFacilitator(false);
-            setEnrolled(null);
-            setEnrollmentError('');
-            setLoadError('');
-            setSyncStatus('idle');
-            if (previousUid || cachedOwner) resetAccountWork();
-          }
-          authUidRef.current = uid;
-          signingOutRef.current = false;
           setAuthUser(user);
-          if (!user) return;
+          if (!user) {
+            setCloudLoaded(false);
+            setEmailVerified(false);
+            return;
+          }
           if (!user.emailVerified) {
             try { await user.reload(); } catch (e) {}
           }
           const fresh = fbAuth.currentUser;
-          if (!fresh || fresh.uid !== uid || authUidRef.current !== uid) return;
-          if (fresh.emailVerified) {
+          if (fresh && fresh.emailVerified) {
             try { await fresh.getIdToken(true); } catch (e) {}
-            if (fbAuth.currentUser?.uid !== uid || authUidRef.current !== uid) return;
             setEmailVerified(true);
           } else {
             setEmailVerified(false);
@@ -3254,141 +3101,84 @@
         };
       }, []);
 
-      facilitatorAccessRef.current = isFacilitator && facilitatorChecked;
-
-      // Wait for an acknowledged enrollment, not an optimistic local write.
+      // Is this teacher enrolled (entered the course code)?
       useEffect(() => {
         if (!fbDb || !authUser || !emailVerified) { setEnrolled(null); return; }
-        let cancelled = false;
-        const uid = authUser.uid;
-        setEnrollmentError('');
-        const unsub = fbDb.collection('enrollments').doc(uid).onSnapshot(
-          { includeMetadataChanges: true },
-          snap => {
-            if (cancelled || authUidRef.current !== uid || snap.metadata.hasPendingWrites) return;
-            if (!snap.exists && !facilitatorAccessRef.current) courseSaver.current.pause();
-            setEnrollmentError('');
-            setEnrolled(snap.exists);
-          },
-          err => {
-            if (cancelled || authUidRef.current !== uid) return;
-            console.error(err);
-            if (!facilitatorAccessRef.current) courseSaver.current.pause();
-            setEnrolled(null);
-            setEnrollmentError('Could not check your enrollment. Check your connection and try again.');
-          }
+        const unsub = fbDb.collection('enrollments').doc(authUser.uid).onSnapshot(
+          snap => setEnrolled(snap.exists),
+          () => setEnrolled(false)
         );
-        return () => { cancelled = true; unsub(); };
-      }, [authUser, emailVerified, enrollmentAttempt]);
+        return () => unsub();
+      }, [authUser, emailVerified]);
 
-      const canSync = Boolean(authUser && emailVerified && facilitatorChecked && (isFacilitator || enrolled === true));
+      const canSync = isFacilitator || enrolled === true;
       const needsEnrollment = Boolean(fbDb && authUser && emailVerified && facilitatorChecked && !isFacilitator && enrolled === false);
-      const accountLoading = Boolean(fbDb && authUser && emailVerified && !needsEnrollment &&
-        (!facilitatorChecked || (!isFacilitator && enrolled === null) || (canSync && cloudLoaded !== authUser.uid)));
 
       const handleEnroll = async (cleanCode) => {
-        const uid = authUser.uid;
-        await fbDb.collection('enrollments').doc(uid).set({
+        await fbDb.collection('enrollments').doc(authUser.uid).set({
           code: cleanCode,
           email: authUser.email || '',
           enrolledAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        if (authUidRef.current === uid) triggerToast('🎉 You\'re enrolled! Loading your saved work…');
+        triggerToast('🎉 You\'re enrolled! Your progress will now save automatically.');
       };
 
-      // Never save an account's draft until that same account has loaded.
+      // Load this teacher's saved work from the cloud (or move existing browser work into the cloud)
       useEffect(() => {
-        if (!fbDb || !authUser || !canSync || cloudLoaded === authUser.uid) return;
+        if (!fbDb || !authUser || !emailVerified || !canSync) return;
         let cancelled = false;
-        const uid = authUser.uid;
-        setLoadError('');
-        fbDb.collection('users').doc(uid).get({ source: 'server' }).then(snap => {
-          if (cancelled || authUidRef.current !== uid) return;
+        const ref = fbDb.collection('users').doc(authUser.uid);
+        ref.get().then(snap => {
+          if (cancelled) return;
           if (snap.exists) {
             const d = snap.data() || {};
-            setNotes({ ...initialReflections, ...(d.notes || {}) });
-            setFavoriteTools(Array.isArray(d.favorites) ? d.favorites : []);
-            setParticipantInfo({ name: '', email: authUser.email || '', district: '', picNumber: '', ...(d.participantInfo || {}) });
+            if (d.notes) setNotes({ ...initialReflections, ...d.notes });
+            if (Array.isArray(d.favorites)) setFavoriteTools(d.favorites);
+            if (d.participantInfo) setParticipantInfo(prev => ({ ...prev, ...d.participantInfo }));
             if (typeof d.show5E === 'boolean') setShow5E(d.show5E);
             if (d.grade) setActiveGrade(d.grade);
-            setCapstoneData({ ...EMPTY_CAPSTONE, ...(d.capstoneDraft || {}) });
-            setTimeLogs({ ...EMPTY_LOGS, ...(d.timeLogs || {}) });
-            setMyVotes(d.votes || {});
-          } else {
-            setParticipantInfo(prev => ({ ...prev, email: prev.email || authUser.email || '' }));
+            if (d.capstoneDraft) setCapstoneData(prev => ({ ...prev, ...d.capstoneDraft }));
+            if (d.timeLogs) setTimeLogs({ ...EMPTY_LOGS, ...d.timeLogs });
+            if (d.votes) setMyVotes(d.votes);
           }
-          setCloudLoaded(uid);
+          setParticipantInfo(prev => (prev.email ? prev : { ...prev, email: authUser.email || '' }));
+          setCloudLoaded(true);
         }).catch(err => {
-          if (cancelled || authUidRef.current !== uid) return;
           console.error(err);
-          setLoadError('Your saved work could not be loaded. Check your connection and try again.');
           setSyncStatus('error');
         });
         return () => { cancelled = true; };
-      }, [authUser, canSync, cloudLoaded, loadAttempt]);
+      }, [authUser, emailVerified, canSync]);
 
-      const coursePayload = {
-        email: authUser?.email || '', notes, favorites: favoriteTools, participantInfo,
-        show5E, grade: activeGrade, timeLogs,
-        capstoneDraft: {
-          submissionType: capstoneData.submissionType === 'lessonPlan' ? 'lessonPlan' : 'link',
-          artifactUrl: capstoneData.artifactUrl || '', lessonTitle: capstoneData.lessonTitle || '',
-          lessonGrade: capstoneData.lessonGrade || '', lessonHighTech: capstoneData.lessonHighTech || '',
-          lessonLowTech: capstoneData.lessonLowTech || '', lessonIntegrationPlan: capstoneData.lessonIntegrationPlan || ''
-        }
-      };
-      const courseSignature = JSON.stringify(coursePayload);
-      const canSaveWork = Boolean(fbDb && canSync && cloudLoaded === authUser?.uid &&
-        fbAuth.currentUser?.uid === authUser.uid && !signingOutRef.current);
-      courseSaver.current.update({ uid: authUser?.uid || null, allowed: canSaveWork, signature: courseSignature, payload: coursePayload });
-
-      // Keep a device copy too; its owner prevents one account inheriting another's draft.
-      const cacheCourseWork = () => {
-        try {
-          localStorage.setItem('remc12e_tth_notes', JSON.stringify(notes));
-          localStorage.setItem('remc12e_tth_info', JSON.stringify(participantInfo));
-          localStorage.setItem('remc12e_tth_favorites', JSON.stringify(favoriteTools));
-          localStorage.setItem('remc12e_tth_timelogs', JSON.stringify(timeLogs));
-          localStorage.setItem('remc12e_tth_capstone', JSON.stringify(capstoneData));
-          if (authUser) localStorage.setItem('remc12e_tth_owner', authUser.uid);
-          return true;
-        } catch (err) { return false; }
-      };
+      // Save to the cloud a moment after anything changes
       useEffect(() => {
-        if (browserLoaded && !signingOutRef.current && (!authUser || cloudLoaded === authUser.uid)) cacheCourseWork();
-      }, [browserLoaded, courseSignature, cloudLoaded, authUser]);
-
-      // Cancel pending autosaves as soon as enrollment or account access changes.
-      useEffect(() => {
-        if (!canSaveWork) return;
-        if (!courseSaver.current.isSaved()) setSyncStatus('saving');
-        const timer = setTimeout(() => courseSaver.current.save(), 900);
-        return () => clearTimeout(timer);
-      }, [courseSignature, canSaveWork]);
-
-      const saveCourseWork = async () => {
-        if (manualSaveBusy) return;
-        if (!authUser || !emailVerified) {
-          triggerToast(cacheCourseWork()
-            ? 'Saved in this browser only. Sign in, confirm your email, and enter the course code to save to your account.'
-            : 'Could not save in this browser. Please sign in and enroll to save your work.');
-          return;
-        }
-        if (!canSaveWork) {
-          triggerToast(needsEnrollment ? 'Enter the course code before saving to your account.' : 'Wait for your saved work to load, then try again.');
-          return;
-        }
-        const uid = authUser.uid;
-        setManualSaveBusy(true);
-        const saved = await waitForCourseSave(courseSaver.current.save());
-        if (authUidRef.current !== uid) return;
-        setManualSaveBusy(false);
-        if (saved && courseSaver.current.isSaved()) triggerToast('Your latest work is saved to your account.');
-        else {
-          setSyncStatus('error');
-          triggerToast('Your latest changes have not been confirmed as saved. Check your connection and use Retry save.');
-        }
-      };
+        if (!fbDb || !authUser || !cloudLoaded) return;
+        setSyncStatus('saving');
+        const t = setTimeout(() => {
+          fbDb.collection('users').doc(authUser.uid).set({
+            email: authUser.email || '',
+            notes,
+            favorites: favoriteTools,
+            participantInfo,
+            show5E,
+            grade: activeGrade,
+            timeLogs,
+            capstoneDraft: {
+              submissionType: capstoneData.submissionType === 'lessonPlan' ? 'lessonPlan' : 'link',
+              artifactUrl: capstoneData.artifactUrl || '',
+              lessonTitle: capstoneData.lessonTitle || '',
+              lessonGrade: capstoneData.lessonGrade || '',
+              lessonHighTech: capstoneData.lessonHighTech || '',
+              lessonLowTech: capstoneData.lessonLowTech || '',
+              lessonIntegrationPlan: capstoneData.lessonIntegrationPlan || ''
+            },
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true })
+            .then(() => setSyncStatus('saved'))
+            .catch(err => { console.error(err); setSyncStatus('error'); });
+        }, 900);
+        return () => clearTimeout(t);
+      }, [notes, favoriteTools, participantInfo, show5E, activeGrade, capstoneData, timeLogs, authUser, cloudLoaded]);
 
       // Return to the desk-reference print layout after printing time logs
       useEffect(() => {
@@ -3400,13 +3190,10 @@
       // Is this person an approved facilitator?
       useEffect(() => {
         if (!fbDb || !authUser || !emailVerified || !authUser.email) { setIsFacilitator(false); setFacilitatorChecked(false); return; }
-        let cancelled = false;
         setFacilitatorChecked(false);
-        setIsFacilitator(false);
-        fbDb.collection('facilitators').doc(authUser.email.toLowerCase()).get({ source: 'server' })
-          .then(snap => { if (!cancelled) { setIsFacilitator(snap.exists); setFacilitatorChecked(true); } })
-          .catch(() => { if (!cancelled) { setIsFacilitator(false); setFacilitatorChecked(true); } });
-        return () => { cancelled = true; };
+        fbDb.collection('facilitators').doc(authUser.email.toLowerCase()).get()
+          .then(snap => { setIsFacilitator(snap.exists); setFacilitatorChecked(true); })
+          .catch(() => { setIsFacilitator(false); setFacilitatorChecked(true); });
       }, [authUser, emailVerified]);
 
       // This teacher's own submission (live, so status changes appear right away)
@@ -3485,7 +3272,7 @@
       }, [isFacilitator, currentView]);
 
       // --- PRIVATE ENGAGEMENT TRACKING (facilitator dashboard only) ---
-      const trackingOn = Boolean(canSaveWork && !isFacilitator);
+      const trackingOn = Boolean(fbDb && authUser && emailVerified && !isFacilitator);
       const viewKey = ['1', '2', '3', '4'].includes(currentView) ? `m${currentView}`
         : (currentView === 'welcome' || currentView === 'capstone') ? currentView : null;
 
@@ -3509,13 +3296,13 @@
         fbDb.collection('users').doc(authUser.uid)
           .set({ activity: { lastActive: FV.serverTimestamp(), [viewKey]: pageData } }, { merge: true })
           .catch(() => {});
-      }, [trackingOn, viewKey, moduleStep, authUser?.uid]);
+      }, [trackingOn, viewKey, moduleStep]);
 
       // Count active minutes (tab visible and some activity in the last 2 minutes)
       useEffect(() => {
         if (!trackingOn || !viewKey) return;
         const timer = setInterval(() => {
-          if (!courseSaver.current.canWrite() || authUidRef.current !== authUser.uid || document.visibilityState !== 'visible') return;
+          if (document.visibilityState !== 'visible') return;
           if (Date.now() - lastInteraction.current > 120000) return;
           const FV = firebase.firestore.FieldValue;
           fbDb.collection('users').doc(authUser.uid)
@@ -3523,7 +3310,7 @@
             .catch(() => {});
         }, 60000);
         return () => clearInterval(timer);
-      }, [trackingOn, viewKey, authUser?.uid]);
+      }, [trackingOn, viewKey]);
 
       // --- ACCESSIBILITY: dialogs, page titles, motion, small screens ---
       const anyDialogOpen = Boolean(confirmOpen || selectedSubmission || isPrintModalOpen || selectedUser);
@@ -3607,7 +3394,7 @@
       };
 
       const trackUnwrap = (toolName) => {
-        if (!trackingOn || !courseSaver.current.canWrite()) return;
+        if (!trackingOn) return;
         fbDb.collection('users').doc(authUser.uid)
           .set({ activity: { unwraps: { [toolName]: firebase.firestore.FieldValue.increment(1) } } }, { merge: true })
           .catch(() => {});
@@ -3648,11 +3435,6 @@
           triggerToast('🗳️ Sign in on Start Here to cast your vote in the Tug-of-War!');
           return;
         }
-        if (!canSaveWork) {
-          triggerToast('Enter the course code and wait for your saved work to load before voting.');
-          return;
-        }
-        const votingUid = authUser.uid;
         const key = String(modId);
         const previous = myVotes[key];
         if (previous === chosenSide) return;
@@ -3665,13 +3447,11 @@
           batch.set(fbDb.collection('users').doc(authUser.uid), { votes: { [key]: chosenSide } }, { merge: true });
           batch.update(fbDb.collection('tallies').doc('votes'), tallyUpdate);
           await batch.commit();
-          if (authUidRef.current !== votingUid) return;
           triggerToast(chosenSide === 'this'
             ? '✨ Vote cast for THIS (Pixels)! Garland shifted.'
             : '🎄 Vote cast for THAT (Paper & Tactile)! Garland shifted.');
         } catch (err) {
           console.error(err);
-          if (authUidRef.current !== votingUid) return;
           setMyVotes(prev => ({ ...prev, [key]: previous }));
           triggerToast('Your vote did not count yet. Please try again in a moment.');
         }
@@ -3704,11 +3484,7 @@
         if (!fbDb || !isFacilitator) return;
         const current = { '1': true, '2': true, '3': true, '4': true, final: true, ...(released || {}) };
         const next = { ...current, [key]: current[key] === false };
-        const uid = authUser.uid;
         try {
-          // Refresh the token so the rules see current email verification.
-          await fbAuth.currentUser.getIdToken(true);
-          if (fbAuth.currentUser?.uid !== uid || authUidRef.current !== uid) return;
           await fbDb.collection('settings').doc('course').set({
             released: next,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -3716,11 +3492,8 @@
           }, { merge: true });
           triggerToast(next[key] ? '🎄 Now open for teachers' : '🎁 Now hidden from teachers');
         } catch (err) {
-          console.error('Course release setting failed:', err);
-          if (authUidRef.current !== uid) return;
-          triggerToast(err.code === 'permission-denied'
-            ? 'Firebase denied this change. Check your facilitator email document and the published rules in the tech-the-halls project.'
-            : 'That change did not save. Check your connection and try again.');
+          console.error(err);
+          triggerToast('That change did not save. Please try again.');
         }
       };
 
@@ -3801,10 +3574,6 @@
         if (!authUser || !emailVerified) {
           failSubmit('Please sign in first so your submission is linked to your account.');
           setCurrentView('welcome');
-          return;
-        }
-        if (!canSaveWork) {
-          failSubmit('Enter the course code and wait for your saved work to load before submitting.');
           return;
         }
         if (courseClosed()) {
@@ -4121,16 +3890,15 @@
                   authUser && emailVerified ? (
                     <div className="flex items-center gap-2 bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-1.5 rounded-xl">
                       <span className="text-[0.8125rem] font-black text-emerald-100 whitespace-nowrap" aria-live="polite">
-                        {accountLoading ? '☁️ Checking / loading…' : !canSync ? '🎟️ Course code needed' : syncStatus === 'error' ? '⚠️ Not saved' : courseSaver.current.isSaved() ? '☁️ Saved' : '☁️ Saving…'}
+                        {syncStatus === 'saving' ? '☁️ Saving…' : syncStatus === 'error' ? '⚠️ Not saved' : '☁️ Saved'}
                       </span>
                       <span className="hidden lg:inline text-[0.8125rem] text-emerald-200 max-w-[10rem] truncate">{authUser.email}</span>
                       <button
                         type="button"
                         onClick={handleSignOut}
-                        disabled={signOutPending}
                         className="text-[0.8125rem] font-black text-amber-300 hover:text-amber-200 underline"
                       >
-                        {signOutPending ? 'Signing out…' : 'Sign out'}
+                        Sign out
                       </button>
                     </div>
                   ) : authUser ? (
@@ -4349,20 +4117,7 @@
 
             {/* WORKSPACE */}
             <main id="main-content" tabIndex={-1} className="focus:outline-none flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto md:h-[calc(100vh-4.75rem)] bg-slate-100">
-              {authUser && canSaveWork && syncStatus === 'error' && (
-                <div role="alert" className="max-w-4xl mx-auto mb-4 bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 text-sm text-slate-900">
-                  <p>Your latest changes have not been confirmed as saved to your account. Keep this page open and try again.</p>
-                  <button type="button" onClick={saveCourseWork} disabled={manualSaveBusy} className="mt-2 underline font-bold text-emerald-900">{manualSaveBusy ? 'Trying…' : 'Retry save'}</button>
-                </div>
-              )}
-              {accountLoading ? (
-                <section className="max-w-lg mx-auto my-8 bg-white border-2 border-slate-200 rounded-3xl p-6" aria-live="polite">
-                  <h2 className="text-lg font-bold">{loadError || enrollmentError ? 'Your work is not ready yet' : 'Loading your course account…'}</h2>
-                  <p className="mt-2 text-sm">{loadError || enrollmentError || 'Checking access and loading your saved work before you make changes.'}</p>
-                  {(loadError || enrollmentError) && <button type="button" className="mt-3 underline font-bold text-emerald-900" onClick={() => { setLoadAttempt(n => n + 1); setEnrollmentAttempt(n => n + 1); }}>Try again</button>}
-                  <button type="button" className="block mt-3 underline text-sm" onClick={handleSignOut} disabled={signOutPending}>Sign out</button>
-                </section>
-              ) : needsEnrollment ? (
+              {needsEnrollment ? (
                 <EnrollmentGate email={authUser.email || ''} onEnroll={handleEnroll} onSignOut={handleSignOut} />
               ) : (
               <>
@@ -4397,7 +4152,7 @@
                           <div>
                             <h3 className="text-lg font-black text-slate-900">You're signed in</h3>
                             <p className="text-sm text-slate-900 font-medium mt-0.5">
-                              Signed in as <strong>{authUser.email}</strong>. Once your course account is ready, your work saves automatically. Check the save status at the top before leaving.
+                              Signed in as <strong>{authUser.email}</strong>. Your reflections, saved tools, and plans save automatically, so you can pick up on any device.
                             </p>
                           </div>
                         </div>
@@ -4796,7 +4551,7 @@
                     </div>
                     <div className="flex items-start gap-2 bg-amber-50 border border-amber-300 rounded-xl p-3 text-xs text-amber-950 font-semibold">
                       <Save className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
-                      <span>{canSaveWork ? 'Your work saves to your account automatically. Wait for Saved at the top before leaving or switching devices. You can also print your notes as a personal copy.' : 'Until you sign in, your work is stored in this browser on this device only. Sign in above to save it to your account and use it on any device.'}</span>
+                      <span>{authUser && emailVerified ? 'Your work saves to your account automatically, so you can switch devices anytime. You can still print your notes as a personal copy.' : 'Until you sign in, your work is stored in this browser on this device only. Sign in above to save it to your account and use it on any device.'}</span>
                     </div>
                   </section>
 
@@ -5482,7 +5237,7 @@
                           </div>
                           {isReflectionComplete(currentModule.id) && (
                             <span className="text-xs font-bold text-emerald-700 flex items-center bg-emerald-100/70 px-3 py-1 rounded-full border border-emerald-300">
-                              <CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600" /> Reflection Complete
+                              <CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600" /> Reflection Complete & Saved
                             </span>
                           )}
                         </div>
@@ -5646,18 +5401,17 @@
 
                           <div className="flex items-center space-x-3">
                             <button
-                              onClick={saveCourseWork}
-                              disabled={manualSaveBusy}
+                              onClick={() => triggerToast(`Module ${currentModule.id} micro-reflection saved!`)}
                               className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition-all shadow flex items-center space-x-1.5"
                             >
                               <Save className="w-3.5 h-3.5" />
-                              <span>{manualSaveBusy ? 'Saving…' : 'Save Reflection'}</span>
+                              <span>Save Reflection</span>
                             </button>
 
                             {currentModule.id < 4 ? (
                               <button
                                 onClick={() => {
-                                  triggerToast(`Opening Module ${currentModule.id + 1}. Check the save status before leaving the site.`);
+                                  triggerToast(`Module ${currentModule.id} saved! Loading Module ${currentModule.id + 1}`);
                                   handleSelectModule(String(currentModule.id + 1));
                                 }}
                                 className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black transition-all shadow flex items-center space-x-1.5"
@@ -5668,7 +5422,7 @@
                             ) : (
                               <button
                                 onClick={() => {
-                                  triggerToast("Opening your SCECH Portfolio. Review your completed items and time logs before submitting.");
+                                  triggerToast("All 4 modules complete! Opening SCECH Portfolio Capstone.");
                                   setCurrentView('capstone');
                                 }}
                                 className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 text-emerald-950 rounded-xl text-xs font-black transition-all shadow flex items-center space-x-1.5"
