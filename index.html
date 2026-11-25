@@ -349,7 +349,7 @@
     // =====================================================================
     const COURSE_CONFIG = {
       title: 'Tech the Halls: This or That!',
-      instructor: 'Anna Mccrumb',
+      instructor: 'Anna McCrumb',
       datesLabel: 'Dec 7 – Jan 8',
       startDate: '2026-12-07',
       endDate: '2027-01-08',
@@ -361,7 +361,7 @@
     // PRIVACY NOTE SETTINGS (shown on Start Here). Confirm these with your district.
     // =====================================================================
     const PRIVACY_CONFIG = {
-      contactName: 'Anna Mccrumb, REMC 12E',
+      contactName: 'Anna McCrumb, REMC 12E',
       contactEmail: '', // add an email address to show it in the privacy note
       retention: 'Course records are kept as long as needed for SCECH reporting and REMC 12E record-keeping, then deleted.'
     };
@@ -403,7 +403,7 @@
       creatorUrl: '', // add a web address to make the creator name a link
       licenseName: 'CC BY-NC-SA 4.0',
       licenseUrl: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
-      aiStatement: "This website was created by Anna Mccrumb for REMC 12E. AI tools (Google Gemini and Anthropic's Claude) assisted with writing code, page design, and drafting some text. Anna Mccrumb selected the tools and strategies, reviewed and edited the course content, and is responsible for its accuracy."
+      aiStatement: "This website was created by Anna McCrumb for REMC 12E. AI tools (Google Gemini and Anthropic's Claude) assisted with writing code, page design, and drafting some text. Anna McCrumb selected the tools and strategies, reviewed and edited the course content, and is responsible for its accuracy."
     };
 
     const SCECH_ITEMS = [
@@ -1957,7 +1957,7 @@
         title: "Classroom Tech & The 5E Model: Where Screens Soar vs. Where Paper Wins",
         navTitle: "4. Reflection on Classroom Tech",
         icon: TreePine,
-        tagline: "Engage, Explore, Explain, Elaborate, Evaluate: Selecting the Right Vehicle",
+        tagline: "Engage, Explore, Explain, Elaborate, Evaluate: Choose tools that meet the need",
         annasCorner: "Technology is a magnifier: it makes great pedagogy greater, but it also makes unfocused pedagogy faster. Let the 5E Instructional Model guide whether you need a digital simulation or a hands-on physical mystery box today!",
         theme: {
           name: "sugar-plum",
@@ -3363,6 +3363,28 @@
         if (typeof window !== 'undefined' && window.innerWidth < 768) setSidebarCollapsed(true);
       }, [currentView]);
 
+      // Page and step navigation starts at the top on desktop and mobile.
+      // Skip the initial render so sign-in and enrollment keep their own focus.
+      const previousNavigation = useRef({ view: currentView, step: moduleStep });
+      useEffect(() => {
+        const previous = previousNavigation.current;
+        previousNavigation.current = { view: currentView, step: moduleStep };
+        if (previous.view === currentView && previous.step === moduleStep) return;
+        const frame = window.requestAnimationFrame(() => {
+          const main = document.getElementById('main-content');
+          const heading = main && (main.querySelector('#module-step-heading') || main.querySelector('h1, h2, h3'));
+          if (heading) {
+            heading.setAttribute('tabindex', '-1');
+            heading.focus({ preventScroll: true });
+          } else if (main) {
+            main.focus({ preventScroll: true });
+          }
+          if (main) main.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        });
+        return () => window.cancelAnimationFrame(frame);
+      }, [currentView, moduleStep]);
+
       const toggleMotion = () => {
         setMotionOn(prev => {
           const next = !prev;
@@ -4495,9 +4517,6 @@
                     <p className="text-xs text-slate-800 font-medium leading-relaxed mb-4">
                       Earn up to 5 SCECHs: 1 for each module and 1 for the Final Reflection. For each one, finish the activity and log at least 1 hour in its time log. Work in any order, submit whenever you're ready, and resubmit to add more before Jan 8, 2027. Your SCECH count appears in the top bar.
                     </p>
-                    <div className="mb-4">
-                      <CapstoneAbout />
-                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
                       {modulesData.map(mod => (
                         <button
@@ -4526,6 +4545,9 @@
                           <div className="text-[0.8125rem] text-slate-800 font-medium">Turn in your notes and integration artifact.</div>
                         </div>
                       </button>
+                    </div>
+                    <div className="mb-4">
+                      <CapstoneAbout />
                     </div>
                     <div className="flex items-start gap-2 bg-amber-50 border border-amber-300 rounded-xl p-3 text-xs text-amber-950 font-semibold">
                       <Save className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
@@ -4671,6 +4693,7 @@
                   {/* STEP 0: HOLIDAY SHOWDOWN */}
                   {moduleStep === 0 && (
                     <div className="space-y-6 animate-in fade-in duration-200">
+                      <h3 id="module-step-heading" tabIndex={-1} className="sr-only">Holiday Showdown</h3>
                       
                       {/* Big Question Card */}
                       <div className="bg-gradient-to-br from-amber-50 via-white to-amber-50/50 rounded-3xl p-6 md:p-8 border-2 border-amber-300 shadow-sm">
@@ -5023,7 +5046,7 @@
                           </div>
                           <div>
                             <span className="text-[0.75rem] font-black uppercase tracking-widest text-amber-300">Cognitive Science & Balanced Research</span>
-                            <h3 className="text-xl md:text-2xl font-black text-white">The Science in 60 Seconds</h3>
+                            <h3 id="module-step-heading" tabIndex={-1} className="text-xl md:text-2xl font-black text-white">The Science in 60 Seconds</h3>
                           </div>
                         </div>
 
@@ -5210,7 +5233,7 @@
                             <span className="bg-red-600 text-white text-[0.75rem] font-black uppercase px-2.5 py-0.5 rounded-full">
                               SCECH Micro-Reflection
                             </span>
-                            <h3 className="text-lg font-black text-slate-900">Module {currentModule.id} Checkpoint</h3>
+                            <h3 id="module-step-heading" tabIndex={-1} className="text-lg font-black text-slate-900">Module {currentModule.id} Checkpoint</h3>
                           </div>
                           {isReflectionComplete(currentModule.id) && (
                             <span className="text-xs font-bold text-emerald-700 flex items-center bg-emerald-100/70 px-3 py-1 rounded-full border border-emerald-300">
@@ -5640,7 +5663,7 @@
                         <div>
                           <h3 className="text-lg font-black text-slate-900 flex items-center">
                             <FileText className="w-5 h-5 mr-2 text-emerald-600" />
-                            3. Compiled 3-Part Micro-Reflections
+                            3. Compiled 4-Part Micro-Reflections
                           </h3>
                           <p className="text-xs text-slate-700">Your structured selections and rationales from each module are assembled here.</p>
                         </div>
@@ -6609,7 +6632,7 @@
                         onChange={(e) => setPrintIncludeReflections(e.target.checked)}
                         className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
                       />
-                      <span>Include My 3-Part Micro-Reflections</span>
+                      <span>Include My 4-Part Micro-Reflections</span>
                     </label>
 
                     <label className="flex items-center space-x-2.5 text-xs text-slate-700 font-bold cursor-pointer">
@@ -6749,7 +6772,7 @@
 
                   {printIncludeReflections && r && (
                     <div className="border-t border-dashed border-slate-300 pt-2 text-xs">
-                      <span className="font-black text-slate-800 block text-[0.8125rem] uppercase mb-1">My 3-Part Micro-Reflection:</span>
+                      <span className="font-black text-slate-800 block text-[0.8125rem] uppercase mb-1">My 4-Part Micro-Reflection:</span>
                       <div className="mb-1"><strong>Need:</strong> {r.need === 'Other' ? r.needCustom : r.need || 'None'}</div>
                       <div className="grid grid-cols-2 gap-2 mb-1">
                         <div><strong>Pixels Tool ("THIS"):</strong> {r.digital === 'Other' ? r.digitalCustom : r.digital || 'None'}</div>
